@@ -3,7 +3,7 @@ them; admins manage apps, members and keys; the app's clients use an app key."""
 
 from sqlalchemy import update
 
-from creative.db.tables import AppMember
+from studio.db.tables import AppMember
 from tests.conftest import (
     GHIBLI,
     TESTER,

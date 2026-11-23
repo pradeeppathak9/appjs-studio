@@ -3,7 +3,7 @@
 import pytest
 from fastapi.routing import APIRoute
 
-from creative.api import (
+from studio.api import (
     admin,
     admin_endusers,
     assets,
@@ -14,8 +14,8 @@ from creative.api import (
     meta,
     templates,
 )
-from creative.auth.service import AppRole, Role
-from creative.deps import AppKeyDep, AppRoleDep, AppUserDep, RoleDep
+from studio.auth.service import AppRole, Role
+from studio.deps import AppKeyDep, AppRoleDep, AppUserDep, RoleDep
 from tests.conftest import create_template, image_bytes, join, make_app, run_worker_once, signed_in
 
 ROUTERS = [

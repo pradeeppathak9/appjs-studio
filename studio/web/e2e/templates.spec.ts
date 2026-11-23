@@ -200,7 +200,7 @@ test("tester sees only active templates, runs one and sees only their own jobs",
   await page.locator('input[type="file"]').setInputFiles(PHOTO);
   await page.getByRole("combobox", { name: "Mood" }).click();
   await page.getByRole("option", { name: "rainy" }).click();
-  await expect(page.getByText("$CREATIVE_TOKEN")).toBeVisible();
+  await expect(page.getByText("$STUDIO_TOKEN")).toBeVisible();
   await expect(page.getByText(`/v1/apps/${appId}/templates/${slug}/generations`)).toBeVisible();
   await page.getByRole("button", { name: "Run", exact: true }).click();
 

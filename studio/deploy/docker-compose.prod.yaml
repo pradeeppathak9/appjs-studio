@@ -10,7 +10,7 @@
 # from `studio-web` (the console, whose nginx also proxies /v1 to the API) and RESTYLE_DOMAIN from
 # `restyle-web` (whose nginx proxies only /v1/app): both are aliases on the `appjs` network. Nothing
 # here publishes a port.
-name: creative
+name: studio
 
 x-app: &app
   image: ${STUDIO_IMAGE:?set STUDIO_IMAGE in .env}:${TAG:-latest}
@@ -18,7 +18,7 @@ x-app: &app
   environment:
     DATABASE_URL: postgresql://studio:${STUDIO_DB_PASSWORD:?set STUDIO_DB_PASSWORD (same as infra)}@postgres:5432/appjs
     DATA_DIR: /app/data
-    COOKIE_SECURE: "true"
+    COOKIE_SECURE: ${COOKIE_SECURE:-true}
   volumes:
     - ./data:/app/data # uploads, inputs and generated images: back this up with the database
   user: "10001:10001" # the image's app user; ./data must belong to it (see README)
@@ -28,16 +28,16 @@ x-app: &app
 services:
   migrate:
     <<: *app
-    command: ["creative", "db", "upgrade"]
+    command: ["studio", "db", "upgrade"]
     restart: "no"
 
   api:
     <<: *app
-    command: ["creative", "serve"]
+    command: ["studio", "serve"]
     environment:
       DATABASE_URL: postgresql://studio:${STUDIO_DB_PASSWORD:?set STUDIO_DB_PASSWORD (same as infra)}@postgres:5432/appjs
       DATA_DIR: /app/data
-      COOKIE_SECURE: "true"
+      COOKIE_SECURE: ${COOKIE_SECURE:-true}
       WORKER_ENABLED: "false"
       FORWARDED_ALLOW_IPS: "*"
     healthcheck:
@@ -53,9 +53,9 @@ services:
 
   worker:
     <<: *app
-    command: ["creative", "worker"]
+    command: ["studio", "worker"]
     healthcheck:
-      test: ["CMD", "creative", "health"]
+      test: ["CMD", "studio", "health"]
       interval: 15s
       timeout: 10s
       retries: 3
@@ -66,6 +66,8 @@ services:
 
   web:
     image: ${STUDIO_WEB_IMAGE:?set STUDIO_WEB_IMAGE in .env}:${TAG:-latest}
+    ports:
+      - "${WEB_BIND:-127.0.0.1}:${WEB_PORT:-8080}:80"
     depends_on:
       api: {condition: service_healthy}
     networks:
@@ -77,6 +79,8 @@ services:
   # the page, like in the APK).
   restyle-web:
     image: ${RESTYLE_WEB_IMAGE:-ghcr.io/pradeeppathak9/restyle-web}:${RESTYLE_TAG:-latest}
+    ports:
+      - "${RESTYLE_BIND:-127.0.0.1}:${RESTYLE_PORT:-8081}:80"
     environment:
       APP_KEY: ${RESTYLE_APP_KEY:-}
       STUDIO_API: http://api:8000

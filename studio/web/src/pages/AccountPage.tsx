@@ -90,7 +90,7 @@ function Tokens() {
             <CopyBlock value={created.token} testId="new-token" />
             <CopyBlock
               label="Example"
-              value={`export CREATIVE_TOKEN=${created.token}\ncurl -H "Authorization: Bearer $CREATIVE_TOKEN" ${window.location.origin}/v1/apps`}
+              value={`export STUDIO_TOKEN=${created.token}\ncurl -H "Authorization: Bearer $STUDIO_TOKEN" ${window.location.origin}/v1/apps`}
             />
             <Button onClick={close}>Done</Button>
           </Stack>

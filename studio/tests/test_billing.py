@@ -6,8 +6,8 @@ from datetime import UTC, datetime, timedelta
 
 from sqlalchemy import text
 
-from creative.endusers.billing import add_months
-from creative.endusers.credits import refund_failed
+from studio.endusers.billing import add_months
+from studio.endusers.credits import refund_failed
 from tests.conftest import (
     GHIBLI,
     app_client,
@@ -363,7 +363,7 @@ def test_add_months_clamps_to_the_month_end():
 
 
 async def test_workers_run_the_monthly_grants(app, state, admin):
-    from creative.main import make_worker
+    from studio.main import make_worker
 
     c = await setup_app(app, state)
     plan = (await admin.post(f"/v1/admin/apps/{c.app_row.id}/plans", json=YEARLY)).json()

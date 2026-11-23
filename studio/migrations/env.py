@@ -4,10 +4,10 @@ from alembic import context
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import create_async_engine
 
-from creative.config import Settings
-from creative.db.tables import Base
+from studio.config import Settings
+from studio.db.tables import Base
 
-# Any constant; serialises concurrent `creative db upgrade` runs.
+# Any constant; serialises concurrent `studio db upgrade` runs.
 MIGRATION_LOCK_ID = 7_360_112_001
 
 config = context.config

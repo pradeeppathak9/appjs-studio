@@ -7,30 +7,37 @@ services:
   backend:
     build: ./backend
     ports:
-      - "8000:8000"
+      - "${BACKEND_BIND:-127.0.0.1}:${BACKEND_PORT:-8000}:8000"
     environment:
       AUTOREV_DATABASE_URL: ${AUTOREV_DATABASE_URL}
       AUTOREV_REDIS_URL: ${AUTOREV_REDIS_URL:-redis://redis:6379/0}
-      AUTOREV_SECRET_KEY: change-me-in-production
-      AUTOREV_CELERY_BROKER_URL: ${CELERY_BROKER_URL:-amqp://celery:celery_mq_pass@rabbitmq:5672//}
+      AUTOREV_SECRET_KEY: ${AUTOREV_SECRET_KEY:-change-me-in-production}
+      AUTOREV_ADMIN_EMAIL: ${AUTOREV_ADMIN_EMAIL:-admin@autorev.app}
+      AUTOREV_ADMIN_PASSWORD: ${AUTOREV_ADMIN_PASSWORD:-change-me-in-production}
+      AUTOREV_CELERY_BROKER_URL: ${CELERY_BROKER_URL:-redis://redis:6379/1}
       CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:3000}
     networks:
       default:
       appjs: {aliases: [autorev-api]}
     volumes:
       - ./backend:/app
+    restart: unless-stopped
 
   frontend:
-    # Static build served by nginx. For live reload while developing, run `npm run dev` in
-    # frontend/ instead (http://localhost:3000).
+    # Static build served by nginx (which also proxies /api/* to backend). For live reload while
+    # developing, run `npm run dev` in frontend/ instead (http://localhost:3000).
     build:
       context: ./frontend
       args:
         VITE_API_URL: ${VITE_API_URL:-http://localhost:8000}
     ports:
-      - "3000:80"
+      - "${FRONTEND_BIND:-127.0.0.1}:${FRONTEND_PORT:-3000}:80"
     depends_on:
       - backend
+    networks:
+      default:
+      appjs: {aliases: [autorev-web]}
+    restart: unless-stopped
 
 networks:
   appjs:

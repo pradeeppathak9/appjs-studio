@@ -37,6 +37,15 @@ def _razorpay_apps(db):
 
 
 def _for_each_app(name: str, fn):
+    db = SessionLocal()
+    try:
+        apps = _razorpay_apps(db)
+    finally:
+        db.close()
+    if not apps:
+        logger.info(f"{name}: no Razorpay-enabled apps with credentials, skipping")
+        return
+
     with _single_flight(f"lock:{name}", LOCK_TTL_SECONDS) as acquired:
         if not acquired:
             logger.info(f"{name}: another run holds the lock, skipping")

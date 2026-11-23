@@ -18,6 +18,8 @@ AVAILABLE_TASKS = [
     "phonepe-sync-total-payments",
     "phonepe-archive-failed-subscriptions",
     "phonepe-revoke-duplicate-subscriptions",
+    "razorpay-collect-due",
+    "razorpay-reconcile",
     "autorev-webhook-maintenance",
 ]
 

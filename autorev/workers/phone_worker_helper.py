@@ -297,6 +297,15 @@ def _get_all_phonepe_apps(db: Session) -> list[tuple[App, PhonePeApp]]:
     return rows
 
 
+def _has_phonepe_apps() -> bool:
+    """True when at least one enabled app has PhonePe turned on with credentials."""
+    db = SessionLocal()
+    try:
+        return bool(_get_all_phonepe_apps(db))
+    finally:
+        db.close()
+
+
 # ── Tasks ──────────────────────────────────────────────────────────────────────
 
 def _fetch_one_state(sub_id: str, handler: PhonePeAPIHandler) -> tuple[str, str | None, str | None]:
@@ -640,6 +649,9 @@ def _notify_redemption_for_due_subscriptions():
     if not _is_non_peak_hour():
         logger.info("Skipping: outside non-peak IST hours")
         return
+    if not _has_phonepe_apps():
+        logger.info("No PhonePe-enabled apps with credentials, nothing to notify")
+        return
 
     with _single_flight(NOTIFY_LOCK_KEY, NOTIFY_LOCK_TTL_SECONDS) as acquired:
         if not acquired:
@@ -656,6 +668,9 @@ def _notify_due_locked():
     try:
         app_pairs = _get_all_phonepe_apps(db)
         app_detail_map = {detail.app_id: (app, detail) for app, detail in app_pairs}
+        if not app_detail_map:
+            logger.info("No PhonePe-enabled apps with credentials, nothing to notify")
+            return
 
         due_ms = _today_end_ms()
         sched_items = (
@@ -1058,6 +1073,9 @@ def _sync_scheduled_transactions():
     and both debit them, since attempts is only incremented after the call returns.
     """
     logger.info("Starting: _sync_scheduled_transactions")
+    if not _has_phonepe_apps():
+        logger.info("No PhonePe-enabled apps with credentials, nothing to sync")
+        return
     with _single_flight(SYNC_SCHED_LOCK_KEY, SYNC_SCHED_LOCK_TTL_SECONDS) as acquired:
         if not acquired:
             logger.warning(
@@ -1231,6 +1249,9 @@ def _revoke_duplicate_active_subscriptions():
     once rather than once per mandate.
     """
     logger.info("Starting: _revoke_duplicate_active_subscriptions")
+    if not _has_phonepe_apps():
+        logger.info("No PhonePe-enabled apps with credentials, nothing to do")
+        return
     with _single_flight(REVOKE_DUPES_LOCK_KEY, REVOKE_DUPES_LOCK_TTL_SECONDS) as acquired:
         if not acquired:
             logger.warning("Another _revoke_duplicate_active_subscriptions run is in flight, skipping")
@@ -1380,6 +1401,9 @@ def _advance_payment_dates():
     try:
         app_pairs = _get_all_phonepe_apps(db)
         app_id_set = {detail.app_id for _, detail in app_pairs}
+        if not app_id_set:
+            logger.info("No PhonePe-enabled apps with credentials, nothing to advance")
+            return
 
         today_ms = _date_to_epoch_ms(datetime.now(timezone.utc).date())
 
@@ -1472,6 +1496,9 @@ def _ensure_scheduled_transactions():
     try:
         app_pairs = _get_all_phonepe_apps(db)
         app_id_set = {detail.app_id for _, detail in app_pairs}
+        if not app_id_set:
+            logger.info("No PhonePe-enabled apps with credentials, nothing to schedule")
+            return
 
         subs = (
             db.query(
@@ -1641,6 +1668,10 @@ def _archive_failed_subscriptions():
     db = SessionLocal()
     archived = 0
     try:
+        if not _get_all_phonepe_apps(db):
+            logger.info("No PhonePe-enabled apps with credentials, nothing to archive")
+            return
+
         # Batched set-based moves. The previous version fetched every matching row
         # (51,391 on 2026-09-04), then did an ORM insert + cascade delete + COMMIT
         # per row — one transaction per subscription, which could not keep up with

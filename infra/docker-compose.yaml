@@ -52,36 +52,22 @@ services:
     networks: [appjs]
     restart: unless-stopped
 
-  # autorev's Celery broker
-  rabbitmq:
-    image: rabbitmq:3-management-alpine
-    environment:
-      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER:-celery}
-      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD:?set RABBITMQ_PASSWORD in .env}
-    volumes:
-      - rabbitmqdata:/var/lib/rabbitmq
-    ports:
-      - "${RABBITMQ_BIND:-127.0.0.1}:15672:15672" # management UI
-    healthcheck:
-      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
-      interval: 10s
-      timeout: 10s
-      retries: 6
-    networks: [appjs]
-    restart: unless-stopped
-
   # HTTPS for every public domain (caddy/Caddyfile). Servers only: `--profile edge`.
   caddy:
     image: caddy:2
     profiles: [edge]
     environment:
+      APPJS_DOMAIN: ${APPJS_DOMAIN:-appjs.localhost}
       STUDIO_DOMAIN: ${STUDIO_DOMAIN:-studio.localhost}
+      STUDIO_API_DOMAIN: ${STUDIO_API_DOMAIN:-api.localhost}
       RESTYLE_DOMAIN: ${RESTYLE_DOMAIN:-restyle.localhost}
+      AUTOREV_DOMAIN: ${AUTOREV_DOMAIN:-autorev.localhost}
     ports:
       - "80:80"
       - "443:443"
     volumes:
       - ./caddy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - ../website:/srv/website:ro
       - caddy_data:/data # certificates: keep this volume
       - caddy_config:/config
     networks: [appjs]
@@ -94,6 +80,5 @@ networks:
 volumes:
   pgdata: {}
   redisdata: {}
-  rabbitmqdata: {}
   caddy_data: {}
   caddy_config: {}

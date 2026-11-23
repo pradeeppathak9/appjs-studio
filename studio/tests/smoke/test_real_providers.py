@@ -6,9 +6,9 @@ import os
 import httpx
 import pytest
 
-from creative.config import Settings
-from creative.providers.base import GenerationRequest, InputImage, MediaType
-from creative.providers.registry import ProviderRegistry
+from studio.config import Settings
+from studio.providers.base import GenerationRequest, InputImage, MediaType
+from studio.providers.registry import ProviderRegistry
 from tests.conftest import image_bytes
 
 pytestmark = pytest.mark.smoke

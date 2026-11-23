@@ -7,7 +7,7 @@ export function templateCurl(opts: {
   variables?: Record<string, string>;
   model?: string | null;
 }): string {
-  const lines = [`curl -H "Authorization: Bearer $CREATIVE_TOKEN"`];
+  const lines = [`curl -H "Authorization: Bearer $STUDIO_TOKEN"`];
   for (const s of opts.slots) lines.push(`-F ${s.name}=@${s.fileName || `${s.name}.jpg`}`);
   if (opts.variables && Object.keys(opts.variables).length) {
     lines.push(`-F 'variables=${JSON.stringify(opts.variables).replace(/'/g, "'\\''")}'`);

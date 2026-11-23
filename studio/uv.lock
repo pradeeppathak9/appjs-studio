@@ -430,67 +430,6 @@ wheels = [
 ]
 
 [[package]]
-name = "creative"
-version = "0.1.0"
-source = { editable = "." }
-dependencies = [
-    { name = "alembic" },
-    { name = "argon2-cffi" },
-    { name = "asyncpg" },
-    { name = "email-validator" },
-    { name = "fal-client" },
-    { name = "fastapi" },
-    { name = "google-auth" },
-    { name = "google-genai" },
-    { name = "httpx" },
-    { name = "openai" },
-    { name = "pillow" },
-    { name = "pydantic" },
-    { name = "pydantic-settings" },
-    { name = "python-multipart" },
-    { name = "pyyaml" },
-    { name = "sqlalchemy", extra = ["asyncio"] },
-    { name = "uvicorn", extra = ["standard"] },
-]
-
-[package.dev-dependencies]
-dev = [
-    { name = "pytest" },
-    { name = "pytest-asyncio" },
-    { name = "respx" },
-    { name = "ruff" },
-]
-
-[package.metadata]
-requires-dist = [
-    { name = "alembic", specifier = ">=1.13" },
-    { name = "argon2-cffi", specifier = ">=23.1" },
-    { name = "asyncpg", specifier = ">=0.29" },
-    { name = "email-validator", specifier = ">=2.1" },
-    { name = "fal-client", specifier = ">=0.4" },
-    { name = "fastapi", specifier = ">=0.115" },
-    { name = "google-auth", specifier = ">=2.30" },
-    { name = "google-genai", specifier = ">=1.0" },
-    { name = "httpx", specifier = ">=0.27" },
-    { name = "openai", specifier = ">=1.40" },
-    { name = "pillow", specifier = ">=10.3" },
-    { name = "pydantic", specifier = ">=2.7" },
-    { name = "pydantic-settings", specifier = ">=2.3" },
-    { name = "python-multipart", specifier = ">=0.0.9" },
-    { name = "pyyaml", specifier = ">=6.0" },
-    { name = "sqlalchemy", extras = ["asyncio"], specifier = ">=2.0.30" },
-    { name = "uvicorn", extras = ["standard"], specifier = ">=0.30" },
-]
-
-[package.metadata.requires-dev]
-dev = [
-    { name = "pytest", specifier = ">=8.2" },
-    { name = "pytest-asyncio", specifier = ">=0.23" },
-    { name = "respx", specifier = ">=0.21" },
-    { name = "ruff", specifier = ">=0.5" },
-]
-
-[[package]]
 name = "cryptography"
 version = "50.0.2"
 source = { registry = "https://pypi.org/simple" }
@@ -1750,6 +1689,67 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/48/bb/3d8757f21e9a53d9035c9eb039a777047139a16bfdbedfc7a58241c3d914/starlette-1.10.0.tar.gz", hash = "sha256:b8399098d4c1e3522734f7235dc79b1fc967f96cf139c81e0fa30479e0685f9b", size = 2734356, upload-time = "2026-10-24T15:04:12.342Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/88/2e/947cfe02def9371c07cd5bf5b6b61c829e9aecb9904db02a66cfafbc1eec/starlette-1.10.0-py3-none-any.whl", hash = "sha256:478c0ab3b4ced6e82719849c118fa406f0278a3499c1a898cd15cd31bdc38ce4", size = 80571, upload-time = "2026-10-24T15:04:10.371Z" },
+]
+
+[[package]]
+name = "studio"
+version = "0.1.0"
+source = { editable = "." }
+dependencies = [
+    { name = "alembic" },
+    { name = "argon2-cffi" },
+    { name = "asyncpg" },
+    { name = "email-validator" },
+    { name = "fal-client" },
+    { name = "fastapi" },
+    { name = "google-auth" },
+    { name = "google-genai" },
+    { name = "httpx" },
+    { name = "openai" },
+    { name = "pillow" },
+    { name = "pydantic" },
+    { name = "pydantic-settings" },
+    { name = "python-multipart" },
+    { name = "pyyaml" },
+    { name = "sqlalchemy", extra = ["asyncio"] },
+    { name = "uvicorn", extra = ["standard"] },
+]
+
+[package.dev-dependencies]
+dev = [
+    { name = "pytest" },
+    { name = "pytest-asyncio" },
+    { name = "respx" },
+    { name = "ruff" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "alembic", specifier = ">=1.13" },
+    { name = "argon2-cffi", specifier = ">=23.1" },
+    { name = "asyncpg", specifier = ">=0.29" },
+    { name = "email-validator", specifier = ">=2.1" },
+    { name = "fal-client", specifier = ">=0.4" },
+    { name = "fastapi", specifier = ">=0.115" },
+    { name = "google-auth", specifier = ">=2.30" },
+    { name = "google-genai", specifier = ">=1.0" },
+    { name = "httpx", specifier = ">=0.27" },
+    { name = "openai", specifier = ">=1.40" },
+    { name = "pillow", specifier = ">=10.3" },
+    { name = "pydantic", specifier = ">=2.7" },
+    { name = "pydantic-settings", specifier = ">=2.3" },
+    { name = "python-multipart", specifier = ">=0.0.9" },
+    { name = "pyyaml", specifier = ">=6.0" },
+    { name = "sqlalchemy", extras = ["asyncio"], specifier = ">=2.0.30" },
+    { name = "uvicorn", extras = ["standard"], specifier = ">=0.30" },
+]
+
+[package.metadata.requires-dev]
+dev = [
+    { name = "pytest", specifier = ">=8.2" },
+    { name = "pytest-asyncio", specifier = ">=0.23" },
+    { name = "respx", specifier = ">=0.21" },
+    { name = "ruff", specifier = ">=0.5" },
 ]
 
 [[package]]

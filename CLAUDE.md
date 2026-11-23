@@ -3,8 +3,9 @@
 Two independent services and an Android client in one git repo. Each has its own CLAUDE.md, which Claude loads when working
 in that folder: read it before changing the service.
 
-- `infra/`: shared Postgres (database `appjs`, a schema + login role per app), Redis, RabbitMQ, Caddy.
+- `infra/`: shared Postgres (database `appjs`, a schema + login role per app), Redis, Caddy.
   Start it before any app. New app: `docker compose exec postgres /scripts/add-app.sh <name> <pw>`.
+- `website/`: APPJS Technologies company site (`index.html`), served at `appjs.tech` by Caddy.
 - `studio/`: AppJs Studio. Python via `uv` (pyproject), Alembic migrations, `web/` console.
 - `restyle/`: Restyle, the Android app on Studio. Gradle (`./gradlew assembleDebug`, JDK from Android
   Studio); `local.properties` (gitignored) holds its Studio app key and Google client id. It follows

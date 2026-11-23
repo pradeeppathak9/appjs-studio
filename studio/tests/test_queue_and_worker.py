@@ -3,9 +3,9 @@ import uuid
 
 from sqlalchemy import text
 
-from creative.db.tables import Asset, Job
-from creative.jobs.repository import Lease
-from creative.main import make_worker
+from studio.db.tables import Asset, Job
+from studio.jobs.repository import Lease
+from studio.main import make_worker
 from tests.conftest import run_worker_once
 
 

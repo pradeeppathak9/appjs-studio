@@ -3,7 +3,7 @@ from datetime import timedelta
 
 from sqlalchemy import update
 
-from creative.db.tables import Session
+from studio.db.tables import Session
 from tests.conftest import ADMIN, SETUP_TOKEN, TESTER, client, signed_in
 
 SETUP = {"setup_token": SETUP_TOKEN, "email": ADMIN[0], "name": ADMIN[1], "password": ADMIN[2]}

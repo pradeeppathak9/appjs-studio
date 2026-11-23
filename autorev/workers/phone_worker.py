@@ -7,7 +7,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from celery import Celery
 from celery.schedules import crontab
 
-CELERY_BROKER_URL = os.environ.get("CELERY_BROKER_URL", "amqp://celery:celery_mq_pass@rabbitmq:5672//")
+CELERY_BROKER_URL = os.environ.get("CELERY_BROKER_URL", "redis://redis:6379/1")
 
 celery_app = Celery("phone_worker", broker=CELERY_BROKER_URL)
 

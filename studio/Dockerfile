@@ -6,7 +6,7 @@ ENV UV_COMPILE_BYTECODE=1 UV_LINK_MODE=copy UV_PYTHON_DOWNLOADS=never
 WORKDIR /app
 COPY pyproject.toml uv.lock ./
 RUN uv sync --frozen --no-dev --no-install-project
-COPY creative ./creative
+COPY studio ./studio
 COPY migrations ./migrations
 COPY alembic.ini README.md ./
 RUN uv sync --frozen --no-dev
@@ -20,4 +20,4 @@ COPY --from=build --chown=app:app /app /app
 ENV PATH="/app/.venv/bin:$PATH" PYTHONUNBUFFERED=1 DATA_DIR=/app/data
 USER app
 EXPOSE 8000
-CMD ["creative", "serve"]
+CMD ["studio", "serve"]

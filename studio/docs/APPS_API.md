@@ -240,7 +240,7 @@ Every error is JSON: `{"error": {"code": "...", "message": "...", "field": "..."
 val client = OkHttpClient.Builder()
     .addInterceptor { chain ->
         val req = chain.request().newBuilder()
-            .header("X-App-Key", BuildConfig.CREATIVE_APP_KEY)
+            .header("X-App-Key", BuildConfig.STUDIO_APP_KEY)
             .header("X-Device-Id", installId)          // UUID generated once, stored in prefs
         session.token?.let { req.header("Authorization", "Bearer $it") }   // after sign-in
         val res = chain.proceed(req.build())

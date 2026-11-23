@@ -5,13 +5,12 @@ Shared infrastructure for the appjs services, the same locally and on servers.
 | Service | For | Reach it (Docker network `appjs`) | Host port (127.0.0.1) |
 |---|---|---|---|
 | Postgres 17 | studio, autorev | `postgres:5432`, database `appjs` | 5432 |
-| Redis 7 | autorev (db 0) | `redis:6379` | 6379 |
-| RabbitMQ 3 | autorev's Celery | `rabbitmq:5672` | 15672 (management UI) |
+| Redis 7 | autorev (db 0, Celery broker db 1) | `redis:6379` | 6379 |
 | Caddy 2 | HTTPS for public domains (servers: `--profile edge`) | | 80, 443 (public) |
 
 ```bash
 cp .env.example .env               # development defaults are fine locally
-docker compose up -d               # postgres, redis, rabbitmq
+docker compose up -d               # postgres, redis
 docker compose --profile edge up -d   # servers: + caddy
 ```
 
@@ -65,6 +64,7 @@ docker compose exec -T postgres pg_dump -U postgres -Fc appjs > appjs-$(date +%F
 ## Caddy (servers)
 
 [`caddy/Caddyfile`](caddy/Caddyfile) lists the public sites; domains come from `.env`
-(`STUDIO_DOMAIN`, `RESTYLE_DOMAIN`). Each upstream is a network alias that the app's compose file sets
-on the `appjs` network (`studio-web`, `restyle-web`). A new site is a block in the Caddyfile plus an
-alias in the app's compose, then `docker compose --profile edge up -d caddy`.
+(`APPJS_DOMAIN`, `STUDIO_DOMAIN`, `STUDIO_API_DOMAIN`, `RESTYLE_DOMAIN`). `APPJS_DOMAIN` serves the static
+company site from `../website`; the other sites proxy to network aliases that each app's
+compose file sets on the `appjs` network (`studio-web`, `studio-api`, `restyle-web`). A new site is a
+block in the Caddyfile plus an alias in the app's compose, then `docker compose --profile edge up -d caddy`.

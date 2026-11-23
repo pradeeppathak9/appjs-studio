@@ -60,7 +60,7 @@ const TAB_ICONS: Record<string, typeof IconLayoutGrid> = {
   settings: IconSettings,
 };
 
-const COLLAPSE_KEY = "creative-navbar-collapsed";
+const COLLAPSE_KEY = "studio-navbar-collapsed";
 
 function readCollapsed(): boolean {
   try {

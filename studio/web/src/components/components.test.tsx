@@ -46,7 +46,7 @@ describe("RunTemplateForm", () => {
     const fetchMock = vi.fn();
     vi.stubGlobal("fetch", fetchMock);
     renderWithApp(<RunTemplateForm template={template} onJob={() => {}} />, { me: user, app: appAs("tester") });
-    expect(screen.getByText(/\$CREATIVE_TOKEN/)).toBeInTheDocument();
+    expect(screen.getByText(/\$STUDIO_TOKEN/)).toBeInTheDocument();
     expect(screen.getByText(/\/v1\/apps\/a1\/templates\/cartoon\/generations/)).toBeInTheDocument();
     await userEvent.click(screen.getByRole("button", { name: "Run" }));
     expect(await screen.findByText("Choose an image")).toBeInTheDocument();

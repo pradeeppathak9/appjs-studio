@@ -1,8 +1,8 @@
 import pytest
 
-from creative.errors import ValidationFailed
-from creative.templates.models import Variable
-from creative.templates.render import render, resolve_values
+from studio.errors import ValidationFailed
+from studio.templates.models import Variable
+from studio.templates.render import render, resolve_values
 from tests.conftest import GHIBLI, create_template, image_bytes, run_worker_once
 
 # ---- rendering ---------------------------------------------------------------------------------

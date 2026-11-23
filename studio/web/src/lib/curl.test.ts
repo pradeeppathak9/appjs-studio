@@ -11,7 +11,7 @@ describe("templateCurl", () => {
       variables: { mood: "it's rainy" },
       model: "m2",
     });
-    expect(c).toContain('-H "Authorization: Bearer $CREATIVE_TOKEN"');
+    expect(c).toContain('-H "Authorization: Bearer $STUDIO_TOKEN"');
     expect(c).toContain("-F photo=@me.png");
     expect(c).toContain(`-F 'variables={"mood":"it'\\''s rainy"}'`);
     expect(c).toContain("-F model=m2");

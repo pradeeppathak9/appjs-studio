@@ -1,5 +1,5 @@
 [project]
-name = "creative"
+name = "studio"
 version = "0.1.0"
 description = "Prompt- and template-driven image/video generation service"
 readme = "README.md"
@@ -25,7 +25,7 @@ dependencies = [
 ]
 
 [project.scripts]
-creative = "creative.cli:main"
+studio = "studio.cli:main"
 
 [dependency-groups]
 dev = [
@@ -40,10 +40,10 @@ requires = ["setuptools>=69"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools.packages.find]
-include = ["creative*"]
+include = ["studio*"]
 
 [tool.setuptools.package-data]
-"creative.providers" = ["*.yaml"]
+"studio.providers" = ["*.yaml"]
 
 [tool.ruff]
 line-length = 110

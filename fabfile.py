@@ -37,8 +37,8 @@ from invoke.exceptions import Exit
 # e.g. "staging", and pick one with `fab <task> --target staging`.
 TARGETS: dict[str, dict] = {
     "prod": {
-        "host": "",  # e.g. "203.0.113.10" or "studio.example.com"
-        "user": "",  # e.g. "deploy"
+        "host": "143.110.178.170",
+        "user": "ppathak",
         "port": 22,
         "repo_dir": "~/appjs",
         "branch": "main",
@@ -90,8 +90,36 @@ def _repo(cfg: dict, sub: str = "") -> str:
     return f"{cfg['repo_dir'].rstrip('/')}/{sub}".rstrip("/")
 
 
+def _rsync_repo(conn: Connection, cfg: dict) -> None:
+    """Sync the local working copy (including .git, excluding .env/data/caches) to the server."""
+    local = Context()
+    user_Prefix = f"{conn.user}@" if conn.user else ""
+    dest = f"{user_Prefix}{conn.host}:{_repo(cfg)}/"
+    local.run(
+        f"rsync -az --no-owner --no-group --delete "
+        f"-e 'ssh -p {int(conn.port or 22)}' "
+        "--include '.env.example' --exclude '.env' --exclude '.env.*' "
+        "--exclude 'node_modules' --exclude '.venv' --exclude '__pycache__' "
+        "--exclude '.pytest_cache' --exclude 'studio/data' --exclude 'studio/deploy/data' "
+        "--exclude 'restyle/build' --exclude 'restyle/app/build' --exclude 'restyle/.gradle' "
+        "--exclude 'backups' "
+        f"./ {shlex.quote(dest)}"
+    )
+
+
 def _update_code(conn: Connection, cfg: dict) -> None:
     branch = shlex.quote(cfg["branch"])
+    can_pull = conn.run(
+        "GIT_SSH_COMMAND='ssh -o BatchMode=yes -o StrictHostKeyChecking=accept-new' "
+        f"git -C {_repo(cfg)} ls-remote origin HEAD >/dev/null 2>&1",
+        warn=True,
+        hide=True,
+    ).ok
+    if not can_pull:
+        _rsync_repo(conn, cfg)
+        with conn.cd(_repo(cfg)):
+            conn.run("git log -1 --oneline")
+        return
     with conn.cd(_repo(cfg)):
         conn.run("git fetch --prune origin")
         conn.run(f"git checkout {branch}")
@@ -114,17 +142,33 @@ def check(c, target="prod"):
     conn.run("df -h / | tail -1")
 
 
-@task(help={"target": "Server name from TARGETS (default: prod)"})
-def bootstrap(c, target="prod"):
-    """First setup: clone the repo, create each .env from its example, create Studio's data dir.
+@task(
+    help={
+        "target": "Server name from TARGETS (default: prod)",
+        "sync_local": "Sync local repo over rsync when server has no GitHub deploy key (default: auto)",
+    }
+)
+def bootstrap(c, target="prod", sync_local=None):
+    """First setup: clone (or rsync) the repo, create each .env from its example, create Studio's data dir.
 
-    The server needs Docker with the compose plugin, and read access to the GitHub repo (a deploy key).
-    Edit the created .env files on the server before the first deploy.
+    The server needs Docker with the compose plugin, and read access to the GitHub repo (a deploy key)
+    or local rsync fallback. Edit the created .env files on the server before the first deploy.
     """
     conn, cfg = _conn(c, target)
     repo = _repo(cfg)
     if conn.run(f"test -d {repo}/.git", warn=True, hide=True).failed:
-        conn.run(f"git clone --branch {shlex.quote(cfg['branch'])} {REPO_URL} {repo}")
+        if sync_local is None:
+            can_clone = conn.run(
+                "GIT_SSH_COMMAND='ssh -o BatchMode=yes -o StrictHostKeyChecking=accept-new' "
+                f"git ls-remote {REPO_URL} HEAD >/dev/null 2>&1",
+                warn=True,
+                hide=True,
+            ).ok
+            sync_local = not can_clone
+        if sync_local:
+            _rsync_repo(conn, cfg)
+        else:
+            conn.run(f"git clone --branch {shlex.quote(cfg['branch'])} {REPO_URL} {repo}")
     else:
         _update_code(conn, cfg)
 
@@ -137,7 +181,7 @@ def bootstrap(c, target="prod"):
             print(f"{env_file}: {'created from ' + example if created else 'already there, left alone'}")
         # The Studio image's app user (uid 10001) writes uploads and results here.
         conn.run("mkdir -p studio/deploy/data")
-        conn.run("sudo chown 10001:10001 studio/deploy/data", pty=True, warn=True)
+        conn.run("docker run --rm -v \"$PWD/studio/deploy/data:/data\" alpine chown -R 10001:10001 /data")
 
     print(
         "\nNext, on the server:\n"
@@ -172,17 +216,31 @@ def build_studio(c, tag="", platform=PLATFORM):
 
 
 # ── Tasks: deploy (the server) ───────────────────────────────────────────────────────────────
-@task(help={"target": "Server name from TARGETS (default: prod)", "pull": "git pull first (default: yes)"})
-def infra(c, target="prod", pull=True):
-    """Start or update shared Postgres, Redis, RabbitMQ and Caddy."""
+@task(
+    help={
+        "target": "Server name from TARGETS (default: prod)",
+        "pull": "git pull first (default: yes)",
+        "edge": "Also start Caddy for HTTPS domains (default: yes if STUDIO_DOMAIN is set in infra/.env)",
+    }
+)
+def infra(c, target="prod", pull=True, edge=None):
+    """Start or update shared Postgres, Redis, RabbitMQ (and Caddy when domains are set)."""
     conn, cfg = _conn(c, target)
     if pull:
         _update_code(conn, cfg)
     _require_env(conn, cfg, "infra/.env")
+    if edge is None:
+        has_domain = conn.run(
+            f"grep -Eq '^(APPJS_DOMAIN|STUDIO_DOMAIN|STUDIO_API_DOMAIN|RESTYLE_DOMAIN|AUTOREV_DOMAIN)=[^[:space:]#]+' {_repo(cfg, 'infra/.env')}",
+            warn=True,
+            hide=True,
+        ).ok
+        edge = has_domain
+    profile = "--profile edge " if edge else ""
     with conn.cd(_repo(cfg, "infra")):
-        conn.run("docker compose --profile edge pull")
-        conn.run("docker compose --profile edge up -d")
-        conn.run("docker compose --profile edge ps")
+        conn.run(f"docker compose {profile}pull")
+        conn.run(f"docker compose {profile}up -d --remove-orphans")
+        conn.run(f"docker compose {profile}ps")
 
 
 @task(
@@ -190,17 +248,25 @@ def infra(c, target="prod", pull=True):
         "target": "Server name from TARGETS (default: prod)",
         "tag": "Image tag to run (default: TAG from studio/deploy/.env, else latest)",
         "pull": "git pull first (default: yes)",
+        "build": "Build images on the server instead of pulling from ghcr.io (default: no)",
     }
 )
-def studio(c, target="prod", tag="", pull=True):
-    """Pull and restart Studio (migrate, api, worker, console) and restyle-web."""
+def studio(c, target="prod", tag="", pull=True, build=False):
+    """Pull (or build) and restart Studio (migrate, api, worker, console) and restyle-web."""
     conn, cfg = _conn(c, target)
     if pull:
         _update_code(conn, cfg)
     _require_env(conn, cfg, "studio/deploy/.env")
     env = {"TAG": tag} if tag else {}
+    if build:
+        with conn.cd(_repo(cfg)):
+            t = shlex.quote(tag or "latest")
+            conn.run(f"docker build -t {REGISTRY}/appjs-studio-api:{t} -t {REGISTRY}/appjs-studio-api:latest studio")
+            conn.run(f"docker build -t {REGISTRY}/appjs-studio-web:{t} -t {REGISTRY}/appjs-studio-web:latest studio/web")
+            conn.run(f"docker build -t {REGISTRY}/restyle-web:{t} -t {REGISTRY}/restyle-web:latest restyle-web")
     with conn.cd(_repo(cfg, "studio/deploy")):
-        conn.run(f"{STUDIO_COMPOSE} pull", env=env)
+        if not build:
+            conn.run(f"{STUDIO_COMPOSE} pull", env=env)
         conn.run(f"{STUDIO_COMPOSE} up -d --remove-orphans", env=env)  # migrate runs before api/worker
         conn.run(f"{STUDIO_COMPOSE} ps", env=env)
 
@@ -227,13 +293,19 @@ def autorev(c, target="prod", workers=True, pull=True):
             conn.run(f"{AUTOREV_WORKERS_COMPOSE} ps")
 
 
-@task(help={"target": "Server name from TARGETS (default: prod)", "tag": "Studio image tag"})
-def deploy(c, target="prod", tag=""):
+@task(
+    help={
+        "target": "Server name from TARGETS (default: prod)",
+        "tag": "Studio image tag",
+        "build": "Build Studio images on the server instead of pulling from ghcr.io (default: no)",
+    }
+)
+def deploy(c, target="prod", tag="", build=False):
     """Everything, in order: infra, then studio, then autorev."""
     conn, cfg = _conn(c, target)
     _update_code(conn, cfg)
     infra(conn, target=target, pull=False)
-    studio(conn, target=target, tag=tag, pull=False)
+    studio(conn, target=target, tag=tag, pull=False, build=build)
     autorev(conn, target=target, pull=False)
 
 

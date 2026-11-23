@@ -4,8 +4,9 @@ The AppJs platform: two independent services and the first client app (Android a
 
 | Folder | Service | What it does | Stack |
 |---|---|---|---|
-| [`infra/`](infra/) | Shared infrastructure | Postgres (schema + role per app), Redis, RabbitMQ, Caddy (HTTPS, servers) | Docker Compose |
-| [`studio/`](studio/) | AppJs Studio ("creative") | Template-driven image/video generation, app users, credits and plans, admin console, and the per-app API (`/v1/app/*`) for mobile clients such as Restyle | Python (uv, FastAPI, async SQLAlchemy, Alembic) + `web/` React 19 / Mantine / Vite |
+| [`infra/`](infra/) | Shared infrastructure | Postgres (schema + role per app), Redis, Caddy (HTTPS, servers) | Docker Compose |
+| [`website/`](website/) | APPJS Technologies website | Company landing page served at `appjs.tech` by Caddy | Static HTML / CSS |
+| [`studio/`](studio/) | AppJs Studio | Template-driven image/video generation, app users, credits and plans, admin console, and the per-app API (`/v1/app/*`) for mobile clients such as Restyle | Python (uv, FastAPI, async SQLAlchemy, Alembic) + `web/` React 19 / Mantine / Vite |
 | [`restyle/`](restyle/) | Restyle (Android) | The first app on Studio (slug `restyle-ai`): pick a style, add a photo, get the restyled image; calls Studio's `/v1/app/*` | Kotlin, Jetpack Compose, Gradle |
 | [`restyle-web/`](restyle-web/) | Restyle (web) | The same app in the browser: sign in, pick a style, upload, download; its nginx proxies `/v1/app/*` to Studio | React 19 / Vite / TanStack Query, nginx |
 | [`autorev/`](autorev/) | autorev | Subscription billing over Razorpay and PhonePe (UPI Autopay), with signed webhooks to client apps | `backend/` FastAPI (requirements.txt), `workers/` Celery + RabbitMQ, `frontend/` React 19 / Mantine / Vite |

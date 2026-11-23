@@ -163,7 +163,7 @@ export function RunTemplateForm({
               })}
             />
             <Text size="xs" c="dimmed" mt={4}>
-              Create a token under Account and export it as CREATIVE_TOKEN.
+              Create a token under Account and export it as STUDIO_TOKEN.
             </Text>
           </div>
         )}

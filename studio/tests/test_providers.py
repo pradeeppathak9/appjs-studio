@@ -9,9 +9,9 @@ import httpx
 import pytest
 import respx
 
-from creative.providers import fal as fal_module
-from creative.providers import openrouter
-from creative.providers.base import (
+from studio.providers import fal as fal_module
+from studio.providers import openrouter
+from studio.providers.base import (
     GenerationRequest,
     InputImage,
     MediaType,
@@ -20,12 +20,12 @@ from creative.providers.base import (
     ProviderUnavailableError,
     UnsupportedRequestError,
 )
-from creative.providers.errors import translate
-from creative.providers.fake import FakeProvider
-from creative.providers.fal import FalProvider
-from creative.providers.gemini import GeminiProvider
-from creative.providers.openai_images import OpenAIImagesProvider
-from creative.providers.registry import NoProviderAvailableError, ProviderRegistry, UnknownProviderError
+from studio.providers.errors import translate
+from studio.providers.fake import FakeProvider
+from studio.providers.fal import FalProvider
+from studio.providers.gemini import GeminiProvider
+from studio.providers.openai_images import OpenAIImagesProvider
+from studio.providers.registry import NoProviderAvailableError, ProviderRegistry, UnknownProviderError
 from tests.conftest import image_bytes
 
 PNG = image_bytes((64, 48), fmt="PNG")

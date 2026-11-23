@@ -1,4 +1,4 @@
-# autorev's Celery workers. RabbitMQ, Redis and Postgres come from ../infra (start it first).
+# autorev's Celery workers. Redis and Postgres come from ../infra (start it first).
 name: autorev-workers
 
 services:
@@ -10,7 +10,7 @@ services:
     environment:
       AUTOREV_DATABASE_URL: ${AUTOREV_DATABASE_URL}
       AUTOREV_REDIS_URL: ${AUTOREV_REDIS_URL:-redis://redis:6379/0}
-      CELERY_BROKER_URL: ${CELERY_BROKER_URL:-amqp://celery:celery_mq_pass@rabbitmq:5672//}
+      CELERY_BROKER_URL: ${CELERY_BROKER_URL:-redis://redis:6379/1}
     restart: unless-stopped
     networks:
       - appjs
@@ -21,7 +21,7 @@ services:
       dockerfile: workers/Dockerfile
     command: celery -A phone_worker.celery_app beat --loglevel=info
     environment:
-      CELERY_BROKER_URL: ${CELERY_BROKER_URL:-amqp://celery:celery_mq_pass@rabbitmq:5672//}
+      CELERY_BROKER_URL: ${CELERY_BROKER_URL:-redis://redis:6379/1}
     restart: unless-stopped
     networks:
       - appjs
@@ -32,9 +32,9 @@ services:
       dockerfile: workers/Dockerfile
     command: celery -A phone_worker.celery_app flower --port=5555 --url_prefix=flower
     ports:
-      - "5555:5555"
+      - "${FLOWER_BIND:-127.0.0.1}:5555:5555"
     environment:
-      CELERY_BROKER_URL: ${CELERY_BROKER_URL:-amqp://celery:celery_mq_pass@rabbitmq:5672//}
+      CELERY_BROKER_URL: ${CELERY_BROKER_URL:-redis://redis:6379/1}
     restart: unless-stopped
     networks:
       - appjs

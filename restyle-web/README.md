@@ -26,7 +26,7 @@ and spends the account's credits.
 
 ```bash
 docker build -t restyle-web .
-docker run -p 8081:80 -e APP_KEY=cak_... -e STUDIO_API=http://api:8000 --network creative_default restyle-web
+docker run -p 8081:80 -e APP_KEY=cak_... -e STUDIO_API=http://api:8000 --network studio_default restyle-web
 ```
 
 - `APP_KEY` is written into `/config.js` when the container starts, so one image serves any environment.

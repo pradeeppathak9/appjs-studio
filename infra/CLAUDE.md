@@ -1,6 +1,6 @@
 # infra
 
-Shared Postgres, Redis, RabbitMQ and Caddy for the appjs services. Read README.md first.
+Shared Postgres, Redis and Caddy for the appjs services. Read README.md first.
 
 - Postgres: database `appjs`, one login role + schema per app (`studio`, `autorev`), role search_path =
   its schema. Apps connect as their own role only. Never hand an app the `postgres` superuser.

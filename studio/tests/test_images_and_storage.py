@@ -3,8 +3,8 @@ import io
 import pytest
 from PIL import Image
 
-from creative.media.images import InvalidImage, normalize_image
-from creative.storage.local import LocalAssetStore
+from studio.media.images import InvalidImage, normalize_image
+from studio.storage.local import LocalAssetStore
 from tests.conftest import image_bytes
 
 LIMITS = {"max_pixels": 40_000_000, "max_side": 2048}

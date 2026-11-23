@@ -1,10 +1,10 @@
 # AppJs Studio. Postgres comes from ../infra (start it first: cd ../infra && docker compose up -d):
 # Studio connects as role `studio` to database `appjs`, whose search_path is schema `studio`.
-name: creative
+name: studio
 
 x-app: &app
   build: .
-  image: creative:dev
+  image: studio:dev
   env_file:
     - path: .env
       required: false
@@ -19,12 +19,12 @@ x-app: &app
 services:
   migrate:
     <<: *app
-    command: ["creative", "db", "upgrade"]
+    command: ["studio", "db", "upgrade"]
     restart: "no"
 
   api:
     <<: *app
-    command: ["creative", "serve"]
+    command: ["studio", "serve"]
     environment:
       DATABASE_URL: postgresql://studio:${STUDIO_DB_PASSWORD:-studio}@postgres:5432/appjs
       DATA_DIR: /app/data
@@ -46,9 +46,9 @@ services:
 
   worker:
     <<: *app
-    command: ["creative", "worker"]
+    command: ["studio", "worker"]
     healthcheck:
-      test: ["CMD", "creative", "health"]
+      test: ["CMD", "studio", "health"]
       interval: 15s
       timeout: 10s
       retries: 3
@@ -60,7 +60,7 @@ services:
 
   web:
     build: ./web
-    image: creative-web:dev
+    image: studio-web:dev
     ports:
       - "${WEB_BIND:-127.0.0.1}:${WEB_PORT:-8080}:80"
     depends_on:

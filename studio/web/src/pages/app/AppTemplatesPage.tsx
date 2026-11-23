@@ -53,7 +53,7 @@ import { AppAvatar, EmptyState } from "../../components/ui";
 import { age } from "../../lib/format";
 import { moveItem } from "../../lib/reorder";
 
-const VIEW_KEY = "creative-templates-view";
+const VIEW_KEY = "studio-templates-view";
 type View = "grid" | "table";
 
 function readView(): View {

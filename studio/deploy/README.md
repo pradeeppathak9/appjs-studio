@@ -91,7 +91,7 @@ only go forward, so rolling back across a migration needs a database restore.
 
 ```bash
 docker compose -f docker-compose.prod.yaml logs -f api worker        # logs
-docker compose -f docker-compose.prod.yaml exec api creative users reset-password --email you@example.com
+docker compose -f docker-compose.prod.yaml exec api studio users reset-password --email you@example.com
 docker compose -f docker-compose.prod.yaml up -d --scale worker=3   # more workers
 
 # backup: the database and ./data (uploads, inputs, generated images) go together

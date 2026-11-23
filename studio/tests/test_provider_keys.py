@@ -6,9 +6,9 @@ from collections import OrderedDict
 import pytest
 from sqlalchemy import select
 
-from creative.db.tables import App
-from creative.providers.fake import FakeProvider
-from creative.secrets import SecretBox
+from studio.db.tables import App
+from studio.providers.fake import FakeProvider
+from studio.secrets import SecretBox
 from tests.conftest import GHIBLI, app_client, create_template, image_bytes, member, run_worker_once
 
 EDITOR = ("ed@example.com", "Ed", "editor-password-1")

@@ -254,3 +254,45 @@ def test_revoke_cancels_the_token(db, client, rzp):
     r = client.post(f"{BASE}/revoke/{sub_id}", headers=AUTH)
     assert r.json() == {"subscription_id": sub_id, "state": "CANCELLED"}
     assert client.post(f"{BASE}/revoke/{sub_id}", headers=AUTH).status_code == 409
+
+
+def test_workers_skip_without_redis_or_queries_when_gateway_disabled(db, monkeypatch):
+    import os
+    import sys
+
+    workers_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../workers"))
+    if workers_dir not in sys.path:
+        sys.path.insert(0, workers_dir)
+
+    import phone_worker_helper as ph
+    import razorpay_worker_helper as rh
+    from app.models import App
+
+    # Disable Razorpay on the seeded test app; PhonePe is already disabled.
+    app = db.get(App, APP_ID)
+    app.razorpay_enabled = False
+    db.commit()
+
+    # If any worker touches Redis locks or runs a subscription scan, fail immediately.
+    def no_lock(key, ttl):
+        raise AssertionError(f"unexpected Redis lock acquired when gateway is disabled: {key}")
+
+    monkeypatch.setattr(ph, "_single_flight", no_lock)
+    monkeypatch.setattr(rh, "_single_flight", no_lock)
+    monkeypatch.setattr(ph, "_is_non_peak_hour", lambda: True)
+
+    for fn in (
+        ph._sync_subscription_state,
+        ph._sync_paused_state,
+        ph._notify_redemption_for_due_subscriptions,
+        ph._sync_redemption_txn_state,
+        ph._sync_scheduled_transactions,
+        ph._revoke_duplicate_active_subscriptions,
+        ph._advance_payment_dates,
+        ph._ensure_scheduled_transactions,
+        ph._sync_total_payments,
+        ph._archive_failed_subscriptions,
+        rh._collect_razorpay_due,
+        rh._reconcile_razorpay,
+    ):
+        fn()

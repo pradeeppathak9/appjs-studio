@@ -1,0 +1,409 @@
+<!doctype html>
+<html lang="en-IN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>APPJS Technologies Private Limited</title>
+  <meta name="description" content="APPJS Technologies Private Limited is an Indian software company that builds and operates digital products, including MarktMakrs, a technical-analysis platform for NSE-listed stocks.">
+  <meta name="robots" content="index, follow">
+  <meta name="theme-color" content="#14213d">
+
+  <link rel="canonical" href="https://appjs.tech/">
+
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="APPJS Technologies Private Limited">
+  <meta property="og:description" content="An Indian software company building focused digital products. Maker of MarktMakrs.">
+
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%2314213d'/%3E%3Ctext x='32' y='44' text-anchor='middle' font-family='Georgia,serif' font-size='34' fill='%23c9a961'%3EA%3C/text%3E%3C/svg%3E">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "APPJS Technologies Private Limited",
+    "legalName": "APPJS Technologies Private Limited",
+    "foundingDate": "2023",
+    "email": "support@marktmakrs.in",
+    "address": { "@type": "PostalAddress", "addressRegion": "Delhi", "addressCountry": "IN" },
+    "identifier": { "@type": "PropertyValue", "propertyID": "CIN", "value": "U62011DL2023PTC423950" },
+    "owns": { "@type": "WebApplication", "name": "MarktMakrs", "url": "https://marktmakrs.in" }
+  }
+  </script>
+
+  <style>
+    :root {
+      --paper: #faf8f3;
+      --paper-2: #f2eee4;
+      --ink: #14213d;
+      --ink-soft: #3d4760;
+      --muted: #6b7184;
+      --rule: #e2dccd;
+      --gold: #a8873f;
+      --gold-soft: #c9a961;
+      --card: #ffffff;
+      --serif: "Cormorant Garamond", Georgia, "Times New Roman", serif;
+      --sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      --wrap: 1080px;
+    }
+    *, *::before, *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+    body {
+      margin: 0;
+      background: var(--paper);
+      color: var(--ink);
+      font-family: var(--sans);
+      font-size: 16px;
+      line-height: 1.65;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { color: inherit; }
+    .wrap { max-width: var(--wrap); margin: 0 auto; padding: 0 24px; }
+
+    /* Header */
+    header.site {
+      position: sticky; top: 0; z-index: 10;
+      background: rgba(250, 248, 243, 0.92);
+      backdrop-filter: saturate(140%) blur(8px);
+      -webkit-backdrop-filter: saturate(140%) blur(8px);
+      border-bottom: 1px solid var(--rule);
+    }
+    header.site .wrap { display: flex; align-items: center; justify-content: space-between; height: 68px; }
+    .brand { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+    .mark {
+      width: 34px; height: 34px; border-radius: 7px; background: var(--ink);
+      display: grid; place-items: center;
+      font-family: var(--serif); font-size: 22px; font-weight: 600; color: var(--gold-soft); line-height: 1;
+    }
+    .brand-name { font-family: var(--serif); font-size: 22px; font-weight: 600; letter-spacing: 0.04em; }
+    .brand-name small { font-family: var(--sans); font-size: 11px; font-weight: 500; letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); margin-left: 6px; }
+    nav.primary { display: flex; gap: 32px; }
+    nav.primary a { text-decoration: none; font-size: 14px; font-weight: 500; color: var(--ink-soft); letter-spacing: 0.01em; }
+    nav.primary a:hover { color: var(--gold); }
+
+    /* Hero */
+    .hero { padding: 120px 0 104px; border-bottom: 1px solid var(--rule); position: relative; overflow: hidden; }
+    .hero::after {
+      content: ""; position: absolute; right: -160px; top: -160px; width: 520px; height: 520px; border-radius: 50%;
+      border: 1px solid var(--rule); pointer-events: none;
+    }
+    .hero::before {
+      content: ""; position: absolute; right: -60px; top: -60px; width: 320px; height: 320px; border-radius: 50%;
+      border: 1px solid var(--rule); pointer-events: none;
+    }
+    .eyebrow {
+      font-size: 12px; font-weight: 600; letter-spacing: 0.2em; text-transform: uppercase; color: var(--gold);
+      display: inline-flex; align-items: center; gap: 12px; margin: 0 0 28px;
+    }
+    .eyebrow::before { content: ""; width: 32px; height: 1px; background: var(--gold); }
+    h1 {
+      font-family: var(--serif); font-weight: 500; font-size: clamp(42px, 6.4vw, 76px); line-height: 1.04;
+      letter-spacing: -0.01em; margin: 0 0 28px; max-width: 14ch;
+    }
+    h1 em { font-style: italic; color: var(--gold); }
+    .lede { font-size: 19px; color: var(--ink-soft); max-width: 58ch; margin: 0 0 40px; }
+    .actions { display: flex; flex-wrap: wrap; gap: 14px; }
+    .btn {
+      display: inline-flex; align-items: center; gap: 10px; padding: 14px 26px; border-radius: 2px;
+      font-size: 14px; font-weight: 500; letter-spacing: 0.02em; text-decoration: none; transition: all .2s ease;
+    }
+    .btn-primary { background: var(--ink); color: var(--paper); border: 1px solid var(--ink); }
+    .btn-primary:hover { background: #0c1528; }
+    .btn-ghost { border: 1px solid var(--ink); color: var(--ink); }
+    .btn-ghost:hover { background: var(--ink); color: var(--paper); }
+
+    /* Sections */
+    section.block { padding: 96px 0; border-bottom: 1px solid var(--rule); }
+    .grid-2 { display: grid; grid-template-columns: 280px 1fr; gap: 64px; }
+    .label { font-size: 12px; font-weight: 600; letter-spacing: 0.2em; text-transform: uppercase; color: var(--gold); margin: 6px 0 0; }
+    h2 { font-family: var(--serif); font-weight: 500; font-size: clamp(32px, 4vw, 44px); line-height: 1.15; margin: 0 0 22px; }
+    p { margin: 0 0 18px; color: var(--ink-soft); }
+    .principles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0; margin-top: 44px; border-top: 1px solid var(--rule); }
+    .principles div { padding: 26px 26px 0 0; }
+    .principles div + div { padding-left: 26px; border-left: 1px solid var(--rule); }
+    .principles h3 { font-family: var(--serif); font-size: 22px; font-weight: 600; margin: 0 0 8px; }
+    .principles p { font-size: 14.5px; margin: 0; }
+
+    /* Products */
+    .products { display: grid; grid-template-columns: 1.4fr 1fr; gap: 24px; margin-top: 12px; }
+    .product {
+      background: var(--card); border: 1px solid var(--rule); padding: 40px; position: relative;
+      display: flex; flex-direction: column;
+    }
+    .product::before { content: ""; position: absolute; left: 0; top: 0; width: 100%; height: 3px; background: var(--ink); }
+    .product .tag { font-size: 11px; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); margin-bottom: 18px; }
+    .product .tag .live { color: #2f7a4f; }
+    .product .tag .live::before { content: "● "; }
+    .product h3 { font-family: var(--serif); font-size: 34px; font-weight: 600; margin: 0 0 4px; }
+    .product .tagline { font-family: var(--serif); font-style: italic; font-size: 19px; color: var(--gold); margin: 0 0 18px; }
+    .product ul { margin: 0 0 28px; padding: 0; list-style: none; }
+    .product li { font-size: 14.5px; color: var(--ink-soft); padding: 8px 0 8px 22px; border-top: 1px solid var(--paper-2); position: relative; }
+    .product li::before { content: ""; position: absolute; left: 0; top: 18px; width: 10px; height: 1px; background: var(--gold); }
+    .product .foot { margin-top: auto; display: flex; flex-wrap: wrap; gap: 18px; align-items: center; }
+    .product .link { font-size: 14px; font-weight: 600; text-decoration: none; border-bottom: 1px solid var(--gold); padding-bottom: 2px; }
+    .product .link:hover { color: var(--gold); }
+    .product.soon { background: transparent; border-style: dashed; }
+    .product.soon::before { background: var(--rule); }
+    .product.soon h3 { color: var(--ink-soft); }
+    .note { font-size: 12.5px; color: var(--muted); line-height: 1.55; margin: 0; }
+
+    /* Company facts */
+    dl.facts { margin: 0; display: grid; grid-template-columns: 220px 1fr; border-top: 1px solid var(--ink); }
+    dl.facts dt, dl.facts dd { padding: 18px 0; border-bottom: 1px solid var(--rule); margin: 0; }
+    dl.facts dt { font-size: 12px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); padding-top: 21px; }
+    dl.facts dd { font-size: 16px; color: var(--ink); }
+    dl.facts dd code { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 14.5px; letter-spacing: 0.04em; }
+    dl.facts a { text-decoration: none; border-bottom: 1px solid var(--gold); }
+
+    /* Contact */
+    .contact { background: var(--ink); color: var(--paper); border-bottom: none; }
+    .contact h2 { color: var(--paper); }
+    .contact p { color: #c4c9d6; }
+    .contact .label { color: var(--gold-soft); }
+    .contact-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0; margin-top: 40px; border-top: 1px solid rgba(255,255,255,0.14); }
+    .contact-grid div { padding: 28px 28px 0 0; }
+    .contact-grid div + div { padding-left: 28px; border-left: 1px solid rgba(255,255,255,0.14); }
+    .contact-grid h3 { font-size: 12px; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; color: var(--gold-soft); margin: 0 0 10px; }
+    .contact-grid a { color: var(--paper); text-decoration: none; border-bottom: 1px solid rgba(201,169,97,0.6); font-size: 17px; }
+    .contact-grid p { font-size: 14.5px; margin: 8px 0 0; }
+
+    /* Footer */
+    footer.site { background: #0e182d; color: #9aa2b5; font-size: 13.5px; padding: 56px 0 40px; }
+    footer.site h4 { color: var(--paper); font-family: var(--serif); font-size: 20px; font-weight: 600; margin: 0 0 12px; }
+    footer.site p { color: #9aa2b5; font-size: 13.5px; margin: 0 0 12px; }
+    footer.site a { color: #d4d8e2; }
+    .foot-grid { display: grid; grid-template-columns: 1.2fr 1fr 1fr; gap: 48px; padding-bottom: 36px; border-bottom: 1px solid rgba(255,255,255,0.1); }
+    .foot-grid ul { list-style: none; margin: 0; padding: 0; }
+    .foot-grid li { margin: 0 0 8px; }
+    .foot-grid li a { text-decoration: none; }
+    .foot-grid li a:hover { color: var(--gold-soft); }
+    .legal-note { padding-top: 28px; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; }
+
+    /* Responsive */
+    @media (max-width: 900px) {
+      .grid-2 { grid-template-columns: 1fr; gap: 20px; }
+      .products { grid-template-columns: 1fr; }
+      .foot-grid { grid-template-columns: 1fr 1fr; }
+      .foot-grid > div:first-child { grid-column: 1 / -1; }
+    }
+    @media (max-width: 680px) {
+      .wrap { padding: 0 16px; }
+      nav.primary { display: none; }
+      .brand-name small { display: none; }
+      .hero { padding: 72px 0 64px; }
+      .hero::after, .hero::before { display: none; }
+      .lede { font-size: 17px; }
+      section.block { padding: 64px 0; }
+      .principles, .contact-grid { grid-template-columns: 1fr; }
+      .principles div, .principles div + div,
+      .contact-grid div, .contact-grid div + div { padding: 22px 0; border-left: none; border-bottom: 1px solid var(--rule); }
+      .contact-grid div, .contact-grid div + div { border-bottom-color: rgba(255,255,255,0.14); }
+      .product { padding: 28px 22px; }
+      dl.facts { grid-template-columns: 1fr; }
+      dl.facts dt { padding: 16px 0 2px; border-bottom: none; }
+      dl.facts dd { padding: 0 0 16px; }
+      .foot-grid { grid-template-columns: 1fr; gap: 28px; }
+      .btn { flex: 1 1 auto; justify-content: center; }
+    }
+  </style>
+</head>
+<body>
+
+  <header class="site">
+    <div class="wrap">
+      <a class="brand" href="#top" aria-label="APPJS Technologies, home">
+        <span class="mark" aria-hidden="true">A</span>
+        <span class="brand-name">APPJS<small>Technologies</small></span>
+      </a>
+      <nav class="primary" aria-label="Primary">
+        <a href="#about">About</a>
+        <a href="#products">Products</a>
+        <a href="#company">Company</a>
+        <a href="#contact">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="top">
+
+    <section class="hero">
+      <div class="wrap">
+        <p class="eyebrow">APPJS Technologies Private Limited</p>
+        <h1>Software, built with <em>care</em> and clarity.</h1>
+        <p class="lede">We are an Indian technology company that designs, builds and operates focused digital products for individuals and businesses, starting with tools that make financial markets easier to understand.</p>
+        <div class="actions">
+          <a class="btn btn-primary" href="#products">Our products</a>
+          <a class="btn btn-ghost" href="#company">Company information</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="block" id="about">
+      <div class="wrap grid-2">
+        <p class="label">About us</p>
+        <div>
+          <h2>A small company with a long view.</h2>
+          <p>APPJS Technologies Private Limited was incorporated in 2023 and is registered with the Registrar of Companies, Delhi. We build software products end to end, from design and engineering to hosting, customer support and billing.</p>
+          <p>Each product we make does one job well. We run them ourselves, answer our own support email, and publish clear terms, privacy and refund policies for every product we operate.</p>
+          <div class="principles">
+            <div>
+              <h3>Focused</h3>
+              <p>Products that solve one problem properly, without clutter.</p>
+            </div>
+            <div>
+              <h3>Transparent</h3>
+              <p>Plain-language policies, honest pricing and no hidden charges.</p>
+            </div>
+            <div>
+              <h3>Responsible</h3>
+              <p>Careful handling of user data and payments, under Indian law.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="block" id="products">
+      <div class="wrap grid-2">
+        <p class="label">Products</p>
+        <div>
+          <h2>What we build.</h2>
+          <p>Our products are offered under their own brands and websites, each with its own terms of use, privacy policy and support channel.</p>
+
+          <div class="products">
+            <article class="product">
+              <div class="tag"><span class="live">Live</span> &nbsp;·&nbsp; Fintech &amp; analytics</div>
+              <h3>MarktMakrs</h3>
+              <p class="tagline">Technical analysis made easy.</p>
+              <p>A technical-analysis platform and stock screener for NSE-listed equities. It helps traders and investors read charts, scan the market for technical setups and follow the stocks they care about.</p>
+              <ul>
+                <li>Market dashboard and technical stock screener</li>
+                <li>Chart patterns, support and resistance, trend signals</li>
+                <li>Free tier, with paid subscription plans</li>
+              </ul>
+              <div class="foot">
+                <a class="link" href="https://marktmakrs.in" target="_blank" rel="noopener">Visit marktmakrs.in &rarr;</a>
+              </div>
+              <p class="note" style="margin-top:22px">MarktMakrs provides technical-analysis tools only. It is not a SEBI-registered investment adviser or research analyst, and nothing on it is investment advice.</p>
+            </article>
+
+            <article class="product soon">
+              <div class="tag">In development</div>
+              <h3>More to come</h3>
+              <p class="tagline">New products are on the way.</p>
+              <p>We are working on further software products. They will be listed here, with their own websites and policies, as they launch.</p>
+            </article>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="block" id="company">
+      <div class="wrap grid-2">
+        <p class="label">Company information</p>
+        <div>
+          <h2>Corporate details.</h2>
+          <p>Statutory information about the company, for customers, partners, payment providers and advertising platforms.</p>
+          <dl class="facts">
+            <dt>Legal name</dt>
+            <dd>APPJS Technologies Private Limited</dd>
+
+            <dt>Entity type</dt>
+            <dd>Private limited company, incorporated under the Companies Act, 2013</dd>
+
+            <dt>CIN</dt>
+            <dd><code>U62011DL2023PTC423950</code></dd>
+
+            <dt>Incorporated</dt>
+            <dd>2023, Registrar of Companies, Delhi</dd>
+
+            <dt>Business</dt>
+            <dd>Software development and publishing of digital products</dd>
+
+            <!-- EDIT: fill in and uncomment. Ads and payment platforms check that this matches the address on the incorporation record.
+            <dt>Registered office</dt>
+            <dd>Flat / Building, Street, Locality,<br>New Delhi – 1100XX, India</dd>
+            -->
+            <dt>Registered in</dt>
+            <dd>Delhi, India</dd>
+
+            <!-- EDIT: uncomment once the GSTIN is issued.
+            <dt>GSTIN</dt>
+            <dd><code>07XXXXXXXXXXXXX</code></dd>
+            -->
+
+            <dt>Products</dt>
+            <dd><a href="https://marktmakrs.in" target="_blank" rel="noopener">MarktMakrs</a> (marktmakrs.in)</dd>
+
+            <dt>Email</dt>
+            <dd><a href="mailto:support@marktmakrs.in">support@marktmakrs.in</a></dd>
+          </dl>
+        </div>
+      </div>
+    </section>
+
+    <section class="block contact" id="contact">
+      <div class="wrap grid-2">
+        <p class="label">Contact</p>
+        <div>
+          <h2>Get in touch.</h2>
+          <p>For product support, billing, partnerships or legal notices, write to us. We reply within two business days.</p>
+          <div class="contact-grid">
+            <div>
+              <h3>General &amp; support</h3>
+              <!-- EDIT: switch to a company-domain mailbox (e.g. contact@YOUR-DOMAIN) once it exists. -->
+              <a href="mailto:support@marktmakrs.in">support@marktmakrs.in</a>
+              <p>Product help, accounts and billing.</p>
+            </div>
+            <div>
+              <h3>Legal &amp; grievances</h3>
+              <a href="mailto:support@marktmakrs.in?subject=Grievance">support@marktmakrs.in</a>
+              <p>Mark the subject “Grievance” for escalation.</p>
+            </div>
+            <div>
+              <h3>Location</h3>
+              <!-- EDIT: add a phone number here if you want one listed, e.g. <a href="tel:+91XXXXXXXXXX">+91 XXXXX XXXXX</a> -->
+              <span style="font-size:17px">Delhi, India</span>
+              <p>Monday to Friday, business hours IST.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="site">
+    <div class="wrap">
+      <div class="foot-grid">
+        <div>
+          <h4>APPJS Technologies</h4>
+          <p>APPJS Technologies Private Limited<br>CIN: U62011DL2023PTC423950<br>Delhi, India</p>
+        </div>
+        <div>
+          <h4>Products</h4>
+          <ul>
+            <li><a href="https://marktmakrs.in" target="_blank" rel="noopener">MarktMakrs</a></li>
+            <li><a href="https://marktmakrs.in/privacy" target="_blank" rel="noopener">MarktMakrs privacy policy</a></li>
+            <li><a href="https://marktmakrs.in/terms" target="_blank" rel="noopener">MarktMakrs terms of use</a></li>
+            <li><a href="https://marktmakrs.in/refund-policy" target="_blank" rel="noopener">MarktMakrs refund policy</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>This website</h4>
+          <p>This site is informational. It sets no cookies, runs no tracking and collects no personal data. If you email us, we use your message only to reply to you.</p>
+        </div>
+      </div>
+      <div class="legal-note">
+        <span>© <span id="yr">2026</span> APPJS Technologies Private Limited. All rights reserved.</span>
+        <span>Governed by the laws of India.</span>
+      </div>
+    </div>
+  </footer>
+
+  <script>document.getElementById("yr").textContent = new Date().getFullYear();</script>
+</body>
+</html>

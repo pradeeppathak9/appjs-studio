@@ -15,7 +15,7 @@ Already in place:
 - `GET /v1/app` tells the app `payments: {provider, mode, razorpay_key_id}`.
 - Plans (`plans` table: price in paise, billing period, credits per month), subscriptions, and the credit
   ledger with idempotent grants (`BillingService.grant_subscription`, `grant_due_credits`).
-- A placeholder `PaymentProvider` protocol in `creative/endusers/billing.py`.
+- A placeholder `PaymentProvider` protocol in `studio/endusers/billing.py`.
 
 This plan adds real payments through **Razorpay** or **PhonePe**, chosen per app.
 
@@ -49,7 +49,7 @@ PhonePe.
 
 ### Provider interface
 
-`PaymentProvider` (`creative/endusers/billing.py`), one implementation per gateway:
+`PaymentProvider` (`studio/endusers/billing.py`), one implementation per gateway:
 
 | Method | Does |
 |---|---|

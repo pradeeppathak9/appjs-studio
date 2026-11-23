@@ -263,8 +263,8 @@ async def test_without_require_login_a_token_is_optional_but_checked(app, state)
 
 
 async def test_dev_code_works_for_any_number_only_with_the_log_sender(app, state):
-    from creative.config import Settings
-    from creative.endusers.service import AppUserService
+    from studio.config import Settings
+    from studio.endusers.service import AppUserService
 
     c = await app_client(app, state)
     state.endusers.dev_code = "123456"

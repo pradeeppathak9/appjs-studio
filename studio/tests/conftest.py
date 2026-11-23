@@ -15,7 +15,7 @@ import pytest
 from PIL import Image
 from sqlalchemy import text
 
-from creative.config import Settings
+from studio.config import Settings
 
 ADMIN = ("admin@example.com", "Admin", "admin-password-1")
 CREATOR = ("creator@example.com", "Cam Creator", "creator-password-1")
@@ -31,7 +31,7 @@ def _admin_dsn() -> str:
 
 @pytest.fixture(scope="session")
 async def database_url():
-    name = f"creative_test_{uuid.uuid4().hex[:8]}"
+    name = f"studio_test_{uuid.uuid4().hex[:8]}"
     try:
         conn = await asyncpg.connect(_admin_dsn())
     except Exception as e:  # pragma: no cover
@@ -41,7 +41,7 @@ async def database_url():
     url = _admin_dsn().rsplit("/", 1)[0] + "/" + name
     from alembic import command
 
-    from creative.db.engine import alembic_config
+    from studio.db.engine import alembic_config
 
     await asyncio.to_thread(
         command.upgrade, alembic_config(url.replace("postgresql://", "postgresql+asyncpg://")), "head"
@@ -75,7 +75,7 @@ def settings(database_url, data_dir) -> Settings:
 
 @pytest.fixture(scope="session")
 async def app(settings):
-    from creative.main import create_app
+    from studio.main import create_app
 
     app = create_app(settings)
     async with app.router.lifespan_context(app):
@@ -84,7 +84,7 @@ async def app(settings):
 
 @pytest.fixture(scope="session")
 def state(app):
-    return app.state.creative
+    return app.state.studio
 
 
 @pytest.fixture(autouse=True)
@@ -112,8 +112,8 @@ def anon(app):
 
 
 async def make_user(state, role: str, email: str, name: str, password: str):
-    from creative.auth.passwords import hash_password
-    from creative.db.tables import User
+    from studio.auth.passwords import hash_password
+    from studio.db.tables import User
 
     user = User(id=uuid.uuid4(), email=email, name=name, role=role, password_hash=hash_password(password))
     async with state.db.begin() as s:
@@ -132,7 +132,7 @@ async def signed_in(app, state, role: str, creds) -> httpx.AsyncClient:
 
 
 async def make_app(state, slug="workspace", name="Workspace", **fields):
-    from creative.db.tables import App
+    from studio.db.tables import App
 
     owner = await make_user(
         state, "admin", f"owner-{uuid.uuid4().hex[:6]}@example.com", "Owner", "owner-password-1"
@@ -144,7 +144,7 @@ async def make_app(state, slug="workspace", name="Workspace", **fields):
 
 
 async def join(state, app_id, user, role: str) -> None:
-    from creative.db.tables import AppMember
+    from studio.db.tables import AppMember
 
     async with state.db.begin() as s:
         s.add(AppMember(app_id=app_id, user_id=user.id, role=role))
@@ -223,7 +223,7 @@ async def create_template(editor_client, body=None, activate=True) -> dict:
 
 
 async def run_worker_once(state) -> bool:
-    from creative.main import make_worker
+    from studio.main import make_worker
 
     return await make_worker(state).run_once()
 

@@ -8,9 +8,9 @@ import pytest
 from sqlalchemy import select
 
 import tests.conftest as conftest
-from creative.db.tables import App
-from creative.endusers.sms import LogSmsSender, Msg91Sender
-from creative.secrets import SecretBox
+from studio.db.tables import App
+from studio.endusers.sms import LogSmsSender, Msg91Sender
+from studio.secrets import SecretBox
 from tests.conftest import app_client, google_token, sign_in_phone
 
 PROJECT = "restyle-ai-1a2b3"
@@ -213,7 +213,7 @@ async def test_phone_settings_are_validated(app, state, admin, secrets_key):
 
 async def test_a_message_from_a_changed_secrets_key_is_reported(state):
     token = SecretBox("old-key-0123456789").encrypt("412345AbCdEfGh0")
-    from creative.errors import UnavailableError
+    from studio.errors import UnavailableError
 
     with pytest.raises(UnavailableError):
         SecretBox("new-key-0123456789").decrypt(token)

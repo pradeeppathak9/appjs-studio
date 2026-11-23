@@ -12,8 +12,8 @@ import respx
 from alembic import command
 from pydantic import SecretStr
 
-from creative.db.engine import alembic_config
-from creative.jobs.webhooks import WebhookRejected, WebhookSender, check_public_host
+from studio.db.engine import alembic_config
+from studio.jobs.webhooks import WebhookRejected, WebhookSender, check_public_host
 from tests.conftest import _admin_dsn
 
 
@@ -31,7 +31,7 @@ async def payload(job_id):
 
 @respx.mock
 async def test_webhook_is_signed_and_retried(settings, monkeypatch):
-    monkeypatch.setattr("creative.jobs.webhooks.BACKOFF_S", (0, 0, 0))
+    monkeypatch.setattr("studio.jobs.webhooks.BACKOFF_S", (0, 0, 0))
     route = respx.post("https://hooks.example/x").mock(side_effect=[httpx.Response(500), httpx.Response(200)])
     s = settings.model_copy(update={"webhook_secret": SecretStr("s3cret"), "allow_private_webhooks": True})
     repo = Repo()
@@ -40,8 +40,8 @@ async def test_webhook_is_signed_and_retried(settings, monkeypatch):
     assert ok and repo.status == ("delivered", 2)
     req = route.calls.last.request
     expected = "sha256=" + hmac.new(b"s3cret", req.content, hashlib.sha256).hexdigest()
-    assert req.headers["X-Creative-Signature"] == expected
-    assert req.headers["X-Creative-Event"] == "generation.succeeded"
+    assert req.headers["X-Studio-Signature"] == expected
+    assert req.headers["X-Studio-Event"] == "generation.succeeded"
 
 
 @respx.mock
@@ -60,7 +60,7 @@ async def test_private_webhook_hosts_are_rejected(url):
 
 
 async def test_migrations_downgrade_and_upgrade_and_match_the_models():
-    name = f"creative_mig_{uuid.uuid4().hex[:8]}"
+    name = f"studio_mig_{uuid.uuid4().hex[:8]}"
     conn = await asyncpg.connect(_admin_dsn())
     await conn.execute(f'CREATE DATABASE "{name}"')
     await conn.close()
@@ -74,7 +74,7 @@ async def test_migrations_downgrade_and_upgrade_and_match_the_models():
             await asyncio.create_subprocess_exec(
                 sys.executable,
                 "-m",
-                "creative.cli",
+                "studio.cli",
                 "db",
                 "upgrade",
                 env=env,
