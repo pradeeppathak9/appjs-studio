@@ -31,6 +31,7 @@ Nothing is wired yet.
 
 ## History
 
-This repository started on 2026-11-23 from a snapshot of both projects. Their earlier history stays in
-the original repositories, branch `wip/pre-monorepo` in each: github `appjs-studio` and github `autorev`
-(local copies `~/Work/appjs-studio`, `~/Work/appjs-rev`).
+This repository started on 2026-11-23 from a snapshot of both projects, and replaced the earlier
+single-service contents of github `appjs-studio` (where it now lives). Earlier history: appjs-rev's is
+on github `autorev`; both projects' last pre-monorepo state is branch `wip/pre-monorepo` in the local
+copies `~/Work/appjs-studio` and `~/Work/appjs-rev`.
