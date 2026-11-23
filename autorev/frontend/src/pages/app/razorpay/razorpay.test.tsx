@@ -6,7 +6,7 @@ import { calls, renderAt, stubApi } from "../../../test/render";
 
 const ME = { id: 3, email: "user@example.com", full_name: "User", is_admin: false };
 const APP = {
-  id: "app1", name: "Postkaro", api_key: "k", enabled: true, phonepe_enabled: false, razorpay_enabled: true,
+  id: "app1", name: "Acme", api_key: "k", enabled: true, phonepe_enabled: false, razorpay_enabled: true,
   phonepe_environment: "UAT", razorpay_environment: "TEST", phonepe_client_id: null, razorpay_key_id: "rzp",
 };
 const SUB = {

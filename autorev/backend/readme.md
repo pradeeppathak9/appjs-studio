@@ -143,7 +143,7 @@ The Razorpay flow has tests that run the real routes against a throwaway
 Postgres database, with Razorpay's HTTP API replaced by a recorder:
 
 ```bash
-(cd ../infra && docker compose up -d postgres)   # rev_test is created with infra's Postgres
+(cd ../infra && docker compose up -d postgres)   # autorev_test is created with infra's Postgres
 cd backend
 uv run --python 3.12 --no-project --with-requirements requirements-dev.txt python -m pytest tests
 ```

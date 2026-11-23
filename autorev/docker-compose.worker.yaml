@@ -1,4 +1,4 @@
-# rev's Celery workers. RabbitMQ, Redis and Postgres come from ../infra (start it first).
+# autorev's Celery workers. RabbitMQ, Redis and Postgres come from ../infra (start it first).
 name: autorev-workers
 
 services:

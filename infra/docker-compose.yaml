@@ -1,4 +1,4 @@
-# Shared infrastructure for the appjs services (studio, rev, restyle-web), locally and on the server.
+# Shared infrastructure for the appjs services (studio, autorev, restyle-web), locally and on the server.
 #
 #   cp .env.example .env    # set the passwords
 #   docker compose up -d                    # postgres, redis, rabbitmq
@@ -9,7 +9,7 @@
 name: appjs-infra
 
 services:
-  # One Postgres, one database (`appjs`), one schema + login role per app (studio, rev): each app
+  # One Postgres, one database (`appjs`), one schema + login role per app (studio, autorev): each app
   # connects as its own role, whose default search_path is its schema, and can't see the others'.
   postgres:
     image: postgres:17
@@ -18,9 +18,9 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}
       POSTGRES_DB: appjs
       # read by initdb/10-app-schemas.sh on the first start
-      APP_SCHEMAS: ${APP_SCHEMAS:-studio rev}
+      APP_SCHEMAS: ${APP_SCHEMAS:-studio autorev}
       STUDIO_DB_PASSWORD: ${STUDIO_DB_PASSWORD:?set STUDIO_DB_PASSWORD in .env}
-      REV_DB_PASSWORD: ${REV_DB_PASSWORD:?set REV_DB_PASSWORD in .env}
+      AUTOREV_DB_PASSWORD: ${AUTOREV_DB_PASSWORD:?set AUTOREV_DB_PASSWORD in .env}
       APP_DB_CREATEDB: ${APP_DB_CREATEDB:-false}
     volumes:
       - pgdata:/var/lib/postgresql/data
@@ -36,7 +36,7 @@ services:
     networks: [appjs]
     restart: unless-stopped
 
-  # Apps use separate Redis database numbers (rev: 0).
+  # Apps use separate Redis database numbers (autorev: 0).
   redis:
     image: redis:7-alpine
     command: ["redis-server", "--appendonly", "yes"]
@@ -52,7 +52,7 @@ services:
     networks: [appjs]
     restart: unless-stopped
 
-  # rev's Celery broker
+  # autorev's Celery broker
   rabbitmq:
     image: rabbitmq:3-management-alpine
     environment:

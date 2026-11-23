@@ -1,9 +1,7 @@
-# appjs-rev (formerly autorev)
+# autorev
 
 Subscription billing and recurring-payment orchestration over PhonePe and Razorpay, with outbound
-webhooks to client apps. The folder was renamed. The readme, the `AUTOREV_*` env vars, DB names
-(`autorev`, `autorev_test`; locally now role/schema `rev` and `rev_test` in ../infra), the API host (`api.autorev.postkaro.app`) and the github remote still
-say autorev. Don't rename those unless asked.
+webhooks to client apps.
 
 ## Layout
 
@@ -23,11 +21,11 @@ say autorev. Don't rename those unless asked.
 ## Commands
 
 ```bash
-(cd ../infra && docker compose up -d)                  # Postgres, Redis, RabbitMQ (shared; rev = role/schema `rev`)
+(cd ../infra && docker compose up -d)                  # Postgres, Redis, RabbitMQ (shared; autorev = role/schema `autorev`)
 docker compose up -d                                   # backend :8000, frontend :3000
 docker compose -f docker-compose.worker.yaml up -d     # worker, beat, flower :5555
 
-# backend tests: real routes against infra's rev_test database (its own; never AUTOREV_DATABASE_URL),
+# backend tests: real routes against infra's autorev_test database (its own; never AUTOREV_DATABASE_URL),
 # Razorpay HTTP replaced by a recorder
 cd backend && uv run --python 3.12 --no-project --with-requirements requirements-dev.txt python -m pytest tests
 

@@ -37,4 +37,4 @@ cd web && npm run typecheck && npm run lint && npm test && npm run build
 - Ruff: line length 110, py312, rules E F I B UP ASYNC. pytest runs asyncio in auto mode with a
   session loop.
 - After changing API schemas, regenerate the web types: `web/openapi.json` → `npm run gen:api`.
-- Payments are planned in `docs/PAYMENTS_PLAN.md` (engine: `../rev`, the appjs-rev service in this repo); nothing is wired yet.
+- Payments are planned in `docs/PAYMENTS_PLAN.md` (engine: `../autorev`, the autorev service in this repo); nothing is wired yet.

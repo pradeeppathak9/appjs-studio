@@ -1,7 +1,10 @@
-# Each service has its own .gitignore (studio/.gitignore, rev/.gitignore); these apply everywhere.
+# Each service has its own .gitignore (studio/.gitignore, autorev/.gitignore); these apply everywhere.
 .env
 .env.*
 !.env.example
 .DS_Store
 .idea/
 .vscode/
+# database dumps downloaded by `fab backup`
+backups/
+__pycache__/

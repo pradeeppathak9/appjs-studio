@@ -49,7 +49,7 @@ function CreateAppModal({ users, onClose, onCreate }) {
           </select>
 
           <label style={modal.label}>App Name *</label>
-          <input name="name" value={form.name} onChange={handleChange} placeholder="e.g. postkaro" style={modal.input} required />
+          <input name="name" value={form.name} onChange={handleChange} placeholder="e.g. my-app" style={modal.input} required />
 
           <label style={modal.label}>Payment Gateways</label>
           <label style={modal.checkboxRow}>

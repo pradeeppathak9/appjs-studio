@@ -5,7 +5,7 @@ COPY package.json package-lock.json ./
 RUN npm ci --no-audit --no-fund
 COPY . .
 # The API's public URL is baked into the bundle at build time.
-ARG VITE_API_URL=https://api.autorev.postkaro.app
+ARG VITE_API_URL=http://localhost:8000
 ENV VITE_API_URL=$VITE_API_URL
 RUN npm run build
 

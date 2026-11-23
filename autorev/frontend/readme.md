@@ -9,7 +9,7 @@ VITE_API_URL=http://localhost:8000 npm run dev   # http://localhost:3000 (allowe
 npm run typecheck && npm run lint && npm test && npm run build
 ```
 
-`VITE_API_URL` defaults to `https://api.autorev.postkaro.app` and is baked in at build time (the
+`VITE_API_URL` defaults to `http://localhost:8000` and is baked in at build time (the
 Dockerfile takes it as a build arg). The production image serves `dist/` with nginx.
 
 API types come from the backend's OpenAPI schema: export it to `openapi.json`, then `npm run gen:api`.

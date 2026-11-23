@@ -4,9 +4,9 @@ Shared infrastructure for the appjs services, the same locally and on servers.
 
 | Service | For | Reach it (Docker network `appjs`) | Host port (127.0.0.1) |
 |---|---|---|---|
-| Postgres 17 | studio, rev | `postgres:5432`, database `appjs` | 5432 |
-| Redis 7 | rev (db 0) | `redis:6379` | 6379 |
-| RabbitMQ 3 | rev's Celery | `rabbitmq:5672` | 15672 (management UI) |
+| Postgres 17 | studio, autorev | `postgres:5432`, database `appjs` | 5432 |
+| Redis 7 | autorev (db 0) | `redis:6379` | 6379 |
+| RabbitMQ 3 | autorev's Celery | `rabbitmq:5672` | 15672 (management UI) |
 | Caddy 2 | HTTPS for public domains (servers: `--profile edge`) | | 80, 443 (public) |
 
 ```bash
@@ -19,14 +19,14 @@ Start infra before the apps: their compose files join the external network `appj
 
 ## Postgres: one database, a schema per app
 
-Every app has a **login role and a schema of the same name** in database `appjs` (`studio`, `rev`).
+Every app has a **login role and a schema of the same name** in database `appjs` (`studio`, `autorev`).
 The role's `search_path` is its schema, so the app's tables live there without any code knowing about
 schemas, and it has no rights on the other apps' schemas or on `public`.
 
 | App | Connects as | URL inside Docker |
 |---|---|---|
 | studio | `studio` | `postgresql://studio:<pw>@postgres:5432/appjs` |
-| rev | `rev` | `postgresql://rev:<pw>@postgres:5432/appjs` |
+| autorev | `autorev` | `postgresql://autorev:<pw>@postgres:5432/appjs` |
 
 Each app also gets a database `<app>_test` of its own (owned by its role) for its tests. Locally,
 `APP_DB_CREATEDB=true` also lets app roles create databases (studio's tests make throwaway ones);
@@ -48,12 +48,12 @@ An app that used to have its own database (tables in `public`) is loaded into it
 ```bash
 pg_dump -Fc -U <old-user> <old-db> > old.dump          # wherever the old database runs
 docker compose cp old.dump postgres:/tmp/old.dump
-docker compose exec postgres /scripts/import-schema.sh rev /tmp/old.dump
+docker compose exec postgres /scripts/import-schema.sh autorev /tmp/old.dump
 ```
 
-Local data was moved this way on 2026-11-23: studio's from the `creative_pgdata` volume, rev's from
+Local data was moved this way on 2026-11-23: studio's from the `creative_pgdata` volume, autorev's from
 `autorev_pgdata`. Those old volumes are untouched; delete them once you no longer need them
-(`docker volume rm creative_pgdata autorev_pgdata appjs-rev_pgdata`).
+(`docker volume rm creative_pgdata autorev_pgdata`).
 
 ### Backups
 

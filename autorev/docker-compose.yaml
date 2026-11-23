@@ -1,7 +1,7 @@
-# appjs-rev. Postgres, Redis and RabbitMQ come from ../infra (start it first:
-# cd ../infra && docker compose up -d). The backend connects as role `rev` to database `appjs`, whose
-# search_path is schema `rev` (AUTOREV_DATABASE_URL in .env).
-name: appjs-rev
+# autorev. Postgres, Redis and RabbitMQ come from ../infra (start it first:
+# cd ../infra && docker compose up -d). The backend connects as role `autorev` to database `appjs`, whose
+# search_path is schema `autorev` (AUTOREV_DATABASE_URL in .env).
+name: autorev
 
 services:
   backend:
@@ -13,10 +13,10 @@ services:
       AUTOREV_REDIS_URL: ${AUTOREV_REDIS_URL:-redis://redis:6379/0}
       AUTOREV_SECRET_KEY: change-me-in-production
       AUTOREV_CELERY_BROKER_URL: ${CELERY_BROKER_URL:-amqp://celery:celery_mq_pass@rabbitmq:5672//}
-      CORS_ORIGINS: https://autorev.postkaro.app,http://localhost:3000,http://206.189.138.56:3000
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:3000}
     networks:
       default:
-      appjs: {aliases: [rev-api]}
+      appjs: {aliases: [autorev-api]}
     volumes:
       - ./backend:/app
 
@@ -26,7 +26,7 @@ services:
     build:
       context: ./frontend
       args:
-        VITE_API_URL: ${VITE_API_URL:-https://api.autorev.postkaro.app}
+        VITE_API_URL: ${VITE_API_URL:-http://localhost:8000}
     ports:
       - "3000:80"
     depends_on:

@@ -153,9 +153,8 @@ SYNC_SCHED_LOCK_KEY = "lock:phonepe-sync-scheduled-transactions"
 SYNC_SCHED_LOCK_TTL_SECONDS = 3 * 60 * 60
 
 # PAUSED is swept once a day rather than joining SYNC_STATE_PASSES, which runs every
-# five minutes. Nothing about a pause is time-critical, a mandate un-pauses at most
-# once per pause, and the migrated postkaro/postshare tenants brought 3,144 paused
-# rows — folding PAUSED into the frequent sweep would spend tens of thousands of
+# five minutes. Nothing about a pause is time-critical, and a mandate un-pauses at most
+# once per pause — folding PAUSED into the frequent sweep would spend tens of thousands of
 # PhonePe calls a day to catch a handful of transitions.
 SYNC_PAUSED_MAX_ROWS_PER_RUN = 20000
 
