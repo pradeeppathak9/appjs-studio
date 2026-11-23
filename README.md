@@ -1,14 +1,15 @@
 # appjs
 
-The AppJs platform: two independent services in one repository.
+The AppJs platform: two independent services and the first client app, in one repository.
 
 | Folder | Service | What it does | Stack |
 |---|---|---|---|
 | [`studio/`](studio/) | AppJs Studio ("creative") | Template-driven image/video generation, app users, credits and plans, admin console, and the per-app API (`/v1/app/*`) for mobile clients such as Restyle | Python (uv, FastAPI, async SQLAlchemy, Alembic) + `web/` React 19 / Mantine / Vite |
+| [`restyle/`](restyle/) | Restyle (Android) | The first app on Studio (slug `restyle-ai`): pick a style, add a photo, get the restyled image; calls Studio's `/v1/app/*` | Kotlin, Jetpack Compose, Gradle |
 | [`rev/`](rev/) | appjs-rev (formerly autorev) | Subscription billing over Razorpay and PhonePe (UPI Autopay), with signed webhooks to client apps | `backend/` FastAPI (requirements.txt), `workers/` Celery + RabbitMQ, `frontend/` React 19 / Mantine / Vite |
 
 They share nothing at build time: each keeps its own toolchain, Dockerfiles, `docker-compose` files,
-`.env`, tests and README. Read the service's README and CLAUDE.md before changing it.
+`.env` (Restyle: `local.properties`), tests and README. Read the service's README and CLAUDE.md before changing it.
 
 ## Run
 

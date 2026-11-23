@@ -12,7 +12,7 @@ API for mobile clients. The README is the reference; `docs/PLAN.md` explains des
   - `db/tables.py` is the schema source of truth; `migrations/` holds Alembic
 - `web/`: React 19 + TS + Mantine + TanStack Query console. `web/e2e/` holds Playwright tests.
 - `tests/`: pytest; `tests/smoke/` calls real providers (marker `smoke`, needs keys).
-- `docs/APPS_API.md` is the contract for app clients such as `../../restyle`. Change it together with
+- `docs/APPS_API.md` is the contract for app clients such as `../restyle`. Change it together with
   the `/v1/app/*` routes, never separately.
 
 ## Commands
