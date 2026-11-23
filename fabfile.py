@@ -240,6 +240,8 @@ def infra(c, target="prod", pull=True, edge=None):
     with conn.cd(_repo(cfg, "infra")):
         conn.run(f"docker compose {profile}pull")
         conn.run(f"docker compose {profile}up -d --remove-orphans")
+        if edge:
+            conn.run("docker compose exec -T caddy caddy reload --config /etc/caddy/Caddyfile")
         conn.run(f"docker compose {profile}ps")
 
 
