@@ -1,0 +1,10 @@
+# Public sites, with automatic HTTPS (Let's Encrypt). Domains come from infra/.env. Each upstream is a
+# network alias on the `appjs` network, set in that service's compose file.
+
+{$STUDIO_DOMAIN} {
+	reverse_proxy studio-web:80
+}
+
+{$RESTYLE_DOMAIN} {
+	reverse_proxy restyle-web:80
+}

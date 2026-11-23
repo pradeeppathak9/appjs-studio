@@ -1,25 +1,7 @@
+# rev's Celery workers. RabbitMQ, Redis and Postgres come from ../infra (start it first).
 name: autorev-workers
 
 services:
-  rabbitmq:
-    image: rabbitmq:3-management-alpine
-    restart: unless-stopped
-    environment:
-      RABBITMQ_DEFAULT_USER: celery
-      RABBITMQ_DEFAULT_PASS: celery_mq_pass
-    ports:
-      - "5672:5672"
-      - "15672:15672"
-    volumes:
-      - rabbitmq-data:/var/lib/rabbitmq
-    networks:
-      - autorev-network
-    healthcheck:
-      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
-      interval: 60s
-      timeout: 5s
-      retries: 3
-
   worker:
     build:
       context: .
@@ -27,14 +9,11 @@ services:
     command: celery -A phone_worker.celery_app worker --loglevel=info
     environment:
       AUTOREV_DATABASE_URL: ${AUTOREV_DATABASE_URL}
-      AUTOREV_REDIS_URL: redis://redis:6379/0
-      CELERY_BROKER_URL: amqp://celery:celery_mq_pass@rabbitmq:5672//
+      AUTOREV_REDIS_URL: ${AUTOREV_REDIS_URL:-redis://redis:6379/0}
+      CELERY_BROKER_URL: ${CELERY_BROKER_URL:-amqp://celery:celery_mq_pass@rabbitmq:5672//}
     restart: unless-stopped
-    depends_on:
-      rabbitmq:
-        condition: service_healthy
     networks:
-      - autorev-network
+      - appjs
 
   beat:
     build:
@@ -42,13 +21,10 @@ services:
       dockerfile: workers/Dockerfile
     command: celery -A phone_worker.celery_app beat --loglevel=info
     environment:
-      CELERY_BROKER_URL: amqp://celery:celery_mq_pass@rabbitmq:5672//
+      CELERY_BROKER_URL: ${CELERY_BROKER_URL:-amqp://celery:celery_mq_pass@rabbitmq:5672//}
     restart: unless-stopped
-    depends_on:
-      rabbitmq:
-        condition: service_healthy
     networks:
-      - autorev-network
+      - appjs
 
   flower:
     build:
@@ -58,20 +34,14 @@ services:
     ports:
       - "5555:5555"
     environment:
-      CELERY_BROKER_URL: amqp://celery:celery_mq_pass@rabbitmq:5672//
+      CELERY_BROKER_URL: ${CELERY_BROKER_URL:-amqp://celery:celery_mq_pass@rabbitmq:5672//}
     restart: unless-stopped
-    depends_on:
-      rabbitmq:
-        condition: service_healthy
     networks:
-      - autorev-network
+      - appjs
 
 networks:
-  autorev-network:
-    external: true
-
-volumes:
-  rabbitmq-data:
+  appjs:
+    external: true # from ../infra
 
 
 # docker compose -f docker-compose.worker.yaml up -d --build
@@ -80,6 +50,5 @@ volumes:
 # docker compose -f docker-compose.worker.yaml logs -f worker -n 100
 # docker compose -f docker-compose.worker.yaml logs -f beat -n 100
 # docker compose -f docker-compose.worker.yaml logs -f flower -n 100
-# docker compose -f docker-compose.worker.yaml logs -f rabbitmq -n 100
 # Flower UI: http://localhost:5555
-# RabbitMQ management UI: http://localhost:15672 (user: celery / celery_mq_pass)
+# RabbitMQ management UI (in ../infra): http://localhost:15672

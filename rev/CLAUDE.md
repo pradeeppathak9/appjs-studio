@@ -2,7 +2,7 @@
 
 Subscription billing and recurring-payment orchestration over PhonePe and Razorpay, with outbound
 webhooks to client apps. The folder was renamed. The readme, the `AUTOREV_*` env vars, DB names
-(`autorev`, `autorev_test`), the API host (`api.autorev.postkaro.app`) and the github remote still
+(`autorev`, `autorev_test`; locally now role/schema `rev` and `rev_test` in ../infra), the API host (`api.autorev.postkaro.app`) and the github remote still
 say autorev. Don't rename those unless asked.
 
 ## Layout
@@ -23,11 +23,12 @@ say autorev. Don't rename those unless asked.
 ## Commands
 
 ```bash
-docker compose up -d                                   # postgres :5432, redis :6379, backend :8000, frontend :3000
-docker compose -f docker-compose.worker.yaml up -d     # rabbitmq, worker, beat, flower :5555
+(cd ../infra && docker compose up -d)                  # Postgres, Redis, RabbitMQ (shared; rev = role/schema `rev`)
+docker compose up -d                                   # backend :8000, frontend :3000
+docker compose -f docker-compose.worker.yaml up -d     # worker, beat, flower :5555
 
-# backend tests: real routes against a throwaway DB, Razorpay HTTP replaced by a recorder
-docker compose exec postgres psql -U autorev -c "CREATE DATABASE autorev_test"   # once
+# backend tests: real routes against infra's rev_test database (its own; never AUTOREV_DATABASE_URL),
+# Razorpay HTTP replaced by a recorder
 cd backend && uv run --python 3.12 --no-project --with-requirements requirements-dev.txt python -m pytest tests
 
 cd frontend && VITE_API_URL=http://localhost:8000 npm run dev

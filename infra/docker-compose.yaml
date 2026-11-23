@@ -1,0 +1,99 @@
+# Shared infrastructure for the appjs services (studio, rev, restyle-web), locally and on the server.
+#
+#   cp .env.example .env    # set the passwords
+#   docker compose up -d                    # postgres, redis, rabbitmq
+#   docker compose --profile edge up -d     # + caddy (HTTPS for the public domains; servers only)
+#
+# Services join the external network `appjs` and reach these by name: postgres:5432, redis:6379,
+# rabbitmq:5672. Start infra before the apps.
+name: appjs-infra
+
+services:
+  # One Postgres, one database (`appjs`), one schema + login role per app (studio, rev): each app
+  # connects as its own role, whose default search_path is its schema, and can't see the others'.
+  postgres:
+    image: postgres:17
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}
+      POSTGRES_DB: appjs
+      # read by initdb/10-app-schemas.sh on the first start
+      APP_SCHEMAS: ${APP_SCHEMAS:-studio rev}
+      STUDIO_DB_PASSWORD: ${STUDIO_DB_PASSWORD:?set STUDIO_DB_PASSWORD in .env}
+      REV_DB_PASSWORD: ${REV_DB_PASSWORD:?set REV_DB_PASSWORD in .env}
+      APP_DB_CREATEDB: ${APP_DB_CREATEDB:-false}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./postgres/initdb:/docker-entrypoint-initdb.d:ro
+      - ./postgres/scripts:/scripts:ro
+    ports:
+      - "${POSTGRES_BIND:-127.0.0.1}:${POSTGRES_PORT:-5432}:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d appjs"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+    networks: [appjs]
+    restart: unless-stopped
+
+  # Apps use separate Redis database numbers (rev: 0).
+  redis:
+    image: redis:7-alpine
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redisdata:/data
+    ports:
+      - "${REDIS_BIND:-127.0.0.1}:${REDIS_PORT:-6379}:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks: [appjs]
+    restart: unless-stopped
+
+  # rev's Celery broker
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER:-celery}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD:?set RABBITMQ_PASSWORD in .env}
+    volumes:
+      - rabbitmqdata:/var/lib/rabbitmq
+    ports:
+      - "${RABBITMQ_BIND:-127.0.0.1}:15672:15672" # management UI
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 10s
+      timeout: 10s
+      retries: 6
+    networks: [appjs]
+    restart: unless-stopped
+
+  # HTTPS for every public domain (caddy/Caddyfile). Servers only: `--profile edge`.
+  caddy:
+    image: caddy:2
+    profiles: [edge]
+    environment:
+      STUDIO_DOMAIN: ${STUDIO_DOMAIN:-studio.localhost}
+      RESTYLE_DOMAIN: ${RESTYLE_DOMAIN:-restyle.localhost}
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./caddy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data # certificates: keep this volume
+      - caddy_config:/config
+    networks: [appjs]
+    restart: unless-stopped
+
+networks:
+  appjs:
+    name: appjs
+
+volumes:
+  pgdata: {}
+  redisdata: {}
+  rabbitmqdata: {}
+  caddy_data: {}
+  caddy_config: {}

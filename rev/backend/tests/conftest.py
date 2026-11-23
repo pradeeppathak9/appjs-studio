@@ -1,7 +1,7 @@
 """Tests run the real routes against a throwaway Postgres database (the models use
 JSONB, so SQLite will not do) and replace Razorpay's HTTP API with a recorder.
 
-    AUTOREV_TEST_DATABASE_URL=postgresql://autorev:autorev@localhost:5432/autorev_test pytest
+    AUTOREV_TEST_DATABASE_URL=postgresql://rev:rev@localhost:5432/rev_test pytest
 """
 import hashlib
 import hmac
@@ -11,7 +11,7 @@ import os
 import pytest
 
 os.environ["AUTOREV_DATABASE_URL"] = os.environ.get(
-    "AUTOREV_TEST_DATABASE_URL", "postgresql://autorev:autorev@localhost:5432/autorev_test"
+    "AUTOREV_TEST_DATABASE_URL", "postgresql://rev:rev@localhost:5432/rev_test"
 )
 
 from fastapi.testclient import TestClient  # noqa: E402

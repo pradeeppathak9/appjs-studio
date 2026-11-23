@@ -1,54 +1,41 @@
-# AppJs Studio on a server, from published images (no source checkout needed).
+# AppJs Studio and the Restyle web app on a server, from published images (no source checkout needed).
+# Postgres and Caddy (HTTPS) come from ../../infra, which runs first on the same server:
 #
-#   cp env.example .env            # fill it in
-#   docker compose -f docker-compose.prod.yaml pull
-#   docker compose -f docker-compose.prod.yaml up -d
+#   (infra)  docker compose --profile edge up -d
+#   (here)   cp env.example .env           # fill it in
+#            docker compose -f docker-compose.prod.yaml pull
+#            docker compose -f docker-compose.prod.yaml up -d
 #
-# Caddy terminates HTTPS for $DOMAIN (certificates from Let's Encrypt, renewed automatically) and
-# forwards everything to the web container, whose nginx serves the console and proxies /v1 to the
-# API. Only ports 80 and 443 are public; the API, worker and Postgres stay on the internal network.
+# Studio connects as role `studio` to database `appjs` (schema `studio`). Caddy serves STUDIO_DOMAIN
+# from `studio-web` (the console, whose nginx also proxies /v1 to the API) and RESTYLE_DOMAIN from
+# `restyle-web` (whose nginx proxies only /v1/app): both are aliases on the `appjs` network. Nothing
+# here publishes a port.
 name: creative
 
 x-app: &app
   image: ${STUDIO_IMAGE:?set STUDIO_IMAGE in .env}:${TAG:-latest}
   env_file: .env
   environment:
-    DATABASE_URL: postgresql://${POSTGRES_USER:-creative}:${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB:-creative}
+    DATABASE_URL: postgresql://studio:${STUDIO_DB_PASSWORD:?set STUDIO_DB_PASSWORD (same as infra)}@postgres:5432/appjs
     DATA_DIR: /app/data
     COOKIE_SECURE: "true"
   volumes:
     - ./data:/app/data # uploads, inputs and generated images: back this up with the database
   user: "10001:10001" # the image's app user; ./data must belong to it (see README)
+  networks: [default, appjs]
   restart: unless-stopped
 
 services:
-  db:
-    image: postgres:17
-    environment:
-      POSTGRES_USER: ${POSTGRES_USER:-creative}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD}
-      POSTGRES_DB: ${POSTGRES_DB:-creative}
-    volumes:
-      - pgdata:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
-      interval: 2s
-      timeout: 3s
-      retries: 30
-    restart: unless-stopped
-
   migrate:
     <<: *app
     command: ["creative", "db", "upgrade"]
-    depends_on:
-      db: {condition: service_healthy}
     restart: "no"
 
   api:
     <<: *app
     command: ["creative", "serve"]
     environment:
-      DATABASE_URL: postgresql://${POSTGRES_USER:-creative}:${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB:-creative}
+      DATABASE_URL: postgresql://studio:${STUDIO_DB_PASSWORD:?set STUDIO_DB_PASSWORD (same as infra)}@postgres:5432/appjs
       DATA_DIR: /app/data
       COOKIE_SECURE: "true"
       WORKER_ENABLED: "false"
@@ -59,8 +46,10 @@ services:
       timeout: 3s
       retries: 20
     depends_on:
-      db: {condition: service_healthy}
       migrate: {condition: service_completed_successfully}
+    networks:
+      default:
+      appjs: {aliases: [studio-api]}
 
   worker:
     <<: *app
@@ -73,28 +62,31 @@ services:
       start_period: 20s
     stop_grace_period: 45s
     depends_on:
-      db: {condition: service_healthy}
       migrate: {condition: service_completed_successfully}
 
   web:
     image: ${STUDIO_WEB_IMAGE:?set STUDIO_WEB_IMAGE in .env}:${TAG:-latest}
     depends_on:
       api: {condition: service_healthy}
+    networks:
+      default:
+      appjs: {aliases: [studio-web]}
     restart: unless-stopped
 
-  caddy:
-    image: caddy:2
-    command: ["caddy", "reverse-proxy", "--from", "${DOMAIN:?set DOMAIN in .env}", "--to", "web:80"]
-    ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - caddy_data:/data # certificates: keep this volume
-      - caddy_config:/config
-    depends_on: [web]
+  # The Restyle web app (../../restyle-web). APP_KEY is the Studio app key of restyle-ai (it ships in
+  # the page, like in the APK).
+  restyle-web:
+    image: ${RESTYLE_WEB_IMAGE:-ghcr.io/pradeeppathak9/restyle-web}:${RESTYLE_TAG:-latest}
+    environment:
+      APP_KEY: ${RESTYLE_APP_KEY:-}
+      STUDIO_API: http://api:8000
+    depends_on:
+      api: {condition: service_healthy}
+    networks:
+      default:
+      appjs: {aliases: [restyle-web]}
     restart: unless-stopped
 
-volumes:
-  pgdata: {}
-  caddy_data: {}
-  caddy_config: {}
+networks:
+  appjs:
+    external: true # from infra

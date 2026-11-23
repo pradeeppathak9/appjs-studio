@@ -1,11 +1,13 @@
 # appjs
 
-The AppJs platform: two independent services and the first client app, in one repository.
+The AppJs platform: two independent services and the first client app (Android and web), in one repository.
 
 | Folder | Service | What it does | Stack |
 |---|---|---|---|
+| [`infra/`](infra/) | Shared infrastructure | Postgres (schema + role per app), Redis, RabbitMQ, Caddy (HTTPS, servers) | Docker Compose |
 | [`studio/`](studio/) | AppJs Studio ("creative") | Template-driven image/video generation, app users, credits and plans, admin console, and the per-app API (`/v1/app/*`) for mobile clients such as Restyle | Python (uv, FastAPI, async SQLAlchemy, Alembic) + `web/` React 19 / Mantine / Vite |
 | [`restyle/`](restyle/) | Restyle (Android) | The first app on Studio (slug `restyle-ai`): pick a style, add a photo, get the restyled image; calls Studio's `/v1/app/*` | Kotlin, Jetpack Compose, Gradle |
+| [`restyle-web/`](restyle-web/) | Restyle (web) | The same app in the browser: sign in, pick a style, upload, download; its nginx proxies `/v1/app/*` to Studio | React 19 / Vite / TanStack Query, nginx |
 | [`rev/`](rev/) | appjs-rev (formerly autorev) | Subscription billing over Razorpay and PhonePe (UPI Autopay), with signed webhooks to client apps | `backend/` FastAPI (requirements.txt), `workers/` Celery + RabbitMQ, `frontend/` React 19 / Mantine / Vite |
 
 They share nothing at build time: each keeps its own toolchain, Dockerfiles, `docker-compose` files,
@@ -14,14 +16,15 @@ They share nothing at build time: each keeps its own toolchain, Dockerfiles, `do
 ## Run
 
 ```bash
-cd studio && docker compose up -d --build        # api :8010, web :8080 (Postgres on 127.0.0.1:5432)
-cd rev && docker compose up -d                   # backend :8000, frontend :3000, postgres :5432, redis :6379
-cd rev && docker compose -f docker-compose.worker.yaml up -d   # rabbitmq, workers, beat, flower :5555
+cd infra && cp -n .env.example .env && docker compose up -d   # Postgres :5432, Redis :6379, RabbitMQ (UI :15672)
+cd studio && docker compose up -d --build        # api :8010, web :8080
+cd rev && docker compose up -d                   # backend :8000, frontend :3000
+cd rev && docker compose -f docker-compose.worker.yaml up -d   # workers, beat, flower :5555
 ```
 
-**Both publish Postgres on :5432**, so run one at a time, or move one with its compose `ports:`.
-Compose project names are fixed (`creative`, `appjs-rev`, `autorev-workers`), so the containers and
-database volumes are the same ones these services used before they moved here.
+[`infra/`](infra/) holds the shared services: one Postgres with a database `appjs` and a schema + role
+per app (`studio`, `rev`; each sees only its own), Redis, RabbitMQ, and Caddy for HTTPS on servers.
+Start it first; the apps join its Docker network `appjs`.
 
 ## How they connect
 

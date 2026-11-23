@@ -1,4 +1,4 @@
-"""Tests run against a throwaway Postgres database (default: the compose `db` on localhost).
+"""Tests run against a throwaway Postgres database (default: ../infra's Postgres on localhost).
 If Postgres is unreachable they fail with a hint rather than skip."""
 
 from __future__ import annotations
@@ -25,7 +25,8 @@ BASE = "http://testserver"
 
 
 def _admin_dsn() -> str:
-    return os.environ.get("TEST_DATABASE_URL", "postgresql://creative:creative@localhost:5432/postgres")
+    # ../infra's Postgres; role `studio` may create databases in development (APP_DB_CREATEDB=true)
+    return os.environ.get("TEST_DATABASE_URL", "postgresql://studio:studio@localhost:5432/postgres")
 
 
 @pytest.fixture(scope="session")

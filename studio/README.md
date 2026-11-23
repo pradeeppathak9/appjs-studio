@@ -21,7 +21,11 @@ handles sign-in, templates, users and results.
 
 ## Run it (Docker)
 
+Postgres comes from [`../infra`](../infra) (shared with the other services; Studio uses role and
+schema `studio` in database `appjs`). Start it first.
+
 ```bash
+(cd ../infra && cp -n .env.example .env && docker compose up -d)
 cp .env.example .env            # add provider keys, or set ENABLE_FAKE_PROVIDER=true to try it free
 export UID GID=$(id -g)         # files under ./data belong to you
 mkdir -p data
@@ -33,19 +37,19 @@ Open http://localhost:8080/setup, enter the setup token, and create the admin. T
 create apps, add users (each gets a temporary password, shown once, which they change at first
 sign-in) and assign them to apps as editor or tester.
 
-Services: `db` (Postgres 17, volume `pgdata`), `migrate` (runs `creative db upgrade`, then exits),
+Services: `migrate` (runs `creative db upgrade` against infra's Postgres, then exits),
 `api` (http://localhost:8010), `worker` (scale with `docker compose up -d --scale worker=3`), `web`
 (http://localhost:8080). Ports are bound to 127.0.0.1 by default. To open the console to other
 machines, set `WEB_BIND=0.0.0.0` in `.env` and run `docker compose up -d web`; it is plain HTTP, so
 put it behind HTTPS (and set `COOKIE_SECURE=true`) before using real passwords on a shared network.
 
-`docker compose down -v` deletes the database volume, which removes every user, template and job.
+The data lives in infra's Postgres (schema `studio`): `docker compose down` here never touches it.
 
 ## Develop
 
 ```bash
 uv sync
-docker compose up -d db
+(cd ../infra && docker compose up -d postgres)
 uv run creative db upgrade
 ENABLE_FAKE_PROVIDER=true SETUP_TOKEN=dev uv run creative serve --port 8010   # API + in-process worker
 cd web && npm ci && npm run dev                                               # http://localhost:5173
@@ -53,7 +57,7 @@ cd web && npm ci && npm run dev                                               # 
 
 Run the worker separately instead with `WORKER_ENABLED=false` on `serve` and `uv run creative worker`.
 
-Tests (need the compose `db`; each run uses a throwaway database):
+Tests (need infra's Postgres; each run creates and drops a throwaway database as role `studio`):
 
 ```bash
 uv run ruff check . && uv run ruff format --check .
@@ -108,7 +112,7 @@ list with defaults. The most used:
 | `FAL_MODELS_FILE`, `OPENROUTER_MODELS_FILE` | packaged YAML | which fal / OpenRouter models are enabled (see Provider notes) |
 | `ENABLE_FAKE_PROVIDER` | `false` | deterministic local provider (prompt keywords `FAIL_TRANSIENT`, `FAIL_TRANSIENT:<k>`, `FAIL_POLICY`, `SLEEP:<s>`) |
 | `SETUP_TOKEN` | generated | token for the first-run setup page |
-| `DATABASE_URL` | `postgresql://creative:creative@localhost:5432/creative` | Postgres |
+| `DATABASE_URL` | `postgresql://creative:creative@localhost:5432/creative` | Postgres. With `../infra` (the default compose setup): `postgresql://studio:studio@localhost:5432/appjs`, role `studio` whose search_path is schema `studio` |
 | `DATA_DIR` | `./data` | outputs, uploaded inputs, reference images |
 | `WORKER_CONCURRENCY` | `2` | jobs per worker process |
 | `COOKIE_SECURE` | `false` | set `true` behind HTTPS |
