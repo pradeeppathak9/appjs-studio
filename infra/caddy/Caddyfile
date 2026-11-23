@@ -8,7 +8,12 @@
 }
 
 {$STUDIO_DOMAIN} {
-	handle_path /api/* {
+	handle /api/* {
+		uri replace /api/docs/oauth2-redirect /docs/oauth2-redirect
+		uri strip_prefix /api
+		reverse_proxy studio-api:8000
+	}
+	handle /openapi.json {
 		reverse_proxy studio-api:8000
 	}
 	handle /api {
