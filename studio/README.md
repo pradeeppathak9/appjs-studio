@@ -114,7 +114,7 @@ list with defaults. The most used:
 | `COOKIE_SECURE` | `false` | set `true` behind HTTPS |
 | `WEBHOOK_SECRET` | – | HMAC-SHA256 signature on webhooks (`X-Creative-Signature`) |
 | `SMS_PROVIDER` | `log` | `log` writes sign-in codes to the api log (dev); `msg91` sends them (`MSG91_AUTH_KEY`, `MSG91_TEMPLATE_ID`). Fallback for apps without their own MSG91 account or Firebase, set in App settings → Sign-in |
-| `SECRETS_KEY` | unset | encrypts credentials entered in the console (an app's MSG91 auth key); any long random string. Needed before such credentials can be saved |
+| `SECRETS_KEY` | unset | encrypts credentials entered in the console (an app's MSG91 auth key, and its own Gemini / OpenAI / fal / OpenRouter keys from App settings → Provider API keys, which its jobs use in place of the server's); any long random string. Needed before such credentials can be saved |
 | `OTP_SECRET` | random | key for stored sign-in codes; set it in production so codes survive restarts |
 | `OTP_TEST_NUMBERS` | – | fixed codes for store reviewers, no SMS sent (`+919999999999:123456,…`) |
 

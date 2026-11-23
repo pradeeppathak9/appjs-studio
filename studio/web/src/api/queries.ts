@@ -15,6 +15,7 @@ export const keys = {
   me: ["me"] as const,
   health: ["health"] as const,
   providers: ["providers"] as const,
+  appProviders: (appId: string) => ["providers", "app", appId] as const,
   tokens: ["tokens"] as const,
   myApps: ["myApps"] as const,
   myApp: (appId: string) => ["myApps", appId] as const,
@@ -88,10 +89,11 @@ export function useHealth() {
   });
 }
 
-export function useProviders() {
+/** The providers jobs can run on: the server's, or with `appId`, also those the app has its own key for. */
+export function useProviders(appId?: string) {
   return useQuery({
-    queryKey: keys.providers,
-    queryFn: () => unwrap(api.GET("/v1/providers")),
+    queryKey: appId ? keys.appProviders(appId) : keys.providers,
+    queryFn: () => unwrap(api.GET("/v1/providers", { params: { query: { app_id: appId } } })),
     staleTime: 5 * 60_000,
   });
 }

@@ -82,12 +82,20 @@ class TemplateService:
         registry: ProviderRegistry,
         store: AssetStore,
         jobs: JobRepository,
+        providers=None,  # creative.apps.providers.AppProviders: an app's own provider keys
     ):
         self.settings = settings
         self.db = sessions
         self.registry = registry
         self.store = store
         self.jobs = jobs
+        self.providers = providers
+
+    async def _provider(self, app_id: UUID, name: str):
+        """The provider an app's jobs use: with its own key when it has one."""
+        if self.providers is not None:
+            return await self.providers.get(app_id, name)
+        return self.registry.get(name)
 
     # ---- save-time checks ---------------------------------------------------------------------------
     async def check(self, f: TemplateFields, app_id: UUID) -> list[str]:
@@ -143,11 +151,11 @@ class TemplateService:
                 if ids and u not in found:
                     err(field, f"upload {u} not found")
 
-        provider = self.registry.get(f.provider)
+        provider = await self._provider(app_id, f.provider)
         if provider is None:
             warnings.append(
-                f"provider {f.provider!r} is not configured on this server; the template can be saved "
-                "but calls will fail until it is"
+                f"provider {f.provider!r} is not configured on this server and the app has no key for "
+                "it; the template can be saved but calls will fail until one is set"
             )
         else:
             caps = provider.capabilities
@@ -528,7 +536,7 @@ class TemplateService:
         prompt = render(v.prompt, values)
         negative = render(v.negative_prompt, values)
 
-        provider = self.registry.get(v.provider)
+        provider = await self._provider(app_id, v.provider)
         if provider is None:
             raise UnavailableError(f"provider {v.provider} is not configured on this server")
 

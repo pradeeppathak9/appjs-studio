@@ -22,17 +22,20 @@ class GenerationService:
         sessions: async_sessionmaker[AsyncSession],
         repo: JobRepository,
         registry: ProviderRegistry,
+        providers=None,  # creative.apps.providers.AppProviders: an app's own provider keys
     ):
         self.settings = settings
         self.db = sessions
         self.repo = repo
         self.registry = registry
+        self.providers = providers
 
     async def create(self, actor: User, app_id: UUID, body) -> Job:
         """A free-prompt test job inside an app (editors)."""
         media = MediaType(body.media_type)
         try:
-            resolved = self.registry.resolve(media, body.provider, body.model)
+            available = await self.providers.all(app_id) if self.providers is not None else None
+            resolved = self.registry.resolve(media, body.provider, body.model, available)
         except NoProviderAvailableError as e:
             raise UnavailableError(str(e)) from e
         except UnsupportedRequestError as e:

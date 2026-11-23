@@ -24,13 +24,14 @@ import {
   IconArrowLeft,
   IconCreditCard,
   IconDeviceFloppy,
+  IconKey,
   IconLogin,
   IconUsers,
 } from "@tabler/icons-react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Link, useParams } from "react-router";
 import { errorMessage } from "../../api/client";
-import { keys, patchApp, useAdminApp } from "../../api/queries";
+import { keys, patchApp, useAdminApp, useProviders } from "../../api/queries";
 import type { AppDetail } from "../../api/types";
 import { AppAvatar, Section } from "../../components/ui";
 import {
@@ -411,6 +412,119 @@ function PaymentSettings({ app }: { app: AppDetail }) {
   );
 }
 
+const PROVIDER_KEYS = [
+  { name: "gemini", field: "gemini_api_key", label: "Google Gemini", where: "Google AI Studio → Get API key" },
+  { name: "openai", field: "openai_api_key", label: "OpenAI", where: "platform.openai.com → API keys" },
+  { name: "fal", field: "fal_api_key", label: "fal.ai", where: "fal.ai → Dashboard → Keys" },
+  { name: "openrouter", field: "openrouter_api_key", label: "OpenRouter", where: "openrouter.ai → Keys" },
+] as const;
+type KeyField = (typeof PROVIDER_KEYS)[number]["field"];
+
+/** The app's own AI provider keys: its generations are billed to these accounts. A provider without
+ * one uses the server's key from .env, if the server has one. */
+function ProviderKeys({ app }: { app: AppDetail }) {
+  const qc = useQueryClient();
+  const server = useProviders();
+  const serverHas = new Set((server.data ?? []).map((p) => p.name));
+  const saved = app.provider_keys_set ?? {};
+  const form = useForm<Record<KeyField, string>>({
+    initialValues: { gemini_api_key: "", openai_api_key: "", fal_api_key: "", openrouter_api_key: "" },
+  });
+  const done = (a: AppDetail, message: string) => {
+    qc.setQueryData(keys.adminApp(a.id), a);
+    qc.invalidateQueries({ queryKey: keys.admin });
+    qc.invalidateQueries({ queryKey: keys.appProviders(a.id) });
+    form.reset();
+    notifications.show({ color: "green", message });
+  };
+  const save = useMutation({
+    meta: { quiet: true },
+    mutationFn: (v: Record<KeyField, string>) =>
+      patchApp(app.id, Object.fromEntries(Object.entries(v).filter(([, x]) => x.trim()).map(([k, x]) => [k, x.trim()]))),
+    onSuccess: (a) => done(a, "Provider keys saved"),
+    onError: (e) => form.setErrors(fieldErrors(e, (p) => p in form.values).errors),
+  });
+  const remove = useMutation({
+    mutationFn: (field: KeyField) => patchApp(app.id, { [field]: null }),
+    onSuccess: (a) => done(a, "Key removed: the app uses the server's key again"),
+  });
+  const typed = Object.values(form.values).some((x) => x.trim());
+  const problem = save.error && !Object.keys(form.errors).length ? errorMessage(save.error) : null;
+
+  return (
+    <Section
+      title="Provider API keys"
+      icon={<IconKey size={18} />}
+      description="This app's own AI provider accounts. Its generations run on (and are billed to) these keys; a provider without one uses the server's key."
+      testId="provider-keys"
+    >
+      <form onSubmit={form.onSubmit((v) => save.mutate(v))}>
+        <Stack gap="md">
+          {!app.secrets_key_set && (
+            <Alert color="yellow">
+              The server can't store credentials yet: set <code>SECRETS_KEY</code> (any long random string) in its
+              environment and restart it.
+            </Alert>
+          )}
+          {PROVIDER_KEYS.map((p) => {
+            const own = !!saved[p.name];
+            const status = own
+              ? { color: "green", text: "app's own key" }
+              : serverHas.has(p.name)
+                ? { color: "gray", text: "server key" }
+                : { color: "red", text: "not available" };
+            return (
+              <div key={p.name} data-provider={p.name}>
+                <PasswordInput
+                  label={
+                    <Group gap={6} component="span">
+                      {p.label}
+                      <Badge size="xs" variant="light" color={status.color} data-testid={`key-status-${p.name}`}>
+                        {status.text}
+                      </Badge>
+                    </Group>
+                  }
+                  description={`${p.where}. Stored encrypted; it can be replaced, never shown again.`}
+                  placeholder={own ? "Saved · type a new key to replace it" : "Not set"}
+                  disabled={!app.secrets_key_set}
+                  autoComplete="new-password"
+                  {...form.getInputProps(p.field)}
+                />
+                {own && (
+                  <Button
+                    variant="subtle"
+                    color="red"
+                    size="compact-xs"
+                    mt={4}
+                    loading={remove.isPending && remove.variables === p.field}
+                    onClick={() =>
+                      window.confirm(`Remove the app's ${p.label} key? Its jobs go back to the server's key.`) &&
+                      remove.mutate(p.field)
+                    }
+                  >
+                    Remove saved key
+                  </Button>
+                )}
+              </div>
+            );
+          })}
+          {problem && <Alert color="red">{problem}</Alert>}
+          <Group>
+            <Button
+              type="submit"
+              loading={save.isPending}
+              disabled={!typed || !app.secrets_key_set}
+              leftSection={<IconDeviceFloppy size={16} />}
+            >
+              Save keys
+            </Button>
+          </Group>
+        </Stack>
+      </form>
+    </Section>
+  );
+}
+
 /** Admin → Apps → the app → App settings, and the app dashboard's Settings tab (`inApp`, admins only). */
 export function AdminAppSettingsPage({ inApp = false }: { inApp?: boolean }) {
   const { appId } = useParams();
@@ -467,6 +581,7 @@ export function AdminAppSettingsPage({ inApp = false }: { inApp?: boolean }) {
           <Stack gap="lg">
             <SignInSettings app={a} />
             <PaymentSettings app={a} />
+            <ProviderKeys key={a.updated_at} app={a} />
           </Stack>
         </Grid.Col>
         <Grid.Col span={{ base: 12, lg: 6 }}>

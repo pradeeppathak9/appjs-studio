@@ -305,6 +305,12 @@ class App(Base):
     msg91_otp_var: Mapped[str | None] = mapped_column(String(32))
     msg91_auth_key_enc: Mapped[str | None] = mapped_column(Text)  # Fernet, see creative/secrets.py
     firebase_project_id: Mapped[str | None] = mapped_column(String(64))
+    # the app's own AI provider keys (Fernet, see creative/secrets.py): its jobs use these, and the
+    # server's keys from .env only for providers it has none for
+    gemini_api_key_enc: Mapped[str | None] = mapped_column(Text)
+    openai_api_key_enc: Mapped[str | None] = mapped_column(Text)
+    fal_api_key_enc: Mapped[str | None] = mapped_column(Text)
+    openrouter_api_key_enc: Mapped[str | None] = mapped_column(Text)
     signup_credits: Mapped[int] = mapped_column(Integer, server_default="0")
     require_login: Mapped[bool] = mapped_column(Boolean, server_default=text("false"))
     # payments: which gateway the app's purchases go through, and its public identifiers. Secret

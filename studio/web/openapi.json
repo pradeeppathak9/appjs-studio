@@ -32,18 +32,50 @@
      "meta"
     ],
     "summary": "Providers",
+    "description": "The providers jobs can run on: the server's, plus, with `app_id`, those the app brings a key for.",
     "operationId": "providers_v1_providers_get",
+    "parameters": [
+     {
+      "name": "app_id",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string",
+         "format": "uuid"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "also list providers this app has its own API key for (members of the app)",
+       "title": "App Id"
+      },
+      "description": "also list providers this app has its own API key for (members of the app)"
+     }
+    ],
     "responses": {
      "200": {
       "description": "Successful Response",
       "content": {
        "application/json": {
         "schema": {
+         "type": "array",
          "items": {
           "$ref": "#/components/schemas/ProviderInfo"
          },
-         "type": "array",
          "title": "Response Providers V1 Providers Get"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
         }
        }
       }
@@ -4185,6 +4217,54 @@
       ],
       "title": "Firebase Project Id"
      },
+     "gemini_api_key": {
+      "anyOf": [
+       {
+        "type": "string",
+        "maxLength": 500
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Gemini Api Key"
+     },
+     "openai_api_key": {
+      "anyOf": [
+       {
+        "type": "string",
+        "maxLength": 500
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Openai Api Key"
+     },
+     "fal_api_key": {
+      "anyOf": [
+       {
+        "type": "string",
+        "maxLength": 500
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Fal Api Key"
+     },
+     "openrouter_api_key": {
+      "anyOf": [
+       {
+        "type": "string",
+        "maxLength": 500
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Openrouter Api Key"
+     },
      "signup_credits": {
       "type": "integer",
       "maximum": 100000.0,
@@ -4347,6 +4427,14 @@
       "type": "boolean",
       "title": "Msg91 Auth Key Set",
       "description": "an MSG91 auth key is saved (the key itself is write-only)"
+     },
+     "provider_keys_set": {
+      "additionalProperties": {
+       "type": "boolean"
+      },
+      "type": "object",
+      "title": "Provider Keys Set",
+      "description": "per AI provider (gemini, openai, fal, openrouter): the app has its own key saved (write-only); without one its jobs use the server's key"
      },
      "firebase_project_id": {
       "anyOf": [
@@ -4601,6 +4689,54 @@
        }
       ],
       "title": "Firebase Project Id"
+     },
+     "gemini_api_key": {
+      "anyOf": [
+       {
+        "type": "string",
+        "maxLength": 500
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Gemini Api Key"
+     },
+     "openai_api_key": {
+      "anyOf": [
+       {
+        "type": "string",
+        "maxLength": 500
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Openai Api Key"
+     },
+     "fal_api_key": {
+      "anyOf": [
+       {
+        "type": "string",
+        "maxLength": 500
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Fal Api Key"
+     },
+     "openrouter_api_key": {
+      "anyOf": [
+       {
+        "type": "string",
+        "maxLength": 500
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Openrouter Api Key"
      },
      "signup_credits": {
       "type": "integer",
@@ -4921,6 +5057,14 @@
       "title": "Msg91 Auth Key Set",
       "description": "an MSG91 auth key is saved (the key itself is write-only)"
      },
+     "provider_keys_set": {
+      "additionalProperties": {
+       "type": "boolean"
+      },
+      "type": "object",
+      "title": "Provider Keys Set",
+      "description": "per AI provider (gemini, openai, fal, openrouter): the app has its own key saved (write-only); without one its jobs use the server's key"
+     },
      "firebase_project_id": {
       "anyOf": [
        {
@@ -5179,6 +5323,54 @@
        }
       ],
       "title": "Firebase Project Id"
+     },
+     "gemini_api_key": {
+      "anyOf": [
+       {
+        "type": "string",
+        "maxLength": 500
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Gemini Api Key"
+     },
+     "openai_api_key": {
+      "anyOf": [
+       {
+        "type": "string",
+        "maxLength": 500
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Openai Api Key"
+     },
+     "fal_api_key": {
+      "anyOf": [
+       {
+        "type": "string",
+        "maxLength": 500
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Fal Api Key"
+     },
+     "openrouter_api_key": {
+      "anyOf": [
+       {
+        "type": "string",
+        "maxLength": 500
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Openrouter Api Key"
      },
      "signup_credits": {
       "type": "integer",
@@ -6790,6 +6982,14 @@
       "type": "boolean",
       "title": "Msg91 Auth Key Set",
       "description": "an MSG91 auth key is saved (the key itself is write-only)"
+     },
+     "provider_keys_set": {
+      "additionalProperties": {
+       "type": "boolean"
+      },
+      "type": "object",
+      "title": "Provider Keys Set",
+      "description": "per AI provider (gemini, openai, fal, openrouter): the app has its own key saved (write-only); without one its jobs use the server's key"
      },
      "firebase_project_id": {
       "anyOf": [

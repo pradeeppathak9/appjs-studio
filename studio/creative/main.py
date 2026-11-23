@@ -20,6 +20,7 @@ from creative.api import (
     templates,
 )
 from creative.api.errors import error_response, install_error_handlers
+from creative.apps.providers import AppProviders
 from creative.apps.service import AppService
 from creative.auth.service import AuthService
 from creative.config import Settings
@@ -49,7 +50,9 @@ async def build_state(settings: Settings, registry: ProviderRegistry | None = No
     store = LocalAssetStore(settings.data_dir)
     registry = registry or ProviderRegistry.from_settings(settings, http, store.temp_dir())
     repo, queue = PgJobRepository(db), PgJobQueue(db)
-    generations_svc = GenerationService(settings, db, repo, registry)
+    apps = AppService(db, box)
+    providers = AppProviders(registry, apps)  # an app's own provider keys, else the server's
+    generations_svc = GenerationService(settings, db, repo, registry, providers)
     return AppState(
         settings=settings,
         engine=engine,
@@ -61,9 +64,10 @@ async def build_state(settings: Settings, registry: ProviderRegistry | None = No
         queue=queue,
         auth=AuthService(settings, db),
         generations=generations_svc,
-        templates=TemplateService(settings, db, registry, store, repo),
+        templates=TemplateService(settings, db, registry, store, repo, providers),
         webhooks=WebhookSender(settings, http, repo, generations_svc.payload_for_webhook),
-        apps=AppService(db, box),
+        apps=apps,
+        providers=providers,
         endusers=AppUserService(settings, db, http, box=box),
         billing=BillingService(db),
     )
@@ -84,6 +88,7 @@ def make_worker(state: AppState) -> Worker:
         state.registry,
         state.webhooks,
         billing=state.billing,
+        providers=state.providers,
     )
 
 

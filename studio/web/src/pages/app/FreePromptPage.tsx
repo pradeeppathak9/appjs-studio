@@ -44,7 +44,7 @@ type Values = {
 /** Free-prompt test generation inside the app (editors): POST /v1/apps/{id}/generations. */
 export function FreePromptPage() {
   const app = useCurrentApp();
-  const providers = useProviders();
+  const providers = useProviders(app.id);
   const qc = useQueryClient();
   const [, selectJob] = useSelectedJob();
   const form = useForm<Values>({

@@ -8,6 +8,7 @@ import httpx
 from fastapi import Depends, Request
 from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, async_sessionmaker
 
+from creative.apps.providers import AppProviders
 from creative.apps.service import AppPrincipal, AppService
 from creative.auth.service import AppRole, AuthService, Principal, Role
 from creative.config import Settings
@@ -42,6 +43,7 @@ class AppState:
     apps: AppService
     endusers: AppUserService
     billing: BillingService
+    providers: AppProviders | None = None  # an app's own provider keys (creative/apps/providers.py)
     worker: Worker | None = None
 
 

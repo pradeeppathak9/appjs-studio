@@ -28,7 +28,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Providers */
+        /**
+         * Providers
+         * @description The providers jobs can run on: the server's, plus, with `app_id`, those the app brings a key for.
+         */
         get: operations["providers_v1_providers_get"];
         put?: never;
         post?: never;
@@ -1360,6 +1363,14 @@ export interface components {
             msg91_auth_key?: string | null;
             /** Firebase Project Id */
             firebase_project_id?: string | null;
+            /** Gemini Api Key */
+            gemini_api_key?: string | null;
+            /** Openai Api Key */
+            openai_api_key?: string | null;
+            /** Fal Api Key */
+            fal_api_key?: string | null;
+            /** Openrouter Api Key */
+            openrouter_api_key?: string | null;
             /**
              * Signup Credits
              * @default 0
@@ -1431,6 +1442,13 @@ export interface components {
              * @description an MSG91 auth key is saved (the key itself is write-only)
              */
             msg91_auth_key_set: boolean;
+            /**
+             * Provider Keys Set
+             * @description per AI provider (gemini, openai, fal, openrouter): the app has its own key saved (write-only); without one its jobs use the server's key
+             */
+            provider_keys_set?: {
+                [key: string]: boolean;
+            };
             /** Firebase Project Id */
             firebase_project_id: string | null;
             /**
@@ -1540,6 +1558,14 @@ export interface components {
             msg91_auth_key?: string | null;
             /** Firebase Project Id */
             firebase_project_id?: string | null;
+            /** Gemini Api Key */
+            gemini_api_key?: string | null;
+            /** Openai Api Key */
+            openai_api_key?: string | null;
+            /** Fal Api Key */
+            fal_api_key?: string | null;
+            /** Openrouter Api Key */
+            openrouter_api_key?: string | null;
             /**
              * Signup Credits
              * @default 0
@@ -1672,6 +1698,13 @@ export interface components {
              * @description an MSG91 auth key is saved (the key itself is write-only)
              */
             msg91_auth_key_set: boolean;
+            /**
+             * Provider Keys Set
+             * @description per AI provider (gemini, openai, fal, openrouter): the app has its own key saved (write-only); without one its jobs use the server's key
+             */
+            provider_keys_set?: {
+                [key: string]: boolean;
+            };
             /** Firebase Project Id */
             firebase_project_id: string | null;
             /**
@@ -1777,6 +1810,14 @@ export interface components {
             msg91_auth_key?: string | null;
             /** Firebase Project Id */
             firebase_project_id?: string | null;
+            /** Gemini Api Key */
+            gemini_api_key?: string | null;
+            /** Openai Api Key */
+            openai_api_key?: string | null;
+            /** Fal Api Key */
+            fal_api_key?: string | null;
+            /** Openrouter Api Key */
+            openrouter_api_key?: string | null;
             /**
              * Signup Credits
              * @default 0
@@ -2367,6 +2408,13 @@ export interface components {
              * @description an MSG91 auth key is saved (the key itself is write-only)
              */
             msg91_auth_key_set: boolean;
+            /**
+             * Provider Keys Set
+             * @description per AI provider (gemini, openai, fal, openrouter): the app has its own key saved (write-only); without one its jobs use the server's key
+             */
+            provider_keys_set?: {
+                [key: string]: boolean;
+            };
             /** Firebase Project Id */
             firebase_project_id: string | null;
             /**
@@ -3328,7 +3376,10 @@ export interface operations {
     };
     providers_v1_providers_get: {
         parameters: {
-            query?: never;
+            query?: {
+                /** @description also list providers this app has its own API key for (members of the app) */
+                app_id?: string | null;
+            };
             header?: never;
             path?: never;
             cookie?: never;
@@ -3342,6 +3393,15 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ProviderInfo"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };

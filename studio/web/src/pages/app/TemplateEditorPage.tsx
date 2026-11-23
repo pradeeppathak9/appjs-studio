@@ -325,7 +325,7 @@ function EditorForm({
   aside?: (dirty: boolean) => ReactNode;
 }) {
   const app = useCurrentApp();
-  const providers = useProviders();
+  const providers = useProviders(app.id);
   const location = useLocation();
   const [warnings, setWarnings] = useState<string[]>((location.state as { warnings?: string[] } | null)?.warnings ?? []);
   const [conflict, setConflict] = useState<ApiError | null>(null);

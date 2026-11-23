@@ -20,7 +20,7 @@ from creative.api.schemas import (
     UserOut,
     UserUpdate,
 )
-from creative.apps.service import AppCreate, AppFields, AppPatch, Counts
+from creative.apps.service import PROVIDER_KEY_FIELDS, AppCreate, AppFields, AppPatch, Counts
 from creative.auth.service import Principal
 from creative.deps import AppState, admin, get_state
 
@@ -59,6 +59,7 @@ def app_out(app, counts: Counts | None = None) -> AppOut:
         msg91_template_id=app.msg91_template_id,
         msg91_otp_var=app.msg91_otp_var,
         msg91_auth_key_set=bool(app.msg91_auth_key_enc),
+        provider_keys_set={p: bool(getattr(app, f"{f}_enc")) for p, f in PROVIDER_KEY_FIELDS.items()},
         firebase_project_id=app.firebase_project_id,
         signup_credits=app.signup_credits,
         require_login=app.require_login,

@@ -29,8 +29,16 @@ MSG91_TEMPLATE_RE = re.compile(r"^[A-Za-z0-9_-]{4,64}$")
 MSG91_VAR_RE = re.compile(r"^[A-Za-z0-9_]{1,32}$")
 MSG91_KEY_RE = re.compile(r"^\S{10,200}$")
 FIREBASE_PROJECT_RE = re.compile(r"^[a-z][a-z0-9-]{4,28}[a-z0-9]$")
+# The app's own AI provider keys, by provider name: write-only settings fields like the MSG91 key.
+PROVIDER_KEY_FIELDS = {
+    "gemini": "gemini_api_key",
+    "openai": "openai_api_key",
+    "fal": "fal_api_key",
+    "openrouter": "openrouter_api_key",
+}
+PROVIDER_KEY_RE = re.compile(r"^\S{10,500}$")
 # write-only fields: encrypted into <name>_enc, never returned
-SECRET_FIELDS = ("msg91_auth_key",)
+SECRET_FIELDS = ("msg91_auth_key", *PROVIDER_KEY_FIELDS.values())
 
 
 class RateLimited(ServiceError):
@@ -54,6 +62,12 @@ class AppFields(BaseModel):
     # write-only: a value replaces the saved key, null removes it, leaving it out keeps it
     msg91_auth_key: str | None = Field(None, max_length=200)
     firebase_project_id: str | None = Field(None, max_length=64)
+    # the app's own AI provider keys, write-only like msg91_auth_key: a value replaces the saved key,
+    # null removes it (the server's key is used again), leaving it out keeps it
+    gemini_api_key: str | None = Field(None, max_length=500)
+    openai_api_key: str | None = Field(None, max_length=500)
+    fal_api_key: str | None = Field(None, max_length=500)
+    openrouter_api_key: str | None = Field(None, max_length=500)
     signup_credits: int = Field(0, ge=0, le=100_000)
     require_login: bool = False
     # payments (public identifiers only; secrets come with the checkout integration)
@@ -69,6 +83,10 @@ class AppFields(BaseModel):
         "msg91_otp_var",
         "msg91_auth_key",
         "firebase_project_id",
+        "gemini_api_key",
+        "openai_api_key",
+        "fal_api_key",
+        "openrouter_api_key",
         mode="before",
     )
     @classmethod
@@ -94,6 +112,13 @@ class AppFields(BaseModel):
     def _msg91_key(cls, v: str | None) -> str | None:
         if v is not None and not MSG91_KEY_RE.match(v):
             raise ValueError("an MSG91 auth key has no spaces and is at least 10 characters")
+        return v
+
+    @field_validator("gemini_api_key", "openai_api_key", "fal_api_key", "openrouter_api_key")
+    @classmethod
+    def _provider_key(cls, v: str | None) -> str | None:
+        if v is not None and not PROVIDER_KEY_RE.match(v):
+            raise ValueError("paste the whole API key: no spaces, at least 10 characters")
         return v
 
     @field_validator("firebase_project_id")
@@ -186,6 +211,23 @@ class AppService:
         return changes
 
     # ---- apps ------------------------------------------------------------------------------------
+    async def provider_keys(self, app_id: UUID | None) -> dict[str, str]:
+        """The app's own provider keys, decrypted, by provider name (only those it has). A key that
+        can't be decrypted (SECRETS_KEY changed or missing) raises rather than falling back to the
+        server's key, so an app never runs on the server's account by surprise."""
+        if app_id is None:
+            return {}
+        async with self.db() as s:
+            app = await s.get(App, app_id)
+        if app is None:
+            return {}
+        out = {}
+        for provider, field in PROVIDER_KEY_FIELDS.items():
+            token = getattr(app, f"{field}_enc")
+            if token:
+                out[provider] = self.box.decrypt(token)
+        return out
+
     async def get(self, app_id: UUID) -> App:
         async with self.db() as s:
             app = await s.get(App, app_id)

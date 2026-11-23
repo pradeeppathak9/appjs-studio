@@ -51,6 +51,7 @@ class Worker:
         webhooks: WebhookSender | None,
         wid: str | None = None,
         billing=None,  # creative.endusers.billing.BillingService: monthly subscription credits
+        providers=None,  # creative.apps.providers.AppProviders: an app's own provider keys
     ):
         self.settings = settings
         self.queue = queue
@@ -59,6 +60,7 @@ class Worker:
         self.registry = registry
         self.webhooks = webhooks
         self.billing = billing
+        self.providers = providers
         self._last_billing_sweep = 0.0
         self.id = wid or worker_id()
         self.hostname = socket.gethostname()
@@ -219,7 +221,10 @@ class Worker:
         lease = Lease(job.id, self.id, job.attempt)
         written: list[str] = []
         try:
-            provider = self.registry.get(job.provider)
+            if self.providers is not None:
+                provider = await self.providers.get(job.app_id, job.provider)
+            else:
+                provider = self.registry.get(job.provider)
             if provider is None:
                 raise ProviderError(
                     f"provider {job.provider} is not configured on this worker",

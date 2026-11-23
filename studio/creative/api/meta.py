@@ -1,9 +1,14 @@
-from fastapi import APIRouter, Depends
+from uuid import UUID
+
+from fastapi import APIRouter, Depends, Query
 from fastapi.responses import JSONResponse
 from sqlalchemy import text
 
 from creative.api.schemas import HealthResponse, ProviderInfo
+from creative.auth.service import Principal
 from creative.deps import AppState, get_state, public, signed_in
+from creative.errors import NotFoundError
+from creative.providers.registry import ORDER
 
 router = APIRouter(tags=["meta"])
 
@@ -20,10 +25,24 @@ async def healthz(state: AppState = Depends(get_state)):
     return HealthResponse(status=status, db="ok", workers=workers, jobs=await state.repo.counts())
 
 
-@router.get("/v1/providers", response_model=list[ProviderInfo], dependencies=[Depends(signed_in)])
-async def providers(state: AppState = Depends(get_state)):
+@router.get("/v1/providers", response_model=list[ProviderInfo])
+async def providers(
+    app_id: UUID | None = Query(
+        None, description="also list providers this app has its own API key for (members of the app)"
+    ),
+    who: Principal = Depends(signed_in),
+    state: AppState = Depends(get_state),
+):
+    """The providers jobs can run on: the server's, plus, with `app_id`, those the app brings a key for."""
+    if app_id is None:
+        available = state.registry.list()
+    else:
+        if await state.apps.role_of(who.user, app_id) is None:
+            raise NotFoundError("app not found")
+        by_name = await state.providers.all(app_id) if state.providers else dict(state.registry.providers)
+        available = [by_name[n] for n in ORDER if n in by_name]
     out = []
-    for p in state.registry.list():
+    for p in available:
         c = p.capabilities
         out.append(
             ProviderInfo(

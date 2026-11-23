@@ -348,6 +348,11 @@ class AppOut(BaseModel):
     msg91_template_id: str | None
     msg91_otp_var: str | None
     msg91_auth_key_set: bool = Field(description="an MSG91 auth key is saved (the key itself is write-only)")
+    provider_keys_set: dict[str, bool] = Field(
+        default_factory=dict,
+        description="per AI provider (gemini, openai, fal, openrouter): the app has its own key saved "
+        "(write-only); without one its jobs use the server's key",
+    )
     firebase_project_id: str | None
     secrets_key_set: bool = Field(
         False, description="app detail only: the server can store credentials (SECRETS_KEY is set)"
