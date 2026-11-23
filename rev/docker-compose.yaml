@@ -1,0 +1,82 @@
+# Fixed project name: the stack's containers and its pgdata volume (appjs-rev_pgdata) keep the names
+# they had when this lived in ~/Work/appjs-rev, whatever the folder is called now.
+name: appjs-rev
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: autorev
+      POSTGRES_PASSWORD: autorev
+      POSTGRES_DB: autorev
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - autorev-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U autorev"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "127.0.0.1:6379:6379"
+    networks:
+      - autorev-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build: ./backend
+    ports:
+      - "8000:8000"
+    environment:
+      AUTOREV_DATABASE_URL: ${AUTOREV_DATABASE_URL}
+      AUTOREV_REDIS_URL: redis://redis:6379/0
+      AUTOREV_SECRET_KEY: change-me-in-production
+      AUTOREV_CELERY_BROKER_URL: amqp://celery:celery_mq_pass@rabbitmq:5672//
+      CORS_ORIGINS: https://autorev.postkaro.app,http://localhost:3000,http://206.189.138.56:3000
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - autorev-network
+    volumes:
+      - ./backend:/app
+
+  frontend:
+    # Static build served by nginx. For live reload while developing, run `npm run dev` in
+    # frontend/ instead (http://localhost:3000).
+    build:
+      context: ./frontend
+      args:
+        VITE_API_URL: ${VITE_API_URL:-https://api.autorev.postkaro.app}
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    networks:
+      - autorev-network
+
+networks:
+  autorev-network:
+    name: autorev-network
+    driver: bridge
+
+volumes:
+  pgdata:
+
+
+# docker compose up -d
+# docker compose -f docker-compose.yaml logs -f backend -n 100
+
+# curl -X POST http://localhost:8000/api/auth/register   -H "Content-Type: application/json"   -d '{"email": "user@example.com", "password": "secret123", "full_name": "Test User"}'

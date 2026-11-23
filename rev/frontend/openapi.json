@@ -1,0 +1,5651 @@
+{
+ "openapi": "3.1.0",
+ "info": {
+  "title": "AutoRev API",
+  "version": "0.1.0"
+ },
+ "paths": {
+  "/api/auth/login": {
+   "post": {
+    "tags": [
+     "auth"
+    ],
+    "summary": "Login",
+    "operationId": "login_api_auth_login_post",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/LoginRequest"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/TokenResponse"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/auth/me": {
+   "get": {
+    "tags": [
+     "auth"
+    ],
+    "summary": "Me",
+    "operationId": "me_api_auth_me_get",
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/UserResponse"
+        }
+       }
+      }
+     }
+    },
+    "security": [
+     {
+      "OAuth2PasswordBearer": []
+     }
+    ]
+   }
+  },
+  "/api/auth/change-password": {
+   "post": {
+    "tags": [
+     "auth"
+    ],
+    "summary": "Change Password",
+    "operationId": "change_password_api_auth_change_password_post",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/ChangePasswordRequest"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "204": {
+      "description": "Successful Response"
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    },
+    "security": [
+     {
+      "OAuth2PasswordBearer": []
+     }
+    ]
+   }
+  },
+  "/api/admin/users": {
+   "get": {
+    "tags": [
+     "admin"
+    ],
+    "summary": "List Users",
+    "operationId": "list_users_api_admin_users_get",
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "items": {
+          "$ref": "#/components/schemas/AdminUserResponse"
+         },
+         "type": "array",
+         "title": "Response List Users Api Admin Users Get"
+        }
+       }
+      }
+     }
+    },
+    "security": [
+     {
+      "OAuth2PasswordBearer": []
+     }
+    ]
+   },
+   "post": {
+    "tags": [
+     "admin"
+    ],
+    "summary": "Create User",
+    "operationId": "create_user_api_admin_users_post",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/AdminUserCreate"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "201": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/AdminUserResponse"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    },
+    "security": [
+     {
+      "OAuth2PasswordBearer": []
+     }
+    ]
+   }
+  },
+  "/api/admin/users/{user_id}": {
+   "patch": {
+    "tags": [
+     "admin"
+    ],
+    "summary": "Update User",
+    "operationId": "update_user_api_admin_users__user_id__patch",
+    "security": [
+     {
+      "OAuth2PasswordBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "user_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "integer",
+       "title": "User Id"
+      }
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/AdminUserUpdate"
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/AdminUserResponse"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   },
+   "delete": {
+    "tags": [
+     "admin"
+    ],
+    "summary": "Delete User",
+    "operationId": "delete_user_api_admin_users__user_id__delete",
+    "security": [
+     {
+      "OAuth2PasswordBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "user_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "integer",
+       "title": "User Id"
+      }
+     }
+    ],
+    "responses": {
+     "204": {
+      "description": "Successful Response"
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/admin/users/{user_id}/apps": {
+   "get": {
+    "tags": [
+     "admin"
+    ],
+    "summary": "List User Apps",
+    "description": "Every app, each flagged with whether this user can reach it.\n\nThe whole catalogue rather than just the granted rows, because the caller is\na \"manage access\" screen that has to offer the apps the user does *not*\nhave. Returning both sides from one query also keeps the screen honest: a\nseparate list-apps plus list-grants pair can interleave with another admin's\nchange and render a checkbox state that never existed.",
+    "operationId": "list_user_apps_api_admin_users__user_id__apps_get",
+    "security": [
+     {
+      "OAuth2PasswordBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "user_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "integer",
+       "title": "User Id"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "array",
+         "items": {
+          "$ref": "#/components/schemas/AdminUserAppResponse"
+         },
+         "title": "Response List User Apps Api Admin Users  User Id  Apps Get"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/admin/apps": {
+   "get": {
+    "tags": [
+     "admin"
+    ],
+    "summary": "List Apps",
+    "operationId": "list_apps_api_admin_apps_get",
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "items": {
+          "$ref": "#/components/schemas/AdminAppResponse"
+         },
+         "type": "array",
+         "title": "Response List Apps Api Admin Apps Get"
+        }
+       }
+      }
+     }
+    },
+    "security": [
+     {
+      "OAuth2PasswordBearer": []
+     }
+    ]
+   },
+   "post": {
+    "tags": [
+     "admin"
+    ],
+    "summary": "Create App",
+    "operationId": "create_app_api_admin_apps_post",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/AdminAppCreate"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "201": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/AdminAppResponse"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    },
+    "security": [
+     {
+      "OAuth2PasswordBearer": []
+     }
+    ]
+   }
+  },
+  "/api/admin/apps/{app_id}": {
+   "patch": {
+    "tags": [
+     "admin"
+    ],
+    "summary": "Update App",
+    "operationId": "update_app_api_admin_apps__app_id__patch",
+    "security": [
+     {
+      "OAuth2PasswordBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "app_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "App Id"
+      }
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/AdminAppUpdate"
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/AdminAppResponse"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   },
+   "delete": {
+    "tags": [
+     "admin"
+    ],
+    "summary": "Delete App",
+    "operationId": "delete_app_api_admin_apps__app_id__delete",
+    "security": [
+     {
+      "OAuth2PasswordBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "app_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "App Id"
+      }
+     }
+    ],
+    "responses": {
+     "204": {
+      "description": "Successful Response"
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/admin/apps/{app_id}/users": {
+   "get": {
+    "tags": [
+     "admin"
+    ],
+    "summary": "List App Users",
+    "operationId": "list_app_users_api_admin_apps__app_id__users_get",
+    "security": [
+     {
+      "OAuth2PasswordBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "app_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "App Id"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "array",
+         "items": {
+          "$ref": "#/components/schemas/AppUserResponse"
+         },
+         "title": "Response List App Users Api Admin Apps  App Id  Users Get"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   },
+   "post": {
+    "tags": [
+     "admin"
+    ],
+    "summary": "Grant App User",
+    "operationId": "grant_app_user_api_admin_apps__app_id__users_post",
+    "security": [
+     {
+      "OAuth2PasswordBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "app_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "App Id"
+      }
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/AdminAppGrantUser"
+       }
+      }
+     }
+    },
+    "responses": {
+     "201": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/AppUserResponse"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/admin/apps/{app_id}/users/{user_id}": {
+   "delete": {
+    "tags": [
+     "admin"
+    ],
+    "summary": "Revoke App User",
+    "operationId": "revoke_app_user_api_admin_apps__app_id__users__user_id__delete",
+    "security": [
+     {
+      "OAuth2PasswordBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "app_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "App Id"
+      }
+     },
+     {
+      "name": "user_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "integer",
+       "title": "User Id"
+      }
+     }
+    ],
+    "responses": {
+     "204": {
+      "description": "Successful Response"
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/apps": {
+   "get": {
+    "tags": [
+     "apps"
+    ],
+    "summary": "List Apps",
+    "operationId": "list_apps_api_apps_get",
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "items": {
+          "$ref": "#/components/schemas/AppResponse"
+         },
+         "type": "array",
+         "title": "Response List Apps Api Apps Get"
+        }
+       }
+      }
+     }
+    },
+    "security": [
+     {
+      "OAuth2PasswordBearer": []
+     }
+    ]
+   }
+  },
+  "/api/apps/{app_id}": {
+   "get": {
+    "tags": [
+     "apps"
+    ],
+    "summary": "Get App",
+    "operationId": "get_app_api_apps__app_id__get",
+    "security": [
+     {
+      "OAuth2PasswordBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "app_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "App Id"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/AppResponse"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   },
+   "patch": {
+    "tags": [
+     "apps"
+    ],
+    "summary": "Update App",
+    "operationId": "update_app_api_apps__app_id__patch",
+    "security": [
+     {
+      "OAuth2PasswordBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "app_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "App Id"
+      }
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/AppUpdate"
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/AppResponse"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/apps/{app_id}/test-phonepe": {
+   "post": {
+    "tags": [
+     "apps"
+    ],
+    "summary": "Test Phonepe",
+    "operationId": "test_phonepe_api_apps__app_id__test_phonepe_post",
+    "security": [
+     {
+      "OAuth2PasswordBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "app_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "App Id"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/apps/{app_id}/test-razorpay": {
+   "post": {
+    "tags": [
+     "apps"
+    ],
+    "summary": "Test Razorpay",
+    "operationId": "test_razorpay_api_apps__app_id__test_razorpay_post",
+    "security": [
+     {
+      "OAuth2PasswordBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "app_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "App Id"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/apps/{app_id}/reset-key": {
+   "post": {
+    "tags": [
+     "apps"
+    ],
+    "summary": "Reset Api Key",
+    "operationId": "reset_api_key_api_apps__app_id__reset_key_post",
+    "security": [
+     {
+      "OAuth2PasswordBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "app_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "App Id"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/AppResponse"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/apps/{app_id}/summary": {
+   "get": {
+    "tags": [
+     "dashboard"
+    ],
+    "summary": "Get Summary",
+    "description": "Summary counters for a window. Omitting both bounds reports all time.\n\nThe dashboard always sends explicit dates for its dated presets, so an unbounded\nrequest only comes from the \"All\" quick-select.",
+    "operationId": "get_summary_api_apps__app_id__summary_get",
+    "security": [
+     {
+      "OAuth2PasswordBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "app_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "App Id"
+      }
+     },
+     {
+      "name": "start_date",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string",
+         "format": "date"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "Window start (inclusive, IST). Omit for no lower bound.",
+       "title": "Start Date"
+      },
+      "description": "Window start (inclusive, IST). Omit for no lower bound."
+     },
+     {
+      "name": "end_date",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string",
+         "format": "date"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "Window end (inclusive, IST). Omit for no upper bound.",
+       "title": "End Date"
+      },
+      "description": "Window end (inclusive, IST). Omit for no upper bound."
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/SummaryResponse"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/apps/{app_id}/subscriptions": {
+   "get": {
+    "tags": [
+     "dashboard"
+    ],
+    "summary": "List Subscriptions",
+    "operationId": "list_subscriptions_api_apps__app_id__subscriptions_get",
+    "security": [
+     {
+      "OAuth2PasswordBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "app_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "App Id"
+      }
+     },
+     {
+      "name": "state",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "State"
+      }
+     },
+     {
+      "name": "phone_number",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Phone Number"
+      }
+     },
+     {
+      "name": "subscription_id",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Subscription Id"
+      }
+     },
+     {
+      "name": "start_date",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string",
+         "format": "date"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Start Date"
+      }
+     },
+     {
+      "name": "end_date",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string",
+         "format": "date"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "End Date"
+      }
+     },
+     {
+      "name": "limit",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "integer",
+       "maximum": 1000,
+       "default": 50,
+       "title": "Limit"
+      }
+     },
+     {
+      "name": "offset",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "integer",
+       "default": 0,
+       "title": "Offset"
+      }
+     },
+     {
+      "name": "with_count",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "boolean",
+       "description": "Set false when paging to skip the count(*)",
+       "default": true,
+       "title": "With Count"
+      },
+      "description": "Set false when paging to skip the count(*)"
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "array",
+         "items": {
+          "$ref": "#/components/schemas/SubscriptionResponse"
+         },
+         "title": "Response List Subscriptions Api Apps  App Id  Subscriptions Get"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/apps/{app_id}/subscriptions/state-counts": {
+   "get": {
+    "tags": [
+     "dashboard"
+    ],
+    "summary": "Subscription State Counts",
+    "description": "Per-state row counts for the pill row.\n\nMirrors list_subscriptions' filters except `state` itself \u2014 otherwise picking one\npill would zero out every other count. Live table only, no archive, so a pill's\nnumber always matches what clicking it actually lists.",
+    "operationId": "subscription_state_counts_api_apps__app_id__subscriptions_state_counts_get",
+    "security": [
+     {
+      "OAuth2PasswordBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "app_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "App Id"
+      }
+     },
+     {
+      "name": "phone_number",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Phone Number"
+      }
+     },
+     {
+      "name": "subscription_id",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Subscription Id"
+      }
+     },
+     {
+      "name": "start_date",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string",
+         "format": "date"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Start Date"
+      }
+     },
+     {
+      "name": "end_date",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string",
+         "format": "date"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "End Date"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "object",
+         "additionalProperties": {
+          "type": "integer"
+         },
+         "title": "Response Subscription State Counts Api Apps  App Id  Subscriptions State Counts Get"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/apps/{app_id}/subscriptions/{subscription_id}": {
+   "get": {
+    "tags": [
+     "dashboard"
+    ],
+    "summary": "Get Subscription",
+    "operationId": "get_subscription_api_apps__app_id__subscriptions__subscription_id__get",
+    "security": [
+     {
+      "OAuth2PasswordBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "app_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "App Id"
+      }
+     },
+     {
+      "name": "subscription_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Subscription Id"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/SubscriptionResponse"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/apps/{app_id}/subscriptions/{subscription_id}/revoke": {
+   "post": {
+    "tags": [
+     "dashboard"
+    ],
+    "summary": "Revoke Subscription",
+    "description": "Cancel a mandate at PhonePe, then sync the resulting state back onto the row.",
+    "operationId": "revoke_subscription_api_apps__app_id__subscriptions__subscription_id__revoke_post",
+    "security": [
+     {
+      "OAuth2PasswordBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "app_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "App Id"
+      }
+     },
+     {
+      "name": "subscription_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Subscription Id"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/SubscriptionResponse"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/apps/{app_id}/scheduled/state-counts": {
+   "get": {
+    "tags": [
+     "dashboard"
+    ],
+    "summary": "Scheduled State Counts",
+    "description": "Per-state row counts for the pill row, windowed by due date like list_scheduled.",
+    "operationId": "scheduled_state_counts_api_apps__app_id__scheduled_state_counts_get",
+    "security": [
+     {
+      "OAuth2PasswordBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "app_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "App Id"
+      }
+     },
+     {
+      "name": "subscription_id",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Subscription Id"
+      }
+     },
+     {
+      "name": "start_date",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string",
+         "format": "date"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Start Date"
+      }
+     },
+     {
+      "name": "end_date",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string",
+         "format": "date"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "End Date"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "object",
+         "additionalProperties": {
+          "type": "integer"
+         },
+         "title": "Response Scheduled State Counts Api Apps  App Id  Scheduled State Counts Get"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/apps/{app_id}/scheduled": {
+   "get": {
+    "tags": [
+     "dashboard"
+    ],
+    "summary": "List Scheduled",
+    "operationId": "list_scheduled_api_apps__app_id__scheduled_get",
+    "security": [
+     {
+      "OAuth2PasswordBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "app_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "App Id"
+      }
+     },
+     {
+      "name": "state",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "State"
+      }
+     },
+     {
+      "name": "subscription_id",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Subscription Id"
+      }
+     },
+     {
+      "name": "start_date",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string",
+         "format": "date"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Start Date"
+      }
+     },
+     {
+      "name": "end_date",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string",
+         "format": "date"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "End Date"
+      }
+     },
+     {
+      "name": "limit",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "integer",
+       "maximum": 1000,
+       "default": 50,
+       "title": "Limit"
+      }
+     },
+     {
+      "name": "offset",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "integer",
+       "default": 0,
+       "title": "Offset"
+      }
+     },
+     {
+      "name": "with_count",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "boolean",
+       "description": "Set false when paging to skip the count(*)",
+       "default": true,
+       "title": "With Count"
+      },
+      "description": "Set false when paging to skip the count(*)"
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "array",
+         "items": {
+          "$ref": "#/components/schemas/ScheduledTransactionResponse"
+         },
+         "title": "Response List Scheduled Api Apps  App Id  Scheduled Get"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/apps/{app_id}/transactions": {
+   "get": {
+    "tags": [
+     "dashboard"
+    ],
+    "summary": "List Transactions",
+    "operationId": "list_transactions_api_apps__app_id__transactions_get",
+    "security": [
+     {
+      "OAuth2PasswordBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "app_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "App Id"
+      }
+     },
+     {
+      "name": "state",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "State"
+      }
+     },
+     {
+      "name": "subscription_id",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Subscription Id"
+      }
+     },
+     {
+      "name": "limit",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "integer",
+       "maximum": 200,
+       "default": 50,
+       "title": "Limit"
+      }
+     },
+     {
+      "name": "offset",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "integer",
+       "default": 0,
+       "title": "Offset"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "array",
+         "items": {
+          "$ref": "#/components/schemas/SubscriptionTransactionResponse"
+         },
+         "title": "Response List Transactions Api Apps  App Id  Transactions Get"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/apps/{app_id}/subscriptions/{subscription_id}/transactions": {
+   "get": {
+    "tags": [
+     "dashboard"
+    ],
+    "summary": "List Subscription Transactions",
+    "operationId": "list_subscription_transactions_api_apps__app_id__subscriptions__subscription_id__transactions_get",
+    "security": [
+     {
+      "OAuth2PasswordBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "app_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "App Id"
+      }
+     },
+     {
+      "name": "subscription_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Subscription Id"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "array",
+         "items": {
+          "$ref": "#/components/schemas/SubscriptionTransactionResponse"
+         },
+         "title": "Response List Subscription Transactions Api Apps  App Id  Subscriptions  Subscription Id  Transactions Get"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/apps/{app_id}/scheduled/{scheduled_transaction_id}/attempts": {
+   "get": {
+    "tags": [
+     "dashboard"
+    ],
+    "summary": "List Scheduled Attempts",
+    "operationId": "list_scheduled_attempts_api_apps__app_id__scheduled__scheduled_transaction_id__attempts_get",
+    "security": [
+     {
+      "OAuth2PasswordBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "app_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "App Id"
+      }
+     },
+     {
+      "name": "scheduled_transaction_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Scheduled Transaction Id"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "array",
+         "items": {
+          "$ref": "#/components/schemas/SubscriptionTransactionResponse"
+         },
+         "title": "Response List Scheduled Attempts Api Apps  App Id  Scheduled  Scheduled Transaction Id  Attempts Get"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/apps/{app_id}/razorpay-subscriptions": {
+   "get": {
+    "tags": [
+     "dashboard"
+    ],
+    "summary": "List Razorpay Subscriptions",
+    "operationId": "list_razorpay_subscriptions_api_apps__app_id__razorpay_subscriptions_get",
+    "security": [
+     {
+      "OAuth2PasswordBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "app_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "App Id"
+      }
+     },
+     {
+      "name": "state",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "State"
+      }
+     },
+     {
+      "name": "phone_number",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Phone Number"
+      }
+     },
+     {
+      "name": "limit",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "integer",
+       "maximum": 200,
+       "default": 50,
+       "title": "Limit"
+      }
+     },
+     {
+      "name": "offset",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "integer",
+       "default": 0,
+       "title": "Offset"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "array",
+         "items": {
+          "$ref": "#/components/schemas/RazorpaySubscriptionResponse"
+         },
+         "title": "Response List Razorpay Subscriptions Api Apps  App Id  Razorpay Subscriptions Get"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/apps/{app_id}/razorpay-subscriptions/{subscription_id}": {
+   "get": {
+    "tags": [
+     "dashboard"
+    ],
+    "summary": "Get Razorpay Subscription",
+    "operationId": "get_razorpay_subscription_api_apps__app_id__razorpay_subscriptions__subscription_id__get",
+    "security": [
+     {
+      "OAuth2PasswordBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "app_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "App Id"
+      }
+     },
+     {
+      "name": "subscription_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Subscription Id"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/RazorpaySubscriptionResponse"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/apps/{app_id}/razorpay-transactions": {
+   "get": {
+    "tags": [
+     "dashboard"
+    ],
+    "summary": "List Razorpay Transactions",
+    "operationId": "list_razorpay_transactions_api_apps__app_id__razorpay_transactions_get",
+    "security": [
+     {
+      "OAuth2PasswordBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "app_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "App Id"
+      }
+     },
+     {
+      "name": "state",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "State"
+      }
+     },
+     {
+      "name": "subscription_id",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Subscription Id"
+      }
+     },
+     {
+      "name": "limit",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "integer",
+       "maximum": 200,
+       "default": 50,
+       "title": "Limit"
+      }
+     },
+     {
+      "name": "offset",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "integer",
+       "default": 0,
+       "title": "Offset"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "array",
+         "items": {
+          "$ref": "#/components/schemas/RazorpayTransactionResponse"
+         },
+         "title": "Response List Razorpay Transactions Api Apps  App Id  Razorpay Transactions Get"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/apps/{app_id}/razorpay-subscriptions/{subscription_id}/transactions": {
+   "get": {
+    "tags": [
+     "dashboard"
+    ],
+    "summary": "List Razorpay Subscription Transactions",
+    "operationId": "list_razorpay_subscription_transactions_api_apps__app_id__razorpay_subscriptions__subscription_id__transactions_get",
+    "security": [
+     {
+      "OAuth2PasswordBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "app_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "App Id"
+      }
+     },
+     {
+      "name": "subscription_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Subscription Id"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "array",
+         "items": {
+          "$ref": "#/components/schemas/RazorpayTransactionResponse"
+         },
+         "title": "Response List Razorpay Subscription Transactions Api Apps  App Id  Razorpay Subscriptions  Subscription Id  Transactions Get"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/v1/{app_id}/phonepay/setup": {
+   "post": {
+    "tags": [
+     "phonepay"
+    ],
+    "summary": "Setup Subscription",
+    "operationId": "setup_subscription_api_v1__app_id__phonepay_setup_post",
+    "parameters": [
+     {
+      "name": "app_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "App Id"
+      }
+     },
+     {
+      "name": "authorization",
+      "in": "header",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Authorization"
+      }
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/SubscriptionSetupPayload"
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/v1/{app_id}/phonepay/status/{subscription_id}": {
+   "get": {
+    "tags": [
+     "phonepay"
+    ],
+    "summary": "Subscription Status",
+    "operationId": "subscription_status_api_v1__app_id__phonepay_status__subscription_id__get",
+    "parameters": [
+     {
+      "name": "subscription_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Subscription Id"
+      }
+     },
+     {
+      "name": "app_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "App Id"
+      }
+     },
+     {
+      "name": "authorization",
+      "in": "header",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Authorization"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/v1/{app_id}/phonepay/order-status/{order_id}": {
+   "get": {
+    "tags": [
+     "phonepay"
+    ],
+    "summary": "Subscription Order Status",
+    "operationId": "subscription_order_status_api_v1__app_id__phonepay_order_status__order_id__get",
+    "parameters": [
+     {
+      "name": "order_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Order Id"
+      }
+     },
+     {
+      "name": "app_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "App Id"
+      }
+     },
+     {
+      "name": "authorization",
+      "in": "header",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Authorization"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/v1/{app_id}/phonepay/{phone_number}/invoices": {
+   "get": {
+    "tags": [
+     "phonepay"
+    ],
+    "summary": "User Invoices",
+    "description": "Every payment made by a phone number, oldest first, as invoice records.\n\nTwo things count as a payment: the setup charge, which is collected up front and\nnever becomes a transaction row of its own (so the subscription id stands in as\nits transaction id), and each subsequent successful debit.",
+    "operationId": "user_invoices_api_v1__app_id__phonepay__phone_number__invoices_get",
+    "parameters": [
+     {
+      "name": "phone_number",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Phone Number"
+      }
+     },
+     {
+      "name": "app_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "App Id"
+      }
+     },
+     {
+      "name": "authorization",
+      "in": "header",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Authorization"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/v1/{app_id}/phonepay/report": {
+   "get": {
+    "tags": [
+     "phonepay"
+    ],
+    "summary": "Generate Report",
+    "description": "Counts of subscriptions created and transactions recorded in a time window.",
+    "operationId": "generate_report_api_v1__app_id__phonepay_report_get",
+    "parameters": [
+     {
+      "name": "app_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "App Id"
+      }
+     },
+     {
+      "name": "start",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string",
+         "format": "date-time"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "Window start (inclusive, IST). Defaults to 1 hour before end.",
+       "title": "Start"
+      },
+      "description": "Window start (inclusive, IST). Defaults to 1 hour before end."
+     },
+     {
+      "name": "end",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string",
+         "format": "date-time"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "Window end (exclusive, IST). Defaults to now.",
+       "title": "End"
+      },
+      "description": "Window end (exclusive, IST). Defaults to now."
+     },
+     {
+      "name": "authorization",
+      "in": "header",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Authorization"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/v1/{app_id}/phonepay/{phone_number}/subscriptions": {
+   "get": {
+    "tags": [
+     "phonepay"
+    ],
+    "summary": "User Subscriptions",
+    "operationId": "user_subscriptions_api_v1__app_id__phonepay__phone_number__subscriptions_get",
+    "parameters": [
+     {
+      "name": "phone_number",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Phone Number"
+      }
+     },
+     {
+      "name": "app_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "App Id"
+      }
+     },
+     {
+      "name": "authorization",
+      "in": "header",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Authorization"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/v1/{app_id}/phonepay/{phone_number}/status": {
+   "get": {
+    "tags": [
+     "phonepay"
+    ],
+    "summary": "User Subscription Status",
+    "operationId": "user_subscription_status_api_v1__app_id__phonepay__phone_number__status_get",
+    "parameters": [
+     {
+      "name": "phone_number",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Phone Number"
+      }
+     },
+     {
+      "name": "app_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "App Id"
+      }
+     },
+     {
+      "name": "authorization",
+      "in": "header",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Authorization"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/v1/{app_id}/phonepay/notify-redemption/{subscription_id}": {
+   "post": {
+    "tags": [
+     "phonepay"
+    ],
+    "summary": "Notify Redemption",
+    "operationId": "notify_redemption_api_v1__app_id__phonepay_notify_redemption__subscription_id__post",
+    "deprecated": true,
+    "parameters": [
+     {
+      "name": "subscription_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Subscription Id"
+      }
+     },
+     {
+      "name": "app_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "App Id"
+      }
+     },
+     {
+      "name": "authorization",
+      "in": "header",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Authorization"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/v1/{app_id}/phonepay/execute-redemption/{merchant_order_id}": {
+   "post": {
+    "tags": [
+     "phonepay"
+    ],
+    "summary": "Execute Redemption",
+    "operationId": "execute_redemption_api_v1__app_id__phonepay_execute_redemption__merchant_order_id__post",
+    "deprecated": true,
+    "parameters": [
+     {
+      "name": "merchant_order_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Merchant Order Id"
+      }
+     },
+     {
+      "name": "app_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "App Id"
+      }
+     },
+     {
+      "name": "authorization",
+      "in": "header",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Authorization"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/v1/{app_id}/phonepay/revoke/{subscription_id}": {
+   "post": {
+    "tags": [
+     "phonepay"
+    ],
+    "summary": "Revoke Subscription",
+    "description": "Cancel a mandate at PhonePe, then sync the resulting state back onto the row.\n\nThe API-key equivalent of the dashboard's revoke button, for integrations\nthat cancel a plan from their own account screens. Both paths go through\nPhonePe and then trust whatever state it reports, rather than assuming\nREVOKED, because a cancellation can land on REVOKE_IN_PROGRESS first.",
+    "operationId": "revoke_subscription_api_v1__app_id__phonepay_revoke__subscription_id__post",
+    "parameters": [
+     {
+      "name": "subscription_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Subscription Id"
+      }
+     },
+     {
+      "name": "app_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "App Id"
+      }
+     },
+     {
+      "name": "authorization",
+      "in": "header",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Authorization"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/v1/{app_id}/phonepay/redemption-order-status/{merchant_order_id}": {
+   "get": {
+    "tags": [
+     "phonepay"
+    ],
+    "summary": "Redemption Order Status",
+    "operationId": "redemption_order_status_api_v1__app_id__phonepay_redemption_order_status__merchant_order_id__get",
+    "parameters": [
+     {
+      "name": "merchant_order_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Merchant Order Id"
+      }
+     },
+     {
+      "name": "app_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "App Id"
+      }
+     },
+     {
+      "name": "authorization",
+      "in": "header",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Authorization"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/v1/{app_id}/phonepay/refresh-token": {
+   "get": {
+    "tags": [
+     "phonepay"
+    ],
+    "summary": "Refresh Token",
+    "operationId": "refresh_token_api_v1__app_id__phonepay_refresh_token_get",
+    "parameters": [
+     {
+      "name": "app_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "App Id"
+      }
+     },
+     {
+      "name": "authorization",
+      "in": "header",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Authorization"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/v1/{app_id}/razorpay/setup": {
+   "post": {
+    "tags": [
+     "razorpay"
+    ],
+    "summary": "Setup Subscription",
+    "operationId": "setup_subscription_api_v1__app_id__razorpay_setup_post",
+    "parameters": [
+     {
+      "name": "app_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "App Id"
+      }
+     },
+     {
+      "name": "authorization",
+      "in": "header",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Authorization"
+      }
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/RazorpaySetupPayload"
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/v1/{app_id}/razorpay/status/{subscription_id}": {
+   "get": {
+    "tags": [
+     "razorpay"
+    ],
+    "summary": "Subscription Status",
+    "operationId": "subscription_status_api_v1__app_id__razorpay_status__subscription_id__get",
+    "parameters": [
+     {
+      "name": "subscription_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Subscription Id"
+      }
+     },
+     {
+      "name": "app_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "App Id"
+      }
+     },
+     {
+      "name": "authorization",
+      "in": "header",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Authorization"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/v1/{app_id}/razorpay/{phone_number}/subscriptions": {
+   "get": {
+    "tags": [
+     "razorpay"
+    ],
+    "summary": "User Subscriptions",
+    "operationId": "user_subscriptions_api_v1__app_id__razorpay__phone_number__subscriptions_get",
+    "parameters": [
+     {
+      "name": "phone_number",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Phone Number"
+      }
+     },
+     {
+      "name": "app_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "App Id"
+      }
+     },
+     {
+      "name": "authorization",
+      "in": "header",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Authorization"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/v1/{app_id}/razorpay/{phone_number}/status": {
+   "get": {
+    "tags": [
+     "razorpay"
+    ],
+    "summary": "User Subscription Status",
+    "operationId": "user_subscription_status_api_v1__app_id__razorpay__phone_number__status_get",
+    "parameters": [
+     {
+      "name": "phone_number",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Phone Number"
+      }
+     },
+     {
+      "name": "app_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "App Id"
+      }
+     },
+     {
+      "name": "authorization",
+      "in": "header",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Authorization"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/v1/{app_id}/razorpay/notify-redemption/{subscription_id}": {
+   "post": {
+    "tags": [
+     "razorpay"
+    ],
+    "summary": "Notify Redemption",
+    "operationId": "notify_redemption_api_v1__app_id__razorpay_notify_redemption__subscription_id__post",
+    "parameters": [
+     {
+      "name": "subscription_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Subscription Id"
+      }
+     },
+     {
+      "name": "app_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "App Id"
+      }
+     },
+     {
+      "name": "authorization",
+      "in": "header",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Authorization"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/v1/{app_id}/razorpay/execute-redemption/{merchant_order_id}": {
+   "post": {
+    "tags": [
+     "razorpay"
+    ],
+    "summary": "Execute Redemption",
+    "operationId": "execute_redemption_api_v1__app_id__razorpay_execute_redemption__merchant_order_id__post",
+    "parameters": [
+     {
+      "name": "merchant_order_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Merchant Order Id"
+      }
+     },
+     {
+      "name": "app_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "App Id"
+      }
+     },
+     {
+      "name": "authorization",
+      "in": "header",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Authorization"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/v1/{app_id}/razorpay/redemption-order-status/{merchant_order_id}": {
+   "get": {
+    "tags": [
+     "razorpay"
+    ],
+    "summary": "Redemption Order Status",
+    "operationId": "redemption_order_status_api_v1__app_id__razorpay_redemption_order_status__merchant_order_id__get",
+    "parameters": [
+     {
+      "name": "merchant_order_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Merchant Order Id"
+      }
+     },
+     {
+      "name": "app_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "App Id"
+      }
+     },
+     {
+      "name": "authorization",
+      "in": "header",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Authorization"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/v1/{app_id}/razorpay/webhook": {
+   "post": {
+    "tags": [
+     "razorpay"
+    ],
+    "summary": "Razorpay Webhook",
+    "operationId": "razorpay_webhook_api_v1__app_id__razorpay_webhook_post",
+    "parameters": [
+     {
+      "name": "app_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "App Id"
+      }
+     },
+     {
+      "name": "X-Razorpay-Signature",
+      "in": "header",
+      "required": false,
+      "schema": {
+       "type": "string",
+       "title": "X-Razorpay-Signature"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/admin/redis/keys": {
+   "get": {
+    "tags": [
+     "admin-redis"
+    ],
+    "summary": "List Keys",
+    "operationId": "list_keys_api_admin_redis_keys_get",
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     }
+    },
+    "security": [
+     {
+      "OAuth2PasswordBearer": []
+     }
+    ]
+   }
+  },
+  "/api/admin/redis/keys/{key}": {
+   "get": {
+    "tags": [
+     "admin-redis"
+    ],
+    "summary": "Get Key",
+    "operationId": "get_key_api_admin_redis_keys__key__get",
+    "security": [
+     {
+      "OAuth2PasswordBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "key",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Key"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   },
+   "delete": {
+    "tags": [
+     "admin-redis"
+    ],
+    "summary": "Delete Key",
+    "operationId": "delete_key_api_admin_redis_keys__key__delete",
+    "security": [
+     {
+      "OAuth2PasswordBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "key",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Key"
+      }
+     }
+    ],
+    "responses": {
+     "204": {
+      "description": "Successful Response"
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/admin/tasks": {
+   "get": {
+    "tags": [
+     "admin-tasks"
+    ],
+    "summary": "List Tasks",
+    "operationId": "list_tasks_api_admin_tasks_get",
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     }
+    },
+    "security": [
+     {
+      "OAuth2PasswordBearer": []
+     }
+    ]
+   }
+  },
+  "/api/admin/tasks/{task_name}/trigger": {
+   "post": {
+    "tags": [
+     "admin-tasks"
+    ],
+    "summary": "Trigger Task",
+    "operationId": "trigger_task_api_admin_tasks__task_name__trigger_post",
+    "security": [
+     {
+      "OAuth2PasswordBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "task_name",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Task Name"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/apps/{app_id}/webhook": {
+   "get": {
+    "tags": [
+     "webhooks"
+    ],
+    "summary": "Get Webhook",
+    "operationId": "get_webhook_api_apps__app_id__webhook_get",
+    "security": [
+     {
+      "OAuth2PasswordBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "app_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "App Id"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   },
+   "put": {
+    "tags": [
+     "webhooks"
+    ],
+    "summary": "Update Webhook",
+    "operationId": "update_webhook_api_apps__app_id__webhook_put",
+    "security": [
+     {
+      "OAuth2PasswordBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "app_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "App Id"
+      }
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/WebhookConfigUpdate"
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/apps/{app_id}/webhook/rotate-secret": {
+   "post": {
+    "tags": [
+     "webhooks"
+    ],
+    "summary": "Rotate Secret",
+    "operationId": "rotate_secret_api_apps__app_id__webhook_rotate_secret_post",
+    "security": [
+     {
+      "OAuth2PasswordBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "app_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "App Id"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/apps/{app_id}/webhook/test": {
+   "post": {
+    "tags": [
+     "webhooks"
+    ],
+    "summary": "Send Test",
+    "operationId": "send_test_api_apps__app_id__webhook_test_post",
+    "security": [
+     {
+      "OAuth2PasswordBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "app_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "App Id"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/apps/{app_id}/webhook/deliveries": {
+   "get": {
+    "tags": [
+     "webhooks"
+    ],
+    "summary": "List Deliveries",
+    "operationId": "list_deliveries_api_apps__app_id__webhook_deliveries_get",
+    "security": [
+     {
+      "OAuth2PasswordBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "app_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "App Id"
+      }
+     },
+     {
+      "name": "limit",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "integer",
+       "maximum": 100,
+       "minimum": 1,
+       "default": 20,
+       "title": "Limit"
+      }
+     },
+     {
+      "name": "status",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Status"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/apps/{app_id}/webhook/deliveries/{delivery_id}/retry": {
+   "post": {
+    "tags": [
+     "webhooks"
+    ],
+    "summary": "Retry Delivery",
+    "operationId": "retry_delivery_api_apps__app_id__webhook_deliveries__delivery_id__retry_post",
+    "security": [
+     {
+      "OAuth2PasswordBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "app_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "App Id"
+      }
+     },
+     {
+      "name": "delivery_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Delivery Id"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/health": {
+   "get": {
+    "summary": "Health",
+    "operationId": "health_api_health_get",
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     }
+    }
+   }
+  }
+ },
+ "components": {
+  "schemas": {
+   "AdminAppCreate": {
+    "properties": {
+     "user_id": {
+      "type": "integer",
+      "title": "User Id"
+     },
+     "name": {
+      "type": "string",
+      "title": "Name"
+     },
+     "phonepe_enabled": {
+      "type": "boolean",
+      "title": "Phonepe Enabled",
+      "default": true
+     },
+     "razorpay_enabled": {
+      "type": "boolean",
+      "title": "Razorpay Enabled",
+      "default": false
+     }
+    },
+    "type": "object",
+    "required": [
+     "user_id",
+     "name"
+    ],
+    "title": "AdminAppCreate"
+   },
+   "AdminAppGrantUser": {
+    "properties": {
+     "user_id": {
+      "type": "integer",
+      "title": "User Id"
+     }
+    },
+    "type": "object",
+    "required": [
+     "user_id"
+    ],
+    "title": "AdminAppGrantUser"
+   },
+   "AdminAppResponse": {
+    "properties": {
+     "id": {
+      "type": "string",
+      "title": "Id"
+     },
+     "name": {
+      "type": "string",
+      "title": "Name"
+     },
+     "owner_email": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Owner Email"
+     },
+     "phonepe_enabled": {
+      "type": "boolean",
+      "title": "Phonepe Enabled"
+     },
+     "razorpay_enabled": {
+      "type": "boolean",
+      "title": "Razorpay Enabled"
+     },
+     "phonepe_environment": {
+      "type": "string",
+      "title": "Phonepe Environment"
+     },
+     "razorpay_environment": {
+      "type": "string",
+      "title": "Razorpay Environment"
+     },
+     "enabled": {
+      "type": "boolean",
+      "title": "Enabled"
+     },
+     "trial_enabled": {
+      "type": "boolean",
+      "title": "Trial Enabled"
+     },
+     "trial_amount": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Trial Amount"
+     },
+     "trial_period_days": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Trial Period Days"
+     },
+     "created_at": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Created At"
+     }
+    },
+    "type": "object",
+    "required": [
+     "id",
+     "name",
+     "owner_email",
+     "phonepe_enabled",
+     "razorpay_enabled",
+     "phonepe_environment",
+     "razorpay_environment",
+     "enabled",
+     "trial_enabled",
+     "trial_amount",
+     "trial_period_days",
+     "created_at"
+    ],
+    "title": "AdminAppResponse"
+   },
+   "AdminAppUpdate": {
+    "properties": {
+     "name": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Name"
+     },
+     "enabled": {
+      "anyOf": [
+       {
+        "type": "boolean"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Enabled"
+     },
+     "phonepe_enabled": {
+      "anyOf": [
+       {
+        "type": "boolean"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Phonepe Enabled"
+     },
+     "razorpay_enabled": {
+      "anyOf": [
+       {
+        "type": "boolean"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Razorpay Enabled"
+     },
+     "trial_enabled": {
+      "anyOf": [
+       {
+        "type": "boolean"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Trial Enabled"
+     },
+     "trial_amount": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Trial Amount"
+     },
+     "trial_period_days": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Trial Period Days"
+     }
+    },
+    "type": "object",
+    "title": "AdminAppUpdate"
+   },
+   "AdminUserAppResponse": {
+    "properties": {
+     "app_id": {
+      "type": "string",
+      "title": "App Id"
+     },
+     "name": {
+      "type": "string",
+      "title": "Name"
+     },
+     "phonepe_enabled": {
+      "type": "boolean",
+      "title": "Phonepe Enabled"
+     },
+     "razorpay_enabled": {
+      "type": "boolean",
+      "title": "Razorpay Enabled"
+     },
+     "enabled": {
+      "type": "boolean",
+      "title": "Enabled"
+     },
+     "granted": {
+      "type": "boolean",
+      "title": "Granted"
+     },
+     "granted_at": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "date-time"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Granted At"
+     }
+    },
+    "type": "object",
+    "required": [
+     "app_id",
+     "name",
+     "phonepe_enabled",
+     "razorpay_enabled",
+     "enabled",
+     "granted",
+     "granted_at"
+    ],
+    "title": "AdminUserAppResponse",
+    "description": "One app, as seen from a single user's access list."
+   },
+   "AdminUserCreate": {
+    "properties": {
+     "email": {
+      "type": "string",
+      "format": "email",
+      "title": "Email"
+     },
+     "password": {
+      "type": "string",
+      "title": "Password"
+     },
+     "full_name": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Full Name"
+     },
+     "is_admin": {
+      "type": "boolean",
+      "title": "Is Admin",
+      "default": false
+     }
+    },
+    "type": "object",
+    "required": [
+     "email",
+     "password"
+    ],
+    "title": "AdminUserCreate"
+   },
+   "AdminUserResponse": {
+    "properties": {
+     "id": {
+      "type": "integer",
+      "title": "Id"
+     },
+     "email": {
+      "type": "string",
+      "title": "Email"
+     },
+     "full_name": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Full Name"
+     },
+     "is_admin": {
+      "type": "boolean",
+      "title": "Is Admin"
+     },
+     "created_at": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Created At"
+     },
+     "apps_count": {
+      "type": "integer",
+      "title": "Apps Count",
+      "default": 0
+     },
+     "is_protected": {
+      "type": "boolean",
+      "title": "Is Protected",
+      "default": false
+     }
+    },
+    "type": "object",
+    "required": [
+     "id",
+     "email",
+     "full_name",
+     "is_admin",
+     "created_at"
+    ],
+    "title": "AdminUserResponse"
+   },
+   "AdminUserUpdate": {
+    "properties": {
+     "email": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "email"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Email"
+     },
+     "full_name": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Full Name"
+     },
+     "password": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Password"
+     },
+     "is_admin": {
+      "anyOf": [
+       {
+        "type": "boolean"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Is Admin"
+     }
+    },
+    "type": "object",
+    "title": "AdminUserUpdate"
+   },
+   "AppResponse": {
+    "properties": {
+     "id": {
+      "type": "string",
+      "title": "Id"
+     },
+     "name": {
+      "type": "string",
+      "title": "Name"
+     },
+     "phonepe_enabled": {
+      "type": "boolean",
+      "title": "Phonepe Enabled"
+     },
+     "razorpay_enabled": {
+      "type": "boolean",
+      "title": "Razorpay Enabled"
+     },
+     "phonepe_client_id": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Phonepe Client Id"
+     },
+     "phonepe_client_secret": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Phonepe Client Secret"
+     },
+     "phonepe_merchant_id": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Phonepe Merchant Id"
+     },
+     "phonepe_environment": {
+      "type": "string",
+      "title": "Phonepe Environment"
+     },
+     "razorpay_key_id": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Razorpay Key Id"
+     },
+     "razorpay_key_secret": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Razorpay Key Secret"
+     },
+     "razorpay_webhook_secret": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Razorpay Webhook Secret"
+     },
+     "razorpay_environment": {
+      "type": "string",
+      "title": "Razorpay Environment"
+     },
+     "api_key": {
+      "type": "string",
+      "title": "Api Key"
+     },
+     "enabled": {
+      "type": "boolean",
+      "title": "Enabled"
+     },
+     "trial_enabled": {
+      "type": "boolean",
+      "title": "Trial Enabled"
+     },
+     "trial_amount": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Trial Amount"
+     },
+     "trial_period_days": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Trial Period Days"
+     }
+    },
+    "type": "object",
+    "required": [
+     "id",
+     "name",
+     "phonepe_enabled",
+     "razorpay_enabled",
+     "phonepe_client_id",
+     "phonepe_client_secret",
+     "phonepe_merchant_id",
+     "phonepe_environment",
+     "razorpay_key_id",
+     "razorpay_key_secret",
+     "razorpay_webhook_secret",
+     "razorpay_environment",
+     "api_key",
+     "enabled",
+     "trial_enabled",
+     "trial_amount",
+     "trial_period_days"
+    ],
+    "title": "AppResponse"
+   },
+   "AppUpdate": {
+    "properties": {
+     "name": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Name"
+     },
+     "phonepe_client_id": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Phonepe Client Id"
+     },
+     "phonepe_client_secret": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Phonepe Client Secret"
+     },
+     "phonepe_merchant_id": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Phonepe Merchant Id"
+     },
+     "phonepe_environment": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Phonepe Environment"
+     },
+     "razorpay_key_id": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Razorpay Key Id"
+     },
+     "razorpay_key_secret": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Razorpay Key Secret"
+     },
+     "razorpay_webhook_secret": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Razorpay Webhook Secret"
+     },
+     "razorpay_environment": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Razorpay Environment"
+     },
+     "trial_enabled": {
+      "anyOf": [
+       {
+        "type": "boolean"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Trial Enabled"
+     },
+     "trial_amount": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Trial Amount"
+     },
+     "trial_period_days": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Trial Period Days"
+     }
+    },
+    "type": "object",
+    "title": "AppUpdate"
+   },
+   "AppUserResponse": {
+    "properties": {
+     "user_id": {
+      "type": "integer",
+      "title": "User Id"
+     },
+     "email": {
+      "type": "string",
+      "title": "Email"
+     },
+     "full_name": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Full Name"
+     },
+     "is_admin": {
+      "type": "boolean",
+      "title": "Is Admin"
+     },
+     "created_at": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Created At"
+     }
+    },
+    "type": "object",
+    "required": [
+     "user_id",
+     "email",
+     "full_name",
+     "is_admin",
+     "created_at"
+    ],
+    "title": "AppUserResponse"
+   },
+   "ChangePasswordRequest": {
+    "properties": {
+     "current_password": {
+      "type": "string",
+      "title": "Current Password"
+     },
+     "new_password": {
+      "type": "string",
+      "title": "New Password"
+     }
+    },
+    "type": "object",
+    "required": [
+     "current_password",
+     "new_password"
+    ],
+    "title": "ChangePasswordRequest"
+   },
+   "HTTPValidationError": {
+    "properties": {
+     "detail": {
+      "items": {
+       "$ref": "#/components/schemas/ValidationError"
+      },
+      "type": "array",
+      "title": "Detail"
+     }
+    },
+    "type": "object",
+    "title": "HTTPValidationError"
+   },
+   "LoginRequest": {
+    "properties": {
+     "email": {
+      "type": "string",
+      "format": "email",
+      "title": "Email"
+     },
+     "password": {
+      "type": "string",
+      "title": "Password"
+     }
+    },
+    "type": "object",
+    "required": [
+     "email",
+     "password"
+    ],
+    "title": "LoginRequest"
+   },
+   "RazorpaySetupPayload": {
+    "properties": {
+     "name": {
+      "type": "string",
+      "title": "Name"
+     },
+     "email": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "email"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Email"
+     },
+     "phone_number": {
+      "type": "string",
+      "title": "Phone Number"
+     },
+     "amount": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Amount"
+     },
+     "max_amount": {
+      "type": "integer",
+      "title": "Max Amount"
+     },
+     "amount_type": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Amount Type",
+      "default": "VARIABLE"
+     },
+     "frequency": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Frequency",
+      "default": "ON_DEMAND"
+     },
+     "method": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Method",
+      "default": "upi"
+     },
+     "trail_days": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Trail Days"
+     }
+    },
+    "type": "object",
+    "required": [
+     "name",
+     "phone_number",
+     "max_amount"
+    ],
+    "title": "RazorpaySetupPayload"
+   },
+   "RazorpaySubscriptionResponse": {
+    "properties": {
+     "id": {
+      "type": "string",
+      "title": "Id"
+     },
+     "app_id": {
+      "type": "string",
+      "title": "App Id"
+     },
+     "phone_number": {
+      "type": "string",
+      "title": "Phone Number"
+     },
+     "name": {
+      "type": "string",
+      "title": "Name"
+     },
+     "email": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Email"
+     },
+     "amount": {
+      "type": "integer",
+      "title": "Amount"
+     },
+     "max_amount": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Max Amount"
+     },
+     "amount_type": {
+      "type": "string",
+      "title": "Amount Type"
+     },
+     "frequency": {
+      "type": "string",
+      "title": "Frequency"
+     },
+     "method": {
+      "type": "string",
+      "title": "Method"
+     },
+     "state": {
+      "type": "string",
+      "title": "State"
+     },
+     "razorpay_customer_id": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Razorpay Customer Id"
+     },
+     "razorpay_order_id": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Razorpay Order Id"
+     },
+     "razorpay_token_id": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Razorpay Token Id"
+     },
+     "next_payment_date": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Next Payment Date"
+     },
+     "last_payment_status": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Last Payment Status"
+     },
+     "total_payments": {
+      "type": "integer",
+      "title": "Total Payments"
+     },
+     "trail_days": {
+      "type": "integer",
+      "title": "Trail Days"
+     },
+     "expire_at": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Expire At"
+     },
+     "created_at": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Created At"
+     }
+    },
+    "type": "object",
+    "required": [
+     "id",
+     "app_id",
+     "phone_number",
+     "name",
+     "email",
+     "amount",
+     "max_amount",
+     "amount_type",
+     "frequency",
+     "method",
+     "state",
+     "razorpay_customer_id",
+     "razorpay_order_id",
+     "razorpay_token_id",
+     "next_payment_date",
+     "last_payment_status",
+     "total_payments",
+     "trail_days",
+     "expire_at",
+     "created_at"
+    ],
+    "title": "RazorpaySubscriptionResponse"
+   },
+   "RazorpayTransactionResponse": {
+    "properties": {
+     "id": {
+      "type": "string",
+      "title": "Id"
+     },
+     "subscription_id": {
+      "type": "string",
+      "title": "Subscription Id"
+     },
+     "amount": {
+      "type": "integer",
+      "title": "Amount"
+     },
+     "state": {
+      "type": "string",
+      "title": "State"
+     },
+     "razorpay_order_id": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Razorpay Order Id"
+     },
+     "razorpay_payment_id": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Razorpay Payment Id"
+     },
+     "created_at": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Created At"
+     }
+    },
+    "type": "object",
+    "required": [
+     "id",
+     "subscription_id",
+     "amount",
+     "state",
+     "razorpay_order_id",
+     "razorpay_payment_id",
+     "created_at"
+    ],
+    "title": "RazorpayTransactionResponse"
+   },
+   "ScheduledTransactionResponse": {
+    "properties": {
+     "id": {
+      "type": "string",
+      "title": "Id"
+     },
+     "subscription_id": {
+      "type": "string",
+      "title": "Subscription Id"
+     },
+     "payment_date": {
+      "type": "integer",
+      "title": "Payment Date"
+     },
+     "amount": {
+      "type": "integer",
+      "title": "Amount"
+     },
+     "state": {
+      "type": "string",
+      "title": "State"
+     },
+     "attempts": {
+      "type": "integer",
+      "title": "Attempts"
+     },
+     "created_at": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Created At"
+     },
+     "transaction_id": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Transaction Id"
+     },
+     "merchant_order_id": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Merchant Order Id"
+     }
+    },
+    "type": "object",
+    "required": [
+     "id",
+     "subscription_id",
+     "payment_date",
+     "amount",
+     "state",
+     "attempts",
+     "created_at"
+    ],
+    "title": "ScheduledTransactionResponse"
+   },
+   "SubscriptionResponse": {
+    "properties": {
+     "id": {
+      "type": "string",
+      "title": "Id"
+     },
+     "app_id": {
+      "type": "string",
+      "title": "App Id"
+     },
+     "phone_number": {
+      "type": "string",
+      "title": "Phone Number"
+     },
+     "amount": {
+      "type": "integer",
+      "title": "Amount"
+     },
+     "max_amount": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Max Amount"
+     },
+     "amount_type": {
+      "type": "string",
+      "title": "Amount Type"
+     },
+     "frequency": {
+      "type": "string",
+      "title": "Frequency"
+     },
+     "auth_workflow_type": {
+      "type": "string",
+      "title": "Auth Workflow Type"
+     },
+     "product_type": {
+      "type": "string",
+      "title": "Product Type"
+     },
+     "state": {
+      "type": "string",
+      "title": "State"
+     },
+     "phonepe_subscription_id": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Phonepe Subscription Id"
+     },
+     "phonepe_order_id": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Phonepe Order Id"
+     },
+     "next_payment_date": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Next Payment Date"
+     },
+     "last_payment_status": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Last Payment Status"
+     },
+     "total_payments": {
+      "type": "integer",
+      "title": "Total Payments"
+     },
+     "trail_days": {
+      "type": "integer",
+      "title": "Trail Days"
+     },
+     "expire_at": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Expire At"
+     },
+     "created_at": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Created At"
+     }
+    },
+    "type": "object",
+    "required": [
+     "id",
+     "app_id",
+     "phone_number",
+     "amount",
+     "max_amount",
+     "amount_type",
+     "frequency",
+     "auth_workflow_type",
+     "product_type",
+     "state",
+     "phonepe_subscription_id",
+     "phonepe_order_id",
+     "next_payment_date",
+     "last_payment_status",
+     "total_payments",
+     "trail_days",
+     "expire_at",
+     "created_at"
+    ],
+    "title": "SubscriptionResponse"
+   },
+   "SubscriptionSetupPayload": {
+    "properties": {
+     "phone_number": {
+      "type": "string",
+      "title": "Phone Number"
+     },
+     "amount": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Amount"
+     },
+     "max_amount": {
+      "type": "integer",
+      "title": "Max Amount"
+     },
+     "amount_type": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Amount Type",
+      "default": "VARIABLE"
+     },
+     "frequency": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Frequency",
+      "default": "ON_DEMAND"
+     },
+     "auth_workflow_type": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Auth Workflow Type",
+      "default": "TRANSACTION"
+     },
+     "trail_days": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Trail Days"
+     },
+     "product_type": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Product Type",
+      "default": "UPI_INTENT"
+     },
+     "device_os": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Device Os",
+      "default": "Android"
+     },
+     "payment_target_app": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Payment Target App"
+     }
+    },
+    "type": "object",
+    "required": [
+     "phone_number",
+     "max_amount"
+    ],
+    "title": "SubscriptionSetupPayload"
+   },
+   "SubscriptionTransactionResponse": {
+    "properties": {
+     "id": {
+      "type": "string",
+      "title": "Id"
+     },
+     "subscription_id": {
+      "type": "string",
+      "title": "Subscription Id"
+     },
+     "scheduled_transaction_id": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Scheduled Transaction Id"
+     },
+     "amount": {
+      "type": "integer",
+      "title": "Amount"
+     },
+     "state": {
+      "type": "string",
+      "title": "State"
+     },
+     "payment_due_date": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Payment Due Date"
+     },
+     "transaction_id": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Transaction Id"
+     },
+     "created_at": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Created At"
+     }
+    },
+    "type": "object",
+    "required": [
+     "id",
+     "subscription_id",
+     "scheduled_transaction_id",
+     "amount",
+     "state",
+     "payment_due_date",
+     "transaction_id",
+     "created_at"
+    ],
+    "title": "SubscriptionTransactionResponse"
+   },
+   "SummaryResponse": {
+    "properties": {
+     "subscriptions_total": {
+      "type": "integer",
+      "title": "Subscriptions Total"
+     },
+     "subscriptions_by_state": {
+      "additionalProperties": {
+       "type": "integer"
+      },
+      "type": "object",
+      "title": "Subscriptions By State"
+     },
+     "scheduled_total": {
+      "type": "integer",
+      "title": "Scheduled Total"
+     },
+     "scheduled_by_state": {
+      "additionalProperties": {
+       "type": "integer"
+      },
+      "type": "object",
+      "title": "Scheduled By State"
+     },
+     "scheduled_value_paise": {
+      "type": "integer",
+      "title": "Scheduled Value Paise",
+      "default": 0
+     },
+     "scheduled_value_by_state_paise": {
+      "additionalProperties": {
+       "type": "integer"
+      },
+      "type": "object",
+      "title": "Scheduled Value By State Paise",
+      "default": {}
+     },
+     "transactions_total": {
+      "type": "integer",
+      "title": "Transactions Total"
+     },
+     "transactions_by_state": {
+      "additionalProperties": {
+       "type": "integer"
+      },
+      "type": "object",
+      "title": "Transactions By State"
+     },
+     "revenue_collected_paise": {
+      "type": "integer",
+      "title": "Revenue Collected Paise"
+     },
+     "payment_revenue_collected_paise": {
+      "type": "integer",
+      "title": "Payment Revenue Collected Paise"
+     },
+     "trial_revenue_collected_paise": {
+      "type": "integer",
+      "title": "Trial Revenue Collected Paise"
+     },
+     "trial_setups_count": {
+      "type": "integer",
+      "title": "Trial Setups Count"
+     },
+     "window_start": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "date"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Window Start"
+     },
+     "window_end": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "date"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Window End"
+     }
+    },
+    "type": "object",
+    "required": [
+     "subscriptions_total",
+     "subscriptions_by_state",
+     "scheduled_total",
+     "scheduled_by_state",
+     "transactions_total",
+     "transactions_by_state",
+     "revenue_collected_paise",
+     "payment_revenue_collected_paise",
+     "trial_revenue_collected_paise",
+     "trial_setups_count"
+    ],
+    "title": "SummaryResponse"
+   },
+   "TokenResponse": {
+    "properties": {
+     "access_token": {
+      "type": "string",
+      "title": "Access Token"
+     },
+     "token_type": {
+      "type": "string",
+      "title": "Token Type",
+      "default": "bearer"
+     }
+    },
+    "type": "object",
+    "required": [
+     "access_token"
+    ],
+    "title": "TokenResponse"
+   },
+   "UserResponse": {
+    "properties": {
+     "id": {
+      "type": "integer",
+      "title": "Id"
+     },
+     "email": {
+      "type": "string",
+      "title": "Email"
+     },
+     "full_name": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Full Name"
+     },
+     "is_admin": {
+      "type": "boolean",
+      "title": "Is Admin"
+     }
+    },
+    "type": "object",
+    "required": [
+     "id",
+     "email",
+     "full_name",
+     "is_admin"
+    ],
+    "title": "UserResponse"
+   },
+   "ValidationError": {
+    "properties": {
+     "loc": {
+      "items": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "integer"
+        }
+       ]
+      },
+      "type": "array",
+      "title": "Location"
+     },
+     "msg": {
+      "type": "string",
+      "title": "Message"
+     },
+     "type": {
+      "type": "string",
+      "title": "Error Type"
+     }
+    },
+    "type": "object",
+    "required": [
+     "loc",
+     "msg",
+     "type"
+    ],
+    "title": "ValidationError"
+   },
+   "WebhookConfigUpdate": {
+    "properties": {
+     "url": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Url"
+     },
+     "enabled": {
+      "anyOf": [
+       {
+        "type": "boolean"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Enabled"
+     },
+     "events": {
+      "anyOf": [
+       {
+        "items": {
+         "type": "string"
+        },
+        "type": "array"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Events"
+     },
+     "auth_header": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Auth Header"
+     },
+     "auth_enabled": {
+      "anyOf": [
+       {
+        "type": "boolean"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Auth Enabled"
+     }
+    },
+    "type": "object",
+    "title": "WebhookConfigUpdate"
+   }
+  },
+  "securitySchemes": {
+   "OAuth2PasswordBearer": {
+    "type": "oauth2",
+    "flows": {
+     "password": {
+      "scopes": {},
+      "tokenUrl": "/api/auth/login"
+     }
+    }
+   }
+  }
+ }
+}

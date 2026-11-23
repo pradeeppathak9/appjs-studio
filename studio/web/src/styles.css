@@ -1,0 +1,87 @@
+/* App-wide styles on top of Mantine. Colors come from the theme's CSS variables. */
+
+:root body {
+  background-color: var(--app-bg);
+  font-feature-settings: "cv11", "ss01";
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Tables and stats: digits line up. */
+table,
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Status dot used for job and system status. */
+.status-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex: none;
+}
+
+.status-dot[data-pulse] {
+  animation: status-pulse 1.4s ease-in-out infinite;
+}
+
+@keyframes status-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 color-mix(in srgb, currentColor 45%, transparent);
+  }
+  50% {
+    box-shadow: 0 0 0 4px color-mix(in srgb, currentColor 0%, transparent);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .status-dot[data-pulse] {
+    animation: none;
+  }
+}
+
+/* Clickable cards lift a little on hover. */
+.hover-card {
+  transition:
+    box-shadow 120ms ease,
+    transform 120ms ease,
+    border-color 120ms ease;
+}
+
+.hover-card:hover {
+  box-shadow: var(--mantine-shadow-md);
+  border-color: var(--mantine-color-indigo-light-color);
+}
+
+.hover-card:focus-visible {
+  outline: 2px solid var(--mantine-primary-color-filled);
+  outline-offset: 2px;
+}
+
+/* Rows being dragged / drop targets in the reorderable template lists. */
+[data-dragging] {
+  opacity: 0.45;
+}
+
+[data-drop-target] {
+  box-shadow: inset 0 2px 0 var(--mantine-primary-color-filled);
+}
+
+.drag-handle {
+  cursor: grab;
+  color: var(--mantine-color-dimmed);
+}
+
+/* Auth pages: soft gradient background. */
+.auth-bg {
+  background:
+    radial-gradient(1200px 600px at 10% -10%, var(--mantine-color-indigo-light) 0%, transparent 60%),
+    radial-gradient(900px 500px at 110% 110%, var(--mantine-color-violet-light) 0%, transparent 60%),
+    var(--app-bg);
+}
+
+/* Wide tables scroll inside their card instead of the page. */
+.table-card {
+  overflow: hidden;
+}

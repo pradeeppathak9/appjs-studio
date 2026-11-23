@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="light dark" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <title>AutoRev</title>
+    <script>
+      // Apply the saved color scheme before the first paint (same key as Mantine's localStorage manager),
+      // so a dark-mode user never sees a white flash.
+      (function () {
+        try {
+          var saved = window.localStorage.getItem("mantine-color-scheme-value");
+          var scheme = saved === "light" || saved === "dark" ? saved : "auto";
+          if (scheme === "auto") scheme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+          document.documentElement.setAttribute("data-mantine-color-scheme", scheme);
+          document.documentElement.style.backgroundColor = scheme === "dark" ? "#0f1115" : "#f6f7f9";
+        } catch (e) {}
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

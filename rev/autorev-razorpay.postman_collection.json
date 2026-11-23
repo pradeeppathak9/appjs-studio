@@ -1,0 +1,622 @@
+{
+  "info": {
+    "name": "AutoRev — Razorpay",
+    "_postman_id": "autorev-razorpay-v1",
+    "description": "Full Razorpay subscription lifecycle: auth → credential setup → mandate setup → status polling → redemption → webhook simulation.\n\nRun the requests in folder order. Each request that produces an important ID has a test script that saves it to a collection variable so subsequent requests pick it up automatically.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "base_url",         "value": "https://api.autorev.postkaro.app", "type": "string" },
+    { "key": "jwt_token",        "value": "", "type": "string", "description": "Set automatically by Login" },
+    { "key": "app_id",           "value": "", "type": "string", "description": "Set manually or from List Apps" },
+    { "key": "app_api_key",      "value": "", "type": "string", "description": "Set automatically by Get App" },
+    { "key": "subscription_id",  "value": "", "type": "string", "description": "Set automatically by Setup Subscription" },
+    { "key": "merchant_order_id","value": "", "type": "string", "description": "Set automatically by Notify Redemption" },
+    { "key": "phone_number",     "value": "9999999999", "type": "string" }
+  ],
+  "item": [
+    {
+      "name": "1 · Auth",
+      "item": [
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var json = pm.response.json();",
+                  "if (json.access_token) {",
+                  "  pm.collectionVariables.set('jwt_token', json.access_token);",
+                  "  console.log('jwt_token saved');",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"your@email.com\",\n  \"password\": \"your_password\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/login",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "login"]
+            },
+            "description": "Authenticates as a regular user. Saves `jwt_token` automatically."
+          }
+        },
+        {
+          "name": "Me (verify token)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{jwt_token}}" }],
+            "url": {
+              "raw": "{{base_url}}/api/auth/me",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "me"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "2 · App Setup",
+      "description": "Configure Razorpay credentials on your app. Run List Apps first, copy the app_id into the collection variable, then update credentials.",
+      "item": [
+        {
+          "name": "List Apps",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var apps = pm.response.json();",
+                  "if (Array.isArray(apps) && apps.length > 0) {",
+                  "  var rzApp = apps.find(a => a.payment_gateway === 'RAZORPAY') || apps[0];",
+                  "  pm.collectionVariables.set('app_id', rzApp.id);",
+                  "  pm.collectionVariables.set('app_api_key', rzApp.api_key);",
+                  "  console.log('app_id:', rzApp.id, '| api_key set');",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{jwt_token}}" }],
+            "url": {
+              "raw": "{{base_url}}/api/apps",
+              "host": ["{{base_url}}"],
+              "path": ["api", "apps"]
+            },
+            "description": "Lists all apps accessible to the logged-in user. Auto-saves the first Razorpay app's `app_id` and `app_api_key`."
+          }
+        },
+        {
+          "name": "Get App",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var json = pm.response.json();",
+                  "if (json.api_key) {",
+                  "  pm.collectionVariables.set('app_api_key', json.api_key);",
+                  "  console.log('app_api_key saved');",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{jwt_token}}" }],
+            "url": {
+              "raw": "{{base_url}}/api/apps/{{app_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "apps", "{{app_id}}"]
+            },
+            "description": "Fetches full app details including Razorpay credentials (razorpay_key_id, environment, etc.)."
+          }
+        },
+        {
+          "name": "Update Razorpay Credentials",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{jwt_token}}" },
+              { "key": "Content-Type",  "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"razorpay_key_id\": \"rzp_test_XXXXXXXXXXXX\",\n  \"razorpay_key_secret\": \"your_key_secret\",\n  \"razorpay_webhook_secret\": \"your_webhook_secret\",\n  \"razorpay_environment\": \"TEST\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/apps/{{app_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "apps", "{{app_id}}"]
+            },
+            "description": "Sets the Razorpay API key_id, key_secret, webhook_secret and environment (TEST | LIVE). All fields are optional — send only what you want to update."
+          }
+        },
+        {
+          "name": "Test Razorpay Credentials",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{jwt_token}}" }],
+            "url": {
+              "raw": "{{base_url}}/api/apps/{{app_id}}/test-razorpay",
+              "host": ["{{base_url}}"],
+              "path": ["api", "apps", "{{app_id}}", "test-razorpay"]
+            },
+            "description": "Validates the stored Razorpay credentials by making a live API call. Returns `{\"success\": true, \"environment\": \"TEST\"}` on success or `{\"success\": false, \"stage\": \"...\", \"error\": \"...\"}` on failure."
+          }
+        }
+      ]
+    },
+    {
+      "name": "3 · Subscription Setup (Mandate Registration)",
+      "description": "Creates a customer + authorization order on Razorpay. The returned `razorpay_order_id` is used in your checkout flow (Razorpay.js) to collect UPI mandate / e-mandate / card authorization from the end user.",
+      "item": [
+        {
+          "name": "Setup Subscription — UPI (variable amount)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var json = pm.response.json();",
+                  "if (json.subscription_id) {",
+                  "  pm.collectionVariables.set('subscription_id', json.subscription_id);",
+                  "  console.log('subscription_id:', json.subscription_id);",
+                  "  console.log('razorpay_order_id:', json.razorpay_order_id, '— use this in Razorpay.js checkout');",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{app_api_key}}" },
+              { "key": "Content-Type",  "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Test User\",\n  \"email\": \"testuser@example.com\",\n  \"phone_number\": \"{{phone_number}}\",\n  \"amount\": 100,\n  \"max_amount\": 5000,\n  \"amount_type\": \"VARIABLE\",\n  \"frequency\": \"MONTHLY\",\n  \"method\": \"upi\",\n  \"trail_days\": 0\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/{{app_id}}/razorpay/setup",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "{{app_id}}", "razorpay", "setup"]
+            },
+            "description": "Creates a Razorpay customer and an authorization order. The `razorpay_order_id` in the response is what you pass to `Razorpay.js` on your checkout page to open the payment widget.\n\n**amount** — first charge amount in paise (100 = ₹1)\n**max_amount** — mandate limit in paise (5000 = ₹50)\n**amount_type** — FIXED | VARIABLE\n**frequency** — DAILY | WEEKLY | FORTNIGHTLY | MONTHLY | BIMONTHLY | QUARTERLY | HALFYEARLY | YEARLY | ON_DEMAND\n**method** — upi | emandate | card\n**trail_days** — free trial days before first charge"
+          }
+        },
+        {
+          "name": "Setup Subscription — UPI (fixed amount)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var json = pm.response.json();",
+                  "if (json.subscription_id) {",
+                  "  pm.collectionVariables.set('subscription_id', json.subscription_id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{app_api_key}}" },
+              { "key": "Content-Type",  "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Fixed Plan User\",\n  \"phone_number\": \"{{phone_number}}\",\n  \"amount\": 999,\n  \"max_amount\": 999,\n  \"amount_type\": \"FIXED\",\n  \"frequency\": \"MONTHLY\",\n  \"method\": \"upi\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/{{app_id}}/razorpay/setup",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "{{app_id}}", "razorpay", "setup"]
+            },
+            "description": "Same flow as variable but with FIXED amount — max_amount == amount."
+          }
+        },
+        {
+          "name": "Setup Subscription — ON_DEMAND (wallet / on-demand debit)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var json = pm.response.json();",
+                  "if (json.subscription_id) {",
+                  "  pm.collectionVariables.set('subscription_id', json.subscription_id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{app_api_key}}" },
+              { "key": "Content-Type",  "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"On-demand User\",\n  \"phone_number\": \"{{phone_number}}\",\n  \"amount\": 100,\n  \"max_amount\": 10000,\n  \"amount_type\": \"VARIABLE\",\n  \"frequency\": \"ON_DEMAND\",\n  \"method\": \"upi\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/{{app_id}}/razorpay/setup",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "{{app_id}}", "razorpay", "setup"]
+            }
+          }
+        },
+        {
+          "name": "Setup Subscription — with Trial Days",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var json = pm.response.json();",
+                  "if (json.subscription_id) {",
+                  "  pm.collectionVariables.set('subscription_id', json.subscription_id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{app_api_key}}" },
+              { "key": "Content-Type",  "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Trial User\",\n  \"email\": \"trial@example.com\",\n  \"phone_number\": \"{{phone_number}}\",\n  \"amount\": 100,\n  \"max_amount\": 2000,\n  \"amount_type\": \"VARIABLE\",\n  \"frequency\": \"MONTHLY\",\n  \"method\": \"upi\",\n  \"trail_days\": 7\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/{{app_id}}/razorpay/setup",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "{{app_id}}", "razorpay", "setup"]
+            },
+            "description": "7-day free trial — next_payment_date will be set to today+7 once mandate is authorized."
+          }
+        }
+      ]
+    },
+    {
+      "name": "4 · Subscription Status & Lookup",
+      "description": "Poll status after the user completes the checkout / mandate flow on the frontend.",
+      "item": [
+        {
+          "name": "Subscription Status (by subscription_id)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{app_api_key}}" }],
+            "url": {
+              "raw": "{{base_url}}/api/v1/{{app_id}}/razorpay/status/{{subscription_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "{{app_id}}", "razorpay", "status", "{{subscription_id}}"]
+            },
+            "description": "Checks the authorization order status on Razorpay. If the order is `paid` and no token has been saved yet, it fetches tokens from Razorpay, saves the first one, and transitions the subscription to ACTIVE.\n\nPoll this after the Razorpay.js checkout callback fires."
+          }
+        },
+        {
+          "name": "User Subscription Status (latest, by phone)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{app_api_key}}" }],
+            "url": {
+              "raw": "{{base_url}}/api/v1/{{app_id}}/razorpay/{{phone_number}}/status",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "{{app_id}}", "razorpay", "{{phone_number}}", "status"]
+            },
+            "description": "Returns the most recent subscription's state, next_payment_date (YYYY-MM-DD), and last_payment_status for the given phone number. Returns `{\"state\": \"NOT_FOUND\"}` if no subscriptions exist."
+          }
+        },
+        {
+          "name": "All Subscriptions for Phone (with transactions)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{app_api_key}}" }],
+            "url": {
+              "raw": "{{base_url}}/api/v1/{{app_id}}/razorpay/{{phone_number}}/subscriptions",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "{{app_id}}", "razorpay", "{{phone_number}}", "subscriptions"]
+            },
+            "description": "Returns all subscriptions for a phone number, each including its full transaction history."
+          }
+        }
+      ]
+    },
+    {
+      "name": "5 · Redemption (Recurring Charge)",
+      "description": "After a subscription is ACTIVE (token authorized), use these three requests in order to charge the customer.\n\nFlow: Notify → Execute → Poll status",
+      "item": [
+        {
+          "name": "Step 1 — Notify Redemption",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var json = pm.response.json();",
+                  "if (json.merchant_order_id) {",
+                  "  pm.collectionVariables.set('merchant_order_id', json.merchant_order_id);",
+                  "  console.log('merchant_order_id:', json.merchant_order_id);",
+                  "  console.log('razorpay_order_id:', json.razorpay_order_id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{app_api_key}}" }],
+            "url": {
+              "raw": "{{base_url}}/api/v1/{{app_id}}/razorpay/notify-redemption/{{subscription_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "{{app_id}}", "razorpay", "notify-redemption", "{{subscription_id}}"]
+            },
+            "description": "Creates a charge order on Razorpay for the subscription's stored amount. Returns a `merchant_order_id` (our internal ref) and the `razorpay_order_id`.\n\n**Prerequisite:** subscription must be in ACTIVE state with a valid razorpay_token_id."
+          }
+        },
+        {
+          "name": "Step 2 — Execute Redemption",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{app_api_key}}" }],
+            "url": {
+              "raw": "{{base_url}}/api/v1/{{app_id}}/razorpay/execute-redemption/{{merchant_order_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "{{app_id}}", "razorpay", "execute-redemption", "{{merchant_order_id}}"]
+            },
+            "description": "Charges the saved UPI/mandate token against the order created in Step 1. Calls `POST /payments/create/recurring` on Razorpay. Returns `razorpay_payment_id`.\n\nFinal success/failure is confirmed asynchronously via the `payment.captured` / `payment.failed` webhook."
+          }
+        },
+        {
+          "name": "Step 3 — Redemption Order Status",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{app_api_key}}" }],
+            "url": {
+              "raw": "{{base_url}}/api/v1/{{app_id}}/razorpay/redemption-order-status/{{merchant_order_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "{{app_id}}", "razorpay", "redemption-order-status", "{{merchant_order_id}}"]
+            },
+            "description": "Returns the current state (NOTIFIED → INITIATED → SUCCESS / FAILED) and `razorpay_payment_id` for a charge order."
+          }
+        }
+      ]
+    },
+    {
+      "name": "6 · Webhook Simulation",
+      "description": "Simulate Razorpay webhook events locally. In production these are sent by Razorpay to `POST /api/v1/{app_id}/razorpay/webhook` with an `X-Razorpay-Signature` HMAC header.\n\nNote: the webhook endpoint verifies the HMAC signature — these requests will return 401 unless you compute a valid signature. Use them for inspecting the request shape; run real tests via Razorpay's Test Webhooks dashboard.",
+      "item": [
+        {
+          "name": "Webhook — payment.authorized (mandate activated)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type",           "value": "application/json" },
+              { "key": "X-Razorpay-Signature",   "value": "REPLACE_WITH_HMAC_SHA256" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"event\": \"payment.authorized\",\n  \"payload\": {\n    \"payment\": {\n      \"entity\": {\n        \"id\": \"pay_XXXXXXXXXXXX\",\n        \"order_id\": \"order_XXXXXXXXXXXX\",\n        \"amount\": 100,\n        \"currency\": \"INR\",\n        \"status\": \"authorized\"\n      }\n    }\n  }\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/{{app_id}}/razorpay/webhook",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "{{app_id}}", "razorpay", "webhook"]
+            },
+            "description": "Triggered when the UPI mandate / e-mandate authorization is completed by the customer. Sets subscription state to ACTIVE and saves the token_id."
+          }
+        },
+        {
+          "name": "Webhook — order.paid (alt mandate activation)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type",           "value": "application/json" },
+              { "key": "X-Razorpay-Signature",   "value": "REPLACE_WITH_HMAC_SHA256" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"event\": \"order.paid\",\n  \"payload\": {\n    \"order\": {\n      \"entity\": {\n        \"id\": \"order_XXXXXXXXXXXX\",\n        \"amount\": 100,\n        \"currency\": \"INR\",\n        \"status\": \"paid\"\n      }\n    },\n    \"payment\": {\n      \"entity\": {\n        \"id\": \"pay_XXXXXXXXXXXX\",\n        \"order_id\": \"order_XXXXXXXXXXXX\"\n      }\n    }\n  }\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/{{app_id}}/razorpay/webhook",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "{{app_id}}", "razorpay", "webhook"]
+            }
+          }
+        },
+        {
+          "name": "Webhook — payment.captured (charge success)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type",           "value": "application/json" },
+              { "key": "X-Razorpay-Signature",   "value": "REPLACE_WITH_HMAC_SHA256" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"event\": \"payment.captured\",\n  \"payload\": {\n    \"payment\": {\n      \"entity\": {\n        \"id\": \"pay_XXXXXXXXXXXX\",\n        \"order_id\": \"order_XXXXXXXXXXXX\",\n        \"amount\": 100,\n        \"currency\": \"INR\",\n        \"status\": \"captured\"\n      }\n    }\n  }\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/{{app_id}}/razorpay/webhook",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "{{app_id}}", "razorpay", "webhook"]
+            },
+            "description": "Marks the charge transaction as SUCCESS, increments total_payments, updates last_payment_status, and advances next_payment_date."
+          }
+        },
+        {
+          "name": "Webhook — payment.failed (charge failed)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type",           "value": "application/json" },
+              { "key": "X-Razorpay-Signature",   "value": "REPLACE_WITH_HMAC_SHA256" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"event\": \"payment.failed\",\n  \"payload\": {\n    \"payment\": {\n      \"entity\": {\n        \"id\": \"pay_XXXXXXXXXXXX\",\n        \"order_id\": \"order_XXXXXXXXXXXX\",\n        \"error_code\": \"BAD_REQUEST_ERROR\",\n        \"error_description\": \"Insufficient funds\"\n      }\n    }\n  }\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/{{app_id}}/razorpay/webhook",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "{{app_id}}", "razorpay", "webhook"]
+            },
+            "description": "Marks the charge transaction as FAILED and sets last_payment_status = FAILED on the subscription."
+          }
+        }
+      ]
+    },
+    {
+      "name": "7 · Admin",
+      "description": "Admin-only endpoints (requires admin JWT). Useful for creating Razorpay apps and inspecting data.",
+      "item": [
+        {
+          "name": "Admin Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var json = pm.response.json();",
+                  "if (json.access_token) {",
+                  "  pm.collectionVariables.set('jwt_token', json.access_token);",
+                  "  console.log('admin jwt_token saved');",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@autorev.app\",\n  \"password\": \"YOUR_ADMIN_PASSWORD\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/login",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "login"]
+            }
+          }
+        },
+        {
+          "name": "Admin — Create Razorpay App",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var json = pm.response.json();",
+                  "if (json.id) {",
+                  "  pm.collectionVariables.set('app_id', json.id);",
+                  "  pm.collectionVariables.set('app_api_key', json.api_key);",
+                  "  console.log('Created app:', json.id, '| api_key saved');",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{jwt_token}}" },
+              { "key": "Content-Type",  "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"user_id\": 1,\n  \"name\": \"my-razorpay-app\",\n  \"payment_gateway\": \"RAZORPAY\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/admin/apps",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "apps"]
+            },
+            "description": "Creates a new app assigned to the specified user_id with Razorpay as the payment gateway. Auto-saves app_id and app_api_key."
+          }
+        },
+        {
+          "name": "Admin — List Apps",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{jwt_token}}" }],
+            "url": {
+              "raw": "{{base_url}}/api/admin/apps",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "apps"]
+            }
+          }
+        },
+        {
+          "name": "Admin — List Users",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{jwt_token}}" }],
+            "url": {
+              "raw": "{{base_url}}/api/admin/users",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "users"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "8 · Health",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/health",
+              "host": ["{{base_url}}"],
+              "path": ["api", "health"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

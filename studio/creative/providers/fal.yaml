@@ -1,0 +1,61 @@
+# fal.ai endpoints this server may use. The provider is on when FAL_KEY is set; it then accepts
+# only the endpoints below with `enabled: true`. Requests or templates naming any other endpoint
+# are rejected at submit time.
+#
+# To use your own copy (e.g. a mounted file in production), set FAL_MODELS_FILE=/path.yaml.
+# Changes take effect on restart.
+#
+# Endpoint IDs: https://fal.ai/models
+#
+# Per-endpoint keys:
+#   id            fal endpoint id (required)
+#   media         image | video (required)
+#   enabled       false keeps the entry for reference but blocks its use (default true)
+#   label         free text for humans; not used by the server
+#   size_param    image endpoints: how the aspect ratio is sent.
+#                   image_size   -> flux presets (square_hd, landscape_16_9, ...) (default)
+#                   aspect_ratio -> the ratio string, e.g. "16:9"
+#   input         set only for endpoints that take input images:
+#                   param  argument name, e.g. image_url or image_urls (it differs per endpoint)
+#                   list   true when the argument takes a list of URLs (default false)
+#                   max    most input images the endpoint accepts (default 1)
+
+# Used when a request or template names provider "fal" without a model. Each must be an enabled
+# endpoint of that media type; when left out, the first enabled one is used.
+default_image_model: fal-ai/flux/dev
+default_video_model: fal-ai/kling-video/v3/pro/text-to-video
+
+max_images: 4
+
+# Offered in the console for every fal image endpoint. With size_param image_size, only ratios
+# that have a flux preset work: 1:1, 4:3, 3:4, 16:9, 9:16.
+image_aspect_ratios: ["1:1", "4:3", "3:4", "16:9", "9:16"]
+video_aspect_ratios: ["16:9", "9:16", "1:1"]
+# Allowed video lengths in seconds; [] lets the endpoint pick.
+video_durations: [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
+
+models:
+  - id: fal-ai/flux/dev
+    label: FLUX.1 [dev] text-to-image
+    media: image
+    enabled: true
+    size_param: image_size
+
+  - id: fal-ai/flux-pro/kontext
+    label: FLUX.1 Kontext [pro] image edit
+    media: image
+    enabled: true
+    size_param: aspect_ratio
+    input: {param: image_url, list: false, max: 1}
+
+  - id: fal-ai/nano-banana/edit
+    label: Nano Banana edit
+    media: image
+    enabled: true
+    size_param: aspect_ratio
+    input: {param: image_urls, list: true, max: 4}
+
+  - id: fal-ai/kling-video/v3/pro/text-to-video
+    label: Kling 3 Pro text-to-video
+    media: video
+    enabled: true

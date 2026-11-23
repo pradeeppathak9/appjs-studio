@@ -1,0 +1,9061 @@
+{
+ "openapi": "3.1.0",
+ "info": {
+  "title": "AppJs Studio",
+  "version": "0.1.0"
+ },
+ "paths": {
+  "/healthz": {
+   "get": {
+    "tags": [
+     "meta"
+    ],
+    "summary": "Healthz",
+    "operationId": "healthz_healthz_get",
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HealthResponse"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/v1/providers": {
+   "get": {
+    "tags": [
+     "meta"
+    ],
+    "summary": "Providers",
+    "operationId": "providers_v1_providers_get",
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "items": {
+          "$ref": "#/components/schemas/ProviderInfo"
+         },
+         "type": "array",
+         "title": "Response Providers V1 Providers Get"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/v1/auth/setup": {
+   "get": {
+    "tags": [
+     "auth"
+    ],
+    "summary": "Setup State",
+    "operationId": "setup_state_v1_auth_setup_get",
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/SetupState"
+        }
+       }
+      }
+     }
+    }
+   },
+   "post": {
+    "tags": [
+     "auth"
+    ],
+    "summary": "Setup",
+    "operationId": "setup_v1_auth_setup_post",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/SetupIn"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "201": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/MeResponse"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/v1/auth/login": {
+   "post": {
+    "tags": [
+     "auth"
+    ],
+    "summary": "Login",
+    "operationId": "login_v1_auth_login_post",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/LoginIn"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/MeResponse"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/v1/auth/logout": {
+   "post": {
+    "tags": [
+     "auth"
+    ],
+    "summary": "Logout",
+    "operationId": "logout_v1_auth_logout_post",
+    "responses": {
+     "204": {
+      "description": "Successful Response"
+     }
+    }
+   }
+  },
+  "/v1/auth/me": {
+   "get": {
+    "tags": [
+     "auth"
+    ],
+    "summary": "Me",
+    "operationId": "me_v1_auth_me_get",
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/MeResponse"
+        }
+       }
+      }
+     }
+    }
+   },
+   "patch": {
+    "tags": [
+     "auth"
+    ],
+    "summary": "Rename",
+    "operationId": "rename_v1_auth_me_patch",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/NameChange"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/MeResponse"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/v1/auth/password": {
+   "post": {
+    "tags": [
+     "auth"
+    ],
+    "summary": "Change Password",
+    "operationId": "change_password_v1_auth_password_post",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/PasswordChange"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "204": {
+      "description": "Successful Response"
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/v1/auth/tokens": {
+   "get": {
+    "tags": [
+     "auth"
+    ],
+    "summary": "List Tokens",
+    "operationId": "list_tokens_v1_auth_tokens_get",
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "items": {
+          "$ref": "#/components/schemas/TokenOut"
+         },
+         "type": "array",
+         "title": "Response List Tokens V1 Auth Tokens Get"
+        }
+       }
+      }
+     }
+    }
+   },
+   "post": {
+    "tags": [
+     "auth"
+    ],
+    "summary": "Create Token",
+    "operationId": "create_token_v1_auth_tokens_post",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/TokenCreate"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "201": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/TokenCreated"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/v1/auth/tokens/{token_id}": {
+   "delete": {
+    "tags": [
+     "auth"
+    ],
+    "summary": "Revoke Token",
+    "operationId": "revoke_token_v1_auth_tokens__token_id__delete",
+    "parameters": [
+     {
+      "name": "token_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "uuid",
+       "title": "Token Id"
+      }
+     }
+    ],
+    "responses": {
+     "204": {
+      "description": "Successful Response"
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/v1/generations/{job_id}": {
+   "get": {
+    "tags": [
+     "jobs"
+    ],
+    "summary": "Get Generation",
+    "operationId": "get_generation_v1_generations__job_id__get",
+    "parameters": [
+     {
+      "name": "job_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "uuid",
+       "title": "Job Id"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/JobResponse"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/v1/assets/{asset_id}": {
+   "get": {
+    "tags": [
+     "jobs"
+    ],
+    "summary": "Get Asset",
+    "operationId": "get_asset_v1_assets__asset_id__get",
+    "parameters": [
+     {
+      "name": "asset_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "uuid",
+       "title": "Asset Id"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response"
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/v1/inputs/{input_id}": {
+   "get": {
+    "tags": [
+     "jobs"
+    ],
+    "summary": "Get Input",
+    "operationId": "get_input_v1_inputs__input_id__get",
+    "parameters": [
+     {
+      "name": "input_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "uuid",
+       "title": "Input Id"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response"
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/v1/apps": {
+   "get": {
+    "tags": [
+     "apps"
+    ],
+    "summary": "List My Apps",
+    "description": "The apps the signed-in user can open (admins: all), with their role in each.",
+    "operationId": "list_my_apps_v1_apps_get",
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "items": {
+          "$ref": "#/components/schemas/MyApp"
+         },
+         "type": "array",
+         "title": "Response List My Apps V1 Apps Get"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/v1/apps/{app_id}": {
+   "get": {
+    "tags": [
+     "app dashboard"
+    ],
+    "summary": "Get My App",
+    "operationId": "get_my_app_v1_apps__app_id__get",
+    "parameters": [
+     {
+      "name": "app_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "uuid",
+       "title": "App Id"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/MyApp"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/v1/apps/{app_id}/templates": {
+   "get": {
+    "tags": [
+     "app dashboard"
+    ],
+    "summary": "List Templates",
+    "description": "Active templates, in the app's order (what testers and the app's clients see).",
+    "operationId": "list_templates_v1_apps__app_id__templates_get",
+    "parameters": [
+     {
+      "name": "app_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "uuid",
+       "title": "App Id"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "array",
+         "items": {
+          "$ref": "#/components/schemas/TemplatePublic"
+         },
+         "title": "Response List Templates V1 Apps  App Id  Templates Get"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/v1/apps/{app_id}/templates/{ref}": {
+   "get": {
+    "tags": [
+     "app dashboard"
+    ],
+    "summary": "Get Template",
+    "operationId": "get_template_v1_apps__app_id__templates__ref__get",
+    "parameters": [
+     {
+      "name": "ref",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Ref"
+      }
+     },
+     {
+      "name": "app_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "uuid",
+       "title": "App Id"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/TemplatePublic"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/v1/apps/{app_id}/templates/{ref}/cover": {
+   "get": {
+    "tags": [
+     "app dashboard"
+    ],
+    "summary": "Template Cover",
+    "operationId": "template_cover_v1_apps__app_id__templates__ref__cover_get",
+    "parameters": [
+     {
+      "name": "ref",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Ref"
+      }
+     },
+     {
+      "name": "app_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "uuid",
+       "title": "App Id"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response"
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/v1/apps/{app_id}/templates/{ref}/generations": {
+   "post": {
+    "tags": [
+     "app dashboard"
+    ],
+    "summary": "Run Template",
+    "operationId": "run_template_v1_apps__app_id__templates__ref__generations_post",
+    "parameters": [
+     {
+      "name": "ref",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Ref"
+      }
+     },
+     {
+      "name": "app_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "uuid",
+       "title": "App Id"
+      }
+     }
+    ],
+    "responses": {
+     "202": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/JobResponse"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    },
+    "requestBody": {
+     "content": {
+      "multipart/form-data": {
+       "schema": {
+        "type": "object",
+        "description": "One file field per input slot, named after the slot.",
+        "properties": {
+         "variables": {
+          "type": "string",
+          "description": "JSON object"
+         },
+         "model": {
+          "type": "string"
+         },
+         "webhook_url": {
+          "type": "string"
+         },
+         "version": {
+          "type": "integer",
+          "description": "editors only"
+         }
+        },
+        "additionalProperties": {
+         "type": "string",
+         "format": "binary"
+        }
+       }
+      }
+     },
+     "required": true
+    }
+   }
+  },
+  "/v1/apps/{app_id}/generations": {
+   "get": {
+    "tags": [
+     "app dashboard"
+    ],
+    "summary": "List App Jobs",
+    "description": "Testers: their own jobs. Editors: every job of the app; `source=app` for jobs from the\napp's clients (app key), `source=console` for jobs run here.",
+    "operationId": "list_app_jobs_v1_apps__app_id__generations_get",
+    "parameters": [
+     {
+      "name": "app_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "uuid",
+       "title": "App Id"
+      }
+     },
+     {
+      "name": "status",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string",
+         "pattern": "^(queued|running|succeeded|failed)$"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Status"
+      }
+     },
+     {
+      "name": "template",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string",
+         "format": "uuid"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Template"
+      }
+     },
+     {
+      "name": "created_by",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string",
+         "format": "uuid"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Created By"
+      }
+     },
+     {
+      "name": "source",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string",
+         "pattern": "^(console|app)$"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Source"
+      }
+     },
+     {
+      "name": "limit",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "integer",
+       "maximum": 200,
+       "minimum": 1,
+       "default": 50,
+       "title": "Limit"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/JobList"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   },
+   "post": {
+    "tags": [
+     "app dashboard"
+    ],
+    "summary": "Create Generation",
+    "description": "A free-prompt test inside the app (no template).",
+    "operationId": "create_generation_v1_apps__app_id__generations_post",
+    "parameters": [
+     {
+      "name": "app_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "uuid",
+       "title": "App Id"
+      }
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/GenerationCreate"
+       }
+      }
+     }
+    },
+    "responses": {
+     "202": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/JobResponse"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/v1/apps/{app_id}/catalog": {
+   "get": {
+    "tags": [
+     "app dashboard"
+    ],
+    "summary": "Preview Catalog",
+    "description": "Exactly what the app's clients receive from GET /v1/app/templates.",
+    "operationId": "preview_catalog_v1_apps__app_id__catalog_get",
+    "parameters": [
+     {
+      "name": "app_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "uuid",
+       "title": "App Id"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/AppCatalog"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/v1/apps/{app_id}/uploads": {
+   "post": {
+    "tags": [
+     "app dashboard"
+    ],
+    "summary": "Upload",
+    "description": "Cover and reference images for this app's templates.",
+    "operationId": "upload_v1_apps__app_id__uploads_post",
+    "parameters": [
+     {
+      "name": "app_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "uuid",
+       "title": "App Id"
+      }
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "multipart/form-data": {
+       "schema": {
+        "$ref": "#/components/schemas/Body_upload_v1_apps__app_id__uploads_post"
+       }
+      }
+     }
+    },
+    "responses": {
+     "201": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/UploadOut"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/v1/apps/{app_id}/uploads/{upload_id}": {
+   "get": {
+    "tags": [
+     "app dashboard"
+    ],
+    "summary": "Get Upload",
+    "operationId": "get_upload_v1_apps__app_id__uploads__upload_id__get",
+    "parameters": [
+     {
+      "name": "upload_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "uuid",
+       "title": "Upload Id"
+      }
+     },
+     {
+      "name": "app_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "uuid",
+       "title": "App Id"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response"
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/v1/apps/{app_id}/manage/templates": {
+   "get": {
+    "tags": [
+     "app dashboard"
+    ],
+    "summary": "Manage List",
+    "operationId": "manage_list_v1_apps__app_id__manage_templates_get",
+    "parameters": [
+     {
+      "name": "app_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "uuid",
+       "title": "App Id"
+      }
+     },
+     {
+      "name": "status",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string",
+         "pattern": "^(draft|active)$"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Status"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "array",
+         "items": {
+          "$ref": "#/components/schemas/TemplateFull"
+         },
+         "title": "Response Manage List V1 Apps  App Id  Manage Templates Get"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   },
+   "post": {
+    "tags": [
+     "app dashboard"
+    ],
+    "summary": "Manage Create",
+    "operationId": "manage_create_v1_apps__app_id__manage_templates_post",
+    "parameters": [
+     {
+      "name": "app_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "uuid",
+       "title": "App Id"
+      }
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/TemplateCreate"
+       }
+      }
+     }
+    },
+    "responses": {
+     "201": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/TemplateSaved"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/v1/apps/{app_id}/manage/templates/order": {
+   "put": {
+    "tags": [
+     "app dashboard"
+    ],
+    "summary": "Manage Order",
+    "description": "The display order (also the order the app's clients get). List every template once.",
+    "operationId": "manage_order_v1_apps__app_id__manage_templates_order_put",
+    "parameters": [
+     {
+      "name": "app_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "uuid",
+       "title": "App Id"
+      }
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/TemplateOrderIn"
+       }
+      }
+     }
+    },
+    "responses": {
+     "204": {
+      "description": "Successful Response"
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/v1/apps/{app_id}/manage/templates/{template_id}": {
+   "get": {
+    "tags": [
+     "app dashboard"
+    ],
+    "summary": "Manage Get",
+    "operationId": "manage_get_v1_apps__app_id__manage_templates__template_id__get",
+    "parameters": [
+     {
+      "name": "template_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "uuid",
+       "title": "Template Id"
+      }
+     },
+     {
+      "name": "app_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "uuid",
+       "title": "App Id"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/TemplateFull"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   },
+   "put": {
+    "tags": [
+     "app dashboard"
+    ],
+    "summary": "Manage Update",
+    "operationId": "manage_update_v1_apps__app_id__manage_templates__template_id__put",
+    "parameters": [
+     {
+      "name": "template_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "uuid",
+       "title": "Template Id"
+      }
+     },
+     {
+      "name": "app_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "uuid",
+       "title": "App Id"
+      }
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/TemplateUpdate"
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/TemplateSaved"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   },
+   "delete": {
+    "tags": [
+     "app dashboard"
+    ],
+    "summary": "Manage Delete",
+    "description": "Soft delete: gone from the app and its clients; past jobs keep the template's name.",
+    "operationId": "manage_delete_v1_apps__app_id__manage_templates__template_id__delete",
+    "parameters": [
+     {
+      "name": "template_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "uuid",
+       "title": "Template Id"
+      }
+     },
+     {
+      "name": "app_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "uuid",
+       "title": "App Id"
+      }
+     }
+    ],
+    "responses": {
+     "204": {
+      "description": "Successful Response"
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/v1/apps/{app_id}/manage/templates/{template_id}/versions/{version}": {
+   "get": {
+    "tags": [
+     "app dashboard"
+    ],
+    "summary": "Manage Version",
+    "operationId": "manage_version_v1_apps__app_id__manage_templates__template_id__versions__version__get",
+    "parameters": [
+     {
+      "name": "template_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "uuid",
+       "title": "Template Id"
+      }
+     },
+     {
+      "name": "version",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "integer",
+       "title": "Version"
+      }
+     },
+     {
+      "name": "app_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "uuid",
+       "title": "App Id"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/TemplateVersionOut"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/v1/apps/{app_id}/manage/templates/{template_id}/versions/{version}/restore": {
+   "post": {
+    "tags": [
+     "app dashboard"
+    ],
+    "summary": "Manage Restore",
+    "operationId": "manage_restore_v1_apps__app_id__manage_templates__template_id__versions__version__restore_post",
+    "parameters": [
+     {
+      "name": "template_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "uuid",
+       "title": "Template Id"
+      }
+     },
+     {
+      "name": "version",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "integer",
+       "title": "Version"
+      }
+     },
+     {
+      "name": "app_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "uuid",
+       "title": "App Id"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/TemplateSaved"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/v1/apps/{app_id}/manage/templates/{template_id}/status": {
+   "post": {
+    "tags": [
+     "app dashboard"
+    ],
+    "summary": "Manage Status",
+    "operationId": "manage_status_v1_apps__app_id__manage_templates__template_id__status_post",
+    "parameters": [
+     {
+      "name": "template_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "uuid",
+       "title": "Template Id"
+      }
+     },
+     {
+      "name": "app_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "uuid",
+       "title": "App Id"
+      }
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/TemplateStatusIn"
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/TemplateFull"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/v1/apps/{app_id}/manage/templates/{template_id}/copy": {
+   "post": {
+    "tags": [
+     "app dashboard"
+    ],
+    "summary": "Manage Copy",
+    "description": "Copy into another app (where you must be an editor too) as a new draft.",
+    "operationId": "manage_copy_v1_apps__app_id__manage_templates__template_id__copy_post",
+    "parameters": [
+     {
+      "name": "template_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "uuid",
+       "title": "Template Id"
+      }
+     },
+     {
+      "name": "app_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "uuid",
+       "title": "App Id"
+      }
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/TemplateCopyIn"
+       }
+      }
+     }
+    },
+    "responses": {
+     "201": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/TemplateSaved"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/v1/admin/users": {
+   "get": {
+    "tags": [
+     "admin"
+    ],
+    "summary": "List Users",
+    "operationId": "list_users_v1_admin_users_get",
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "items": {
+          "$ref": "#/components/schemas/UserOut"
+         },
+         "type": "array",
+         "title": "Response List Users V1 Admin Users Get"
+        }
+       }
+      }
+     }
+    }
+   },
+   "post": {
+    "tags": [
+     "admin"
+    ],
+    "summary": "Create User",
+    "operationId": "create_user_v1_admin_users_post",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/UserCreate"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "201": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/UserCreated"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/v1/admin/users/{user_id}": {
+   "patch": {
+    "tags": [
+     "admin"
+    ],
+    "summary": "Update User",
+    "operationId": "update_user_v1_admin_users__user_id__patch",
+    "parameters": [
+     {
+      "name": "user_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "uuid",
+       "title": "User Id"
+      }
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/UserUpdate"
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/UserOut"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   },
+   "delete": {
+    "tags": [
+     "admin"
+    ],
+    "summary": "Delete User",
+    "description": "Delete a user: sign-in and tokens stop at once, the email is free again, they leave every app,\nand their name stays on the jobs and templates they made.",
+    "operationId": "delete_user_v1_admin_users__user_id__delete",
+    "parameters": [
+     {
+      "name": "user_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "uuid",
+       "title": "User Id"
+      }
+     }
+    ],
+    "responses": {
+     "204": {
+      "description": "Successful Response"
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/v1/admin/users/{user_id}/reset-password": {
+   "post": {
+    "tags": [
+     "admin"
+    ],
+    "summary": "Reset Password",
+    "operationId": "reset_password_v1_admin_users__user_id__reset_password_post",
+    "parameters": [
+     {
+      "name": "user_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "uuid",
+       "title": "User Id"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/TemporaryPassword"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/v1/admin/users/{user_id}/tokens": {
+   "get": {
+    "tags": [
+     "admin"
+    ],
+    "summary": "User Tokens",
+    "operationId": "user_tokens_v1_admin_users__user_id__tokens_get",
+    "parameters": [
+     {
+      "name": "user_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "uuid",
+       "title": "User Id"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "array",
+         "items": {
+          "$ref": "#/components/schemas/TokenOut"
+         },
+         "title": "Response User Tokens V1 Admin Users  User Id  Tokens Get"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/v1/admin/users/{user_id}/tokens/{token_id}": {
+   "delete": {
+    "tags": [
+     "admin"
+    ],
+    "summary": "Revoke User Token",
+    "operationId": "revoke_user_token_v1_admin_users__user_id__tokens__token_id__delete",
+    "parameters": [
+     {
+      "name": "user_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "uuid",
+       "title": "User Id"
+      }
+     },
+     {
+      "name": "token_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "uuid",
+       "title": "Token Id"
+      }
+     }
+    ],
+    "responses": {
+     "204": {
+      "description": "Successful Response"
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/v1/admin/users/{user_id}/apps": {
+   "get": {
+    "tags": [
+     "admin"
+    ],
+    "summary": "User Apps",
+    "operationId": "user_apps_v1_admin_users__user_id__apps_get",
+    "parameters": [
+     {
+      "name": "user_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "uuid",
+       "title": "User Id"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "array",
+         "items": {
+          "$ref": "#/components/schemas/Membership"
+         },
+         "title": "Response User Apps V1 Admin Users  User Id  Apps Get"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/v1/admin/apps": {
+   "get": {
+    "tags": [
+     "admin"
+    ],
+    "summary": "List Apps",
+    "operationId": "list_apps_v1_admin_apps_get",
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "items": {
+          "$ref": "#/components/schemas/AppOut"
+         },
+         "type": "array",
+         "title": "Response List Apps V1 Admin Apps Get"
+        }
+       }
+      }
+     }
+    }
+   },
+   "post": {
+    "tags": [
+     "admin"
+    ],
+    "summary": "Create App",
+    "operationId": "create_app_v1_admin_apps_post",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/AppCreate"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "201": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/AppDetail"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/v1/admin/apps/{app_id}": {
+   "get": {
+    "tags": [
+     "admin"
+    ],
+    "summary": "Get App",
+    "operationId": "get_app_v1_admin_apps__app_id__get",
+    "parameters": [
+     {
+      "name": "app_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "uuid",
+       "title": "App Id"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/AppDetail"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   },
+   "put": {
+    "tags": [
+     "admin"
+    ],
+    "summary": "Update App",
+    "operationId": "update_app_v1_admin_apps__app_id__put",
+    "parameters": [
+     {
+      "name": "app_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "uuid",
+       "title": "App Id"
+      }
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/AppFields"
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/AppDetail"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   },
+   "patch": {
+    "tags": [
+     "admin"
+    ],
+    "summary": "Patch App",
+    "description": "Change only the fields sent: the app settings page saves each section on its own.",
+    "operationId": "patch_app_v1_admin_apps__app_id__patch",
+    "parameters": [
+     {
+      "name": "app_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "uuid",
+       "title": "App Id"
+      }
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/AppPatch"
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/AppDetail"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   },
+   "delete": {
+    "tags": [
+     "admin"
+    ],
+    "summary": "Delete App",
+    "description": "Delete an app: its keys stop working, its templates and members go; past jobs keep its name.",
+    "operationId": "delete_app_v1_admin_apps__app_id__delete",
+    "parameters": [
+     {
+      "name": "app_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "uuid",
+       "title": "App Id"
+      }
+     }
+    ],
+    "responses": {
+     "204": {
+      "description": "Successful Response"
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/v1/admin/apps/{app_id}/members": {
+   "get": {
+    "tags": [
+     "admin"
+    ],
+    "summary": "List Members",
+    "operationId": "list_members_v1_admin_apps__app_id__members_get",
+    "parameters": [
+     {
+      "name": "app_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "uuid",
+       "title": "App Id"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "array",
+         "items": {
+          "$ref": "#/components/schemas/MemberOut"
+         },
+         "title": "Response List Members V1 Admin Apps  App Id  Members Get"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/v1/admin/apps/{app_id}/members/{user_id}": {
+   "put": {
+    "tags": [
+     "admin"
+    ],
+    "summary": "Set Member",
+    "description": "Add a user to the app, or change their role in it.",
+    "operationId": "set_member_v1_admin_apps__app_id__members__user_id__put",
+    "parameters": [
+     {
+      "name": "app_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "uuid",
+       "title": "App Id"
+      }
+     },
+     {
+      "name": "user_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "uuid",
+       "title": "User Id"
+      }
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/MemberIn"
+       }
+      }
+     }
+    },
+    "responses": {
+     "204": {
+      "description": "Successful Response"
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   },
+   "delete": {
+    "tags": [
+     "admin"
+    ],
+    "summary": "Remove Member",
+    "operationId": "remove_member_v1_admin_apps__app_id__members__user_id__delete",
+    "parameters": [
+     {
+      "name": "app_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "uuid",
+       "title": "App Id"
+      }
+     },
+     {
+      "name": "user_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "uuid",
+       "title": "User Id"
+      }
+     }
+    ],
+    "responses": {
+     "204": {
+      "description": "Successful Response"
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/v1/admin/apps/{app_id}/keys": {
+   "get": {
+    "tags": [
+     "admin"
+    ],
+    "summary": "List Keys",
+    "operationId": "list_keys_v1_admin_apps__app_id__keys_get",
+    "parameters": [
+     {
+      "name": "app_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "uuid",
+       "title": "App Id"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "array",
+         "items": {
+          "$ref": "#/components/schemas/AppKeyOut"
+         },
+         "title": "Response List Keys V1 Admin Apps  App Id  Keys Get"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   },
+   "post": {
+    "tags": [
+     "admin"
+    ],
+    "summary": "Create Key",
+    "operationId": "create_key_v1_admin_apps__app_id__keys_post",
+    "parameters": [
+     {
+      "name": "app_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "uuid",
+       "title": "App Id"
+      }
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/AppKeyCreate"
+       }
+      }
+     }
+    },
+    "responses": {
+     "201": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/AppKeyCreated"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/v1/admin/apps/{app_id}/keys/{key_id}": {
+   "delete": {
+    "tags": [
+     "admin"
+    ],
+    "summary": "Revoke Key",
+    "operationId": "revoke_key_v1_admin_apps__app_id__keys__key_id__delete",
+    "parameters": [
+     {
+      "name": "app_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "uuid",
+       "title": "App Id"
+      }
+     },
+     {
+      "name": "key_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "uuid",
+       "title": "Key Id"
+      }
+     }
+    ],
+    "responses": {
+     "204": {
+      "description": "Successful Response"
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/v1/admin/apps/{app_id}/plans": {
+   "get": {
+    "tags": [
+     "admin: app users"
+    ],
+    "summary": "List Plans",
+    "operationId": "list_plans_v1_admin_apps__app_id__plans_get",
+    "parameters": [
+     {
+      "name": "app_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "uuid",
+       "title": "App Id"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "array",
+         "items": {
+          "$ref": "#/components/schemas/PlanAdminOut"
+         },
+         "title": "Response List Plans V1 Admin Apps  App Id  Plans Get"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   },
+   "post": {
+    "tags": [
+     "admin: app users"
+    ],
+    "summary": "Create Plan",
+    "operationId": "create_plan_v1_admin_apps__app_id__plans_post",
+    "parameters": [
+     {
+      "name": "app_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "uuid",
+       "title": "App Id"
+      }
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/PlanCreate"
+       }
+      }
+     }
+    },
+    "responses": {
+     "201": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/PlanAdminOut"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/v1/admin/apps/{app_id}/plans/order": {
+   "put": {
+    "tags": [
+     "admin: app users"
+    ],
+    "summary": "Order Plans",
+    "operationId": "order_plans_v1_admin_apps__app_id__plans_order_put",
+    "parameters": [
+     {
+      "name": "app_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "uuid",
+       "title": "App Id"
+      }
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/PlanOrderIn"
+       }
+      }
+     }
+    },
+    "responses": {
+     "204": {
+      "description": "Successful Response"
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/v1/admin/apps/{app_id}/plans/{plan_id}": {
+   "put": {
+    "tags": [
+     "admin: app users"
+    ],
+    "summary": "Update Plan",
+    "description": "Price and credit changes apply from the next monthly grant.",
+    "operationId": "update_plan_v1_admin_apps__app_id__plans__plan_id__put",
+    "parameters": [
+     {
+      "name": "app_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "uuid",
+       "title": "App Id"
+      }
+     },
+     {
+      "name": "plan_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "uuid",
+       "title": "Plan Id"
+      }
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/PlanFields"
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/PlanAdminOut"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   },
+   "delete": {
+    "tags": [
+     "admin: app users"
+    ],
+    "summary": "Delete Plan",
+    "description": "Deletes a plan nobody subscribed to; archives it otherwise.",
+    "operationId": "delete_plan_v1_admin_apps__app_id__plans__plan_id__delete",
+    "parameters": [
+     {
+      "name": "app_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "uuid",
+       "title": "App Id"
+      }
+     },
+     {
+      "name": "plan_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "uuid",
+       "title": "Plan Id"
+      }
+     }
+    ],
+    "responses": {
+     "204": {
+      "description": "Successful Response"
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/v1/admin/apps/{app_id}/users": {
+   "get": {
+    "tags": [
+     "admin: app users"
+    ],
+    "summary": "List Users",
+    "description": "The app's users, newest first, a page at a time, with the total that match.",
+    "operationId": "list_users_v1_admin_apps__app_id__users_get",
+    "parameters": [
+     {
+      "name": "app_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "uuid",
+       "title": "App Id"
+      }
+     },
+     {
+      "name": "q",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string",
+         "maxLength": 200
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "search name, email, phone, or a user id",
+       "title": "Q"
+      },
+      "description": "search name, email, phone, or a user id"
+     },
+     {
+      "name": "limit",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "integer",
+       "maximum": 200,
+       "minimum": 1,
+       "default": 25,
+       "title": "Limit"
+      }
+     },
+     {
+      "name": "offset",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "integer",
+       "minimum": 0,
+       "default": 0,
+       "title": "Offset"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/AppUserPage"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/v1/admin/apps/{app_id}/users/{user_id}": {
+   "get": {
+    "tags": [
+     "admin: app users"
+    ],
+    "summary": "Get User",
+    "operationId": "get_user_v1_admin_apps__app_id__users__user_id__get",
+    "parameters": [
+     {
+      "name": "app_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "uuid",
+       "title": "App Id"
+      }
+     },
+     {
+      "name": "user_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "uuid",
+       "title": "User Id"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/AppUserDetail"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/v1/admin/apps/{app_id}/users/{user_id}/credits": {
+   "get": {
+    "tags": [
+     "admin: app users"
+    ],
+    "summary": "Credit History",
+    "description": "The user's credit transactions (generations, refunds, plan grants, manual changes), newest first.",
+    "operationId": "credit_history_v1_admin_apps__app_id__users__user_id__credits_get",
+    "parameters": [
+     {
+      "name": "app_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "uuid",
+       "title": "App Id"
+      }
+     },
+     {
+      "name": "user_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "uuid",
+       "title": "User Id"
+      }
+     },
+     {
+      "name": "limit",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "integer",
+       "maximum": 200,
+       "minimum": 1,
+       "default": 25,
+       "title": "Limit"
+      }
+     },
+     {
+      "name": "offset",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "integer",
+       "minimum": 0,
+       "default": 0,
+       "title": "Offset"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/CreditEntryPage"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   },
+   "post": {
+    "tags": [
+     "admin: app users"
+    ],
+    "summary": "Adjust Credits",
+    "description": "Add or remove credits by hand, with a note (kept in the user's history).",
+    "operationId": "adjust_credits_v1_admin_apps__app_id__users__user_id__credits_post",
+    "parameters": [
+     {
+      "name": "app_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "uuid",
+       "title": "App Id"
+      }
+     },
+     {
+      "name": "user_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "uuid",
+       "title": "User Id"
+      }
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/CreditAdjustIn"
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/CreditBalance"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/v1/admin/apps/{app_id}/users/{user_id}/status": {
+   "put": {
+    "tags": [
+     "admin: app users"
+    ],
+    "summary": "Set User Status",
+    "description": "Block (signs them out everywhere and refuses their calls) or unblock a user.",
+    "operationId": "set_user_status_v1_admin_apps__app_id__users__user_id__status_put",
+    "parameters": [
+     {
+      "name": "app_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "uuid",
+       "title": "App Id"
+      }
+     },
+     {
+      "name": "user_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "uuid",
+       "title": "User Id"
+      }
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/AppUserStatusIn"
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/AppUserDetail"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/v1/admin/apps/{app_id}/users/{user_id}/subscriptions": {
+   "post": {
+    "tags": [
+     "admin: app users"
+    ],
+    "summary": "Grant Subscription",
+    "description": "Give a plan without payment (until payments are wired in): starts now and grants the first\nmonth's credits; later months are granted automatically.",
+    "operationId": "grant_subscription_v1_admin_apps__app_id__users__user_id__subscriptions_post",
+    "parameters": [
+     {
+      "name": "app_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "uuid",
+       "title": "App Id"
+      }
+     },
+     {
+      "name": "user_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "uuid",
+       "title": "User Id"
+      }
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/SubscriptionGrantIn"
+       }
+      }
+     }
+    },
+    "responses": {
+     "201": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/SubscriptionOut"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/v1/admin/apps/{app_id}/users/{user_id}/subscriptions/{subscription_id}": {
+   "delete": {
+    "tags": [
+     "admin: app users"
+    ],
+    "summary": "Cancel Subscription",
+    "description": "Stop now; no more monthly credits. Credits already granted stay.",
+    "operationId": "cancel_subscription_v1_admin_apps__app_id__users__user_id__subscriptions__subscription_id__delete",
+    "parameters": [
+     {
+      "name": "app_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "uuid",
+       "title": "App Id"
+      }
+     },
+     {
+      "name": "user_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "uuid",
+       "title": "User Id"
+      }
+     },
+     {
+      "name": "subscription_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "uuid",
+       "title": "Subscription Id"
+      }
+     }
+    ],
+    "responses": {
+     "204": {
+      "description": "Successful Response"
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/v1/admin/apps/{app_id}/users/{user_id}/subscriptions/{subscription_id}/link": {
+   "put": {
+    "tags": [
+     "admin: app users"
+    ],
+    "summary": "Link Subscription",
+    "description": "Link the subscription to its payment-gateway subscription (Razorpay or PhonePe id), or back to\n`manual`. Until payments are wired in, this records a subscription paid outside the app.",
+    "operationId": "link_subscription_v1_admin_apps__app_id__users__user_id__subscriptions__subscription_id__link_put",
+    "parameters": [
+     {
+      "name": "app_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "uuid",
+       "title": "App Id"
+      }
+     },
+     {
+      "name": "user_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "uuid",
+       "title": "User Id"
+      }
+     },
+     {
+      "name": "subscription_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "uuid",
+       "title": "Subscription Id"
+      }
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/SubscriptionLinkIn"
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/SubscriptionAdminOut"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/v1/app": {
+   "get": {
+    "tags": [
+     "app clients: sign-in and account"
+    ],
+    "summary": "App Config",
+    "description": "Call on start: which sign-in buttons to show, and whether sign-in is needed for templates.",
+    "operationId": "app_config_v1_app_get",
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/AppClientConfig"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/v1/app/auth/google": {
+   "post": {
+    "tags": [
+     "app clients: sign-in and account"
+    ],
+    "summary": "Sign In Google",
+    "description": "Exchange a Google ID token (Credential Manager, requested for this app's Web client id) for\na session. Creates the account on first sign-in.",
+    "operationId": "sign_in_google_v1_app_auth_google_post",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/GoogleSignInIn"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/SignInOut"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/v1/app/auth/firebase": {
+   "post": {
+    "tags": [
+     "app clients: sign-in and account"
+    ],
+    "summary": "Sign In Firebase",
+    "description": "Exchange the Firebase ID token of a phone sign-in (Firebase Auth on the device) for a session.\nOnly when `sign_in.phone_provider` is `firebase`. Creates the account on first sign-in.",
+    "operationId": "sign_in_firebase_v1_app_auth_firebase_post",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/FirebaseSignInIn"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/SignInOut"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/v1/app/auth/otp/send": {
+   "post": {
+    "tags": [
+     "app clients: sign-in and account"
+    ],
+    "summary": "Otp Send",
+    "description": "Text a 6-digit code to the number. Limited per number, device and network (429).",
+    "operationId": "otp_send_v1_app_auth_otp_send_post",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/OtpSendIn"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/OtpSendOut"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/v1/app/auth/otp/verify": {
+   "post": {
+    "tags": [
+     "app clients: sign-in and account"
+    ],
+    "summary": "Otp Verify",
+    "description": "Check the code; on success, a session (and the account on first sign-in).",
+    "operationId": "otp_verify_v1_app_auth_otp_verify_post",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/OtpVerifyIn"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/SignInOut"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/v1/app/auth/logout": {
+   "post": {
+    "tags": [
+     "app clients: sign-in and account"
+    ],
+    "summary": "Logout",
+    "operationId": "logout_v1_app_auth_logout_post",
+    "responses": {
+     "204": {
+      "description": "Successful Response"
+     }
+    }
+   }
+  },
+  "/v1/app/me": {
+   "get": {
+    "tags": [
+     "app clients: sign-in and account"
+    ],
+    "summary": "Me",
+    "description": "The signed-in user, their credit balance and active subscription.",
+    "operationId": "me_v1_app_me_get",
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/AppUserOut"
+        }
+       }
+      }
+     }
+    }
+   },
+   "delete": {
+    "tags": [
+     "app clients: sign-in and account"
+    ],
+    "summary": "Delete Me",
+    "description": "Delete the account: personal data is removed and every session ends. Remaining credits are lost.",
+    "operationId": "delete_me_v1_app_me_delete",
+    "responses": {
+     "204": {
+      "description": "Successful Response"
+     }
+    }
+   },
+   "patch": {
+    "tags": [
+     "app clients: sign-in and account"
+    ],
+    "summary": "Update Me",
+    "operationId": "update_me_v1_app_me_patch",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/MeUpdate"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/AppUserOut"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/v1/app/me/credits": {
+   "get": {
+    "tags": [
+     "app clients: sign-in and account"
+    ],
+    "summary": "My Credits",
+    "description": "Credit history, newest first: grants, generations, refunds.",
+    "operationId": "my_credits_v1_app_me_credits_get",
+    "parameters": [
+     {
+      "name": "limit",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "integer",
+       "default": 50,
+       "title": "Limit"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "array",
+         "items": {
+          "$ref": "#/components/schemas/CreditEntryOut"
+         },
+         "title": "Response My Credits V1 App Me Credits Get"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/v1/app/plans": {
+   "get": {
+    "tags": [
+     "app clients: sign-in and account"
+    ],
+    "summary": "Plans",
+    "description": "The app's plans, in display order (for the Subscribe screen).",
+    "operationId": "plans_v1_app_plans_get",
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "items": {
+          "$ref": "#/components/schemas/PlanOut"
+         },
+         "type": "array",
+         "title": "Response Plans V1 App Plans Get"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/v1/app/templates": {
+   "get": {
+    "tags": [
+     "app clients"
+    ],
+    "summary": "App Templates",
+    "description": "The app's active templates, in the order set in its dashboard.",
+    "operationId": "app_templates_v1_app_templates_get",
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/AppCatalog"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/v1/app/templates/{ref}": {
+   "get": {
+    "tags": [
+     "app clients"
+    ],
+    "summary": "App Template",
+    "operationId": "app_template_v1_app_templates__ref__get",
+    "parameters": [
+     {
+      "name": "ref",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Ref"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/TemplatePublic"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/v1/app/templates/{ref}/cover": {
+   "get": {
+    "tags": [
+     "app clients"
+    ],
+    "summary": "App Template Cover",
+    "operationId": "app_template_cover_v1_app_templates__ref__cover_get",
+    "parameters": [
+     {
+      "name": "ref",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Ref"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response"
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/v1/app/templates/{ref}/generations": {
+   "post": {
+    "tags": [
+     "app clients"
+    ],
+    "summary": "App Run Template",
+    "description": "Run a template with the user's photo. A signed-in user pays its `credit_cost` (402\n`insufficient_credits` when short; refunded if the job fails) and gets the new balance as\n`credits`. Without a signed-in user only free templates run (401 otherwise).",
+    "operationId": "app_run_template_v1_app_templates__ref__generations_post",
+    "parameters": [
+     {
+      "name": "ref",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Ref"
+      }
+     }
+    ],
+    "responses": {
+     "202": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/AppRunResponse"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    },
+    "requestBody": {
+     "content": {
+      "multipart/form-data": {
+       "schema": {
+        "type": "object",
+        "description": "One file field per input slot, named after the slot.",
+        "properties": {
+         "variables": {
+          "type": "string",
+          "description": "JSON object"
+         },
+         "model": {
+          "type": "string"
+         },
+         "webhook_url": {
+          "type": "string"
+         },
+         "version": {
+          "type": "integer",
+          "description": "editors only"
+         }
+        },
+        "additionalProperties": {
+         "type": "string",
+         "format": "binary"
+        }
+       }
+      }
+     },
+     "required": true
+    }
+   }
+  },
+  "/v1/app/generations": {
+   "get": {
+    "tags": [
+     "app clients"
+    ],
+    "summary": "App Jobs",
+    "description": "Recent jobs, newest first: the signed-in user's, or else this device's (needs X-Device-Id).",
+    "operationId": "app_jobs_v1_app_generations_get",
+    "parameters": [
+     {
+      "name": "limit",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "integer",
+       "default": 20,
+       "title": "Limit"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "array",
+         "items": {
+          "$ref": "#/components/schemas/JobResponse"
+         },
+         "title": "Response App Jobs V1 App Generations Get"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/v1/app/generations/{job_id}": {
+   "get": {
+    "tags": [
+     "app clients"
+    ],
+    "summary": "App Job",
+    "operationId": "app_job_v1_app_generations__job_id__get",
+    "parameters": [
+     {
+      "name": "job_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "uuid",
+       "title": "Job Id"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/JobResponse"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/v1/app/assets/{asset_id}": {
+   "get": {
+    "tags": [
+     "app clients"
+    ],
+    "summary": "App Asset",
+    "operationId": "app_asset_v1_app_assets__asset_id__get",
+    "parameters": [
+     {
+      "name": "asset_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "uuid",
+       "title": "Asset Id"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response"
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/v1/app/inputs/{input_id}": {
+   "get": {
+    "tags": [
+     "app clients"
+    ],
+    "summary": "App Input",
+    "operationId": "app_input_v1_app_inputs__input_id__get",
+    "parameters": [
+     {
+      "name": "input_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "uuid",
+       "title": "Input Id"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response"
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  }
+ },
+ "components": {
+  "schemas": {
+   "AppCatalog": {
+    "properties": {
+     "app": {
+      "$ref": "#/components/schemas/AppInfo"
+     },
+     "templates": {
+      "items": {
+       "$ref": "#/components/schemas/TemplatePublic"
+      },
+      "type": "array",
+      "title": "Templates"
+     }
+    },
+    "type": "object",
+    "required": [
+     "app",
+     "templates"
+    ],
+    "title": "AppCatalog"
+   },
+   "AppClientConfig": {
+    "properties": {
+     "app": {
+      "$ref": "#/components/schemas/AppInfo"
+     },
+     "sign_in": {
+      "$ref": "#/components/schemas/SignInMethods"
+     },
+     "require_login": {
+      "type": "boolean",
+      "title": "Require Login"
+     },
+     "payments": {
+      "$ref": "#/components/schemas/PaymentConfig"
+     }
+    },
+    "type": "object",
+    "required": [
+     "app",
+     "sign_in",
+     "require_login",
+     "payments"
+    ],
+    "title": "AppClientConfig",
+    "description": "What the app needs before sign-in: which sign-in buttons to show, whether sign-in is\nrequired to list templates, and the payment gateway."
+   },
+   "AppCreate": {
+    "properties": {
+     "name": {
+      "type": "string",
+      "maxLength": 200,
+      "minLength": 1,
+      "title": "Name"
+     },
+     "description": {
+      "type": "string",
+      "maxLength": 2000,
+      "title": "Description",
+      "default": ""
+     },
+     "platform": {
+      "type": "string",
+      "pattern": "^(android|ios|web|other)$",
+      "title": "Platform",
+      "default": "android"
+     },
+     "status": {
+      "type": "string",
+      "pattern": "^(active|disabled)$",
+      "title": "Status",
+      "default": "active"
+     },
+     "daily_job_limit": {
+      "anyOf": [
+       {
+        "type": "integer",
+        "minimum": 1.0
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Daily Job Limit"
+     },
+     "device_hourly_limit": {
+      "anyOf": [
+       {
+        "type": "integer",
+        "minimum": 1.0
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Device Hourly Limit"
+     },
+     "auth_google_enabled": {
+      "type": "boolean",
+      "title": "Auth Google Enabled",
+      "default": false
+     },
+     "auth_phone_enabled": {
+      "type": "boolean",
+      "title": "Auth Phone Enabled",
+      "default": false
+     },
+     "google_client_ids": {
+      "items": {
+       "type": "string"
+      },
+      "type": "array",
+      "maxItems": 10,
+      "title": "Google Client Ids"
+     },
+     "phone_provider": {
+      "type": "string",
+      "pattern": "^(msg91|firebase)$",
+      "title": "Phone Provider",
+      "default": "msg91"
+     },
+     "msg91_template_id": {
+      "anyOf": [
+       {
+        "type": "string",
+        "maxLength": 64
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Msg91 Template Id"
+     },
+     "msg91_otp_var": {
+      "anyOf": [
+       {
+        "type": "string",
+        "maxLength": 32
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Msg91 Otp Var"
+     },
+     "msg91_auth_key": {
+      "anyOf": [
+       {
+        "type": "string",
+        "maxLength": 200
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Msg91 Auth Key"
+     },
+     "firebase_project_id": {
+      "anyOf": [
+       {
+        "type": "string",
+        "maxLength": 64
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Firebase Project Id"
+     },
+     "signup_credits": {
+      "type": "integer",
+      "maximum": 100000.0,
+      "minimum": 0.0,
+      "title": "Signup Credits",
+      "default": 0
+     },
+     "require_login": {
+      "type": "boolean",
+      "title": "Require Login",
+      "default": false
+     },
+     "payment_provider": {
+      "type": "string",
+      "pattern": "^(none|razorpay|phonepe)$",
+      "title": "Payment Provider",
+      "default": "none"
+     },
+     "payment_mode": {
+      "type": "string",
+      "pattern": "^(test|live)$",
+      "title": "Payment Mode",
+      "default": "test"
+     },
+     "razorpay_key_id": {
+      "anyOf": [
+       {
+        "type": "string",
+        "maxLength": 64
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Razorpay Key Id"
+     },
+     "phonepe_merchant_id": {
+      "anyOf": [
+       {
+        "type": "string",
+        "maxLength": 64
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Phonepe Merchant Id"
+     },
+     "slug": {
+      "type": "string",
+      "title": "Slug"
+     }
+    },
+    "type": "object",
+    "required": [
+     "name",
+     "slug"
+    ],
+    "title": "AppCreate"
+   },
+   "AppDetail": {
+    "properties": {
+     "id": {
+      "type": "string",
+      "format": "uuid",
+      "title": "Id"
+     },
+     "slug": {
+      "type": "string",
+      "title": "Slug"
+     },
+     "name": {
+      "type": "string",
+      "title": "Name"
+     },
+     "description": {
+      "type": "string",
+      "title": "Description"
+     },
+     "platform": {
+      "type": "string",
+      "title": "Platform"
+     },
+     "status": {
+      "type": "string",
+      "enum": [
+       "active",
+       "disabled"
+      ],
+      "title": "Status"
+     },
+     "daily_job_limit": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Daily Job Limit"
+     },
+     "device_hourly_limit": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Device Hourly Limit"
+     },
+     "auth_google_enabled": {
+      "type": "boolean",
+      "title": "Auth Google Enabled"
+     },
+     "auth_phone_enabled": {
+      "type": "boolean",
+      "title": "Auth Phone Enabled"
+     },
+     "google_client_ids": {
+      "items": {
+       "type": "string"
+      },
+      "type": "array",
+      "title": "Google Client Ids"
+     },
+     "phone_provider": {
+      "type": "string",
+      "enum": [
+       "msg91",
+       "firebase"
+      ],
+      "title": "Phone Provider"
+     },
+     "msg91_template_id": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Msg91 Template Id"
+     },
+     "msg91_otp_var": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Msg91 Otp Var"
+     },
+     "msg91_auth_key_set": {
+      "type": "boolean",
+      "title": "Msg91 Auth Key Set",
+      "description": "an MSG91 auth key is saved (the key itself is write-only)"
+     },
+     "firebase_project_id": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Firebase Project Id"
+     },
+     "secrets_key_set": {
+      "type": "boolean",
+      "title": "Secrets Key Set",
+      "description": "app detail only: the server can store credentials (SECRETS_KEY is set)",
+      "default": false
+     },
+     "signup_credits": {
+      "type": "integer",
+      "title": "Signup Credits"
+     },
+     "require_login": {
+      "type": "boolean",
+      "title": "Require Login"
+     },
+     "payment_provider": {
+      "type": "string",
+      "enum": [
+       "none",
+       "razorpay",
+       "phonepe"
+      ],
+      "title": "Payment Provider"
+     },
+     "payment_mode": {
+      "type": "string",
+      "enum": [
+       "test",
+       "live"
+      ],
+      "title": "Payment Mode"
+     },
+     "razorpay_key_id": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Razorpay Key Id"
+     },
+     "phonepe_merchant_id": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Phonepe Merchant Id"
+     },
+     "created_at": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Created At"
+     },
+     "updated_at": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Updated At"
+     },
+     "template_count": {
+      "type": "integer",
+      "title": "Template Count",
+      "default": 0
+     },
+     "active_template_count": {
+      "type": "integer",
+      "title": "Active Template Count",
+      "default": 0
+     },
+     "active_key_count": {
+      "type": "integer",
+      "title": "Active Key Count",
+      "default": 0
+     },
+     "member_count": {
+      "type": "integer",
+      "title": "Member Count",
+      "default": 0
+     },
+     "usage": {
+      "additionalProperties": {
+       "type": "integer"
+      },
+      "type": "object",
+      "title": "Usage"
+     }
+    },
+    "type": "object",
+    "required": [
+     "id",
+     "slug",
+     "name",
+     "description",
+     "platform",
+     "status",
+     "daily_job_limit",
+     "device_hourly_limit",
+     "auth_google_enabled",
+     "auth_phone_enabled",
+     "google_client_ids",
+     "phone_provider",
+     "msg91_template_id",
+     "msg91_otp_var",
+     "msg91_auth_key_set",
+     "firebase_project_id",
+     "signup_credits",
+     "require_login",
+     "payment_provider",
+     "payment_mode",
+     "razorpay_key_id",
+     "phonepe_merchant_id",
+     "created_at",
+     "updated_at",
+     "usage"
+    ],
+    "title": "AppDetail"
+   },
+   "AppFields": {
+    "properties": {
+     "name": {
+      "type": "string",
+      "maxLength": 200,
+      "minLength": 1,
+      "title": "Name"
+     },
+     "description": {
+      "type": "string",
+      "maxLength": 2000,
+      "title": "Description",
+      "default": ""
+     },
+     "platform": {
+      "type": "string",
+      "pattern": "^(android|ios|web|other)$",
+      "title": "Platform",
+      "default": "android"
+     },
+     "status": {
+      "type": "string",
+      "pattern": "^(active|disabled)$",
+      "title": "Status",
+      "default": "active"
+     },
+     "daily_job_limit": {
+      "anyOf": [
+       {
+        "type": "integer",
+        "minimum": 1.0
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Daily Job Limit"
+     },
+     "device_hourly_limit": {
+      "anyOf": [
+       {
+        "type": "integer",
+        "minimum": 1.0
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Device Hourly Limit"
+     },
+     "auth_google_enabled": {
+      "type": "boolean",
+      "title": "Auth Google Enabled",
+      "default": false
+     },
+     "auth_phone_enabled": {
+      "type": "boolean",
+      "title": "Auth Phone Enabled",
+      "default": false
+     },
+     "google_client_ids": {
+      "items": {
+       "type": "string"
+      },
+      "type": "array",
+      "maxItems": 10,
+      "title": "Google Client Ids"
+     },
+     "phone_provider": {
+      "type": "string",
+      "pattern": "^(msg91|firebase)$",
+      "title": "Phone Provider",
+      "default": "msg91"
+     },
+     "msg91_template_id": {
+      "anyOf": [
+       {
+        "type": "string",
+        "maxLength": 64
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Msg91 Template Id"
+     },
+     "msg91_otp_var": {
+      "anyOf": [
+       {
+        "type": "string",
+        "maxLength": 32
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Msg91 Otp Var"
+     },
+     "msg91_auth_key": {
+      "anyOf": [
+       {
+        "type": "string",
+        "maxLength": 200
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Msg91 Auth Key"
+     },
+     "firebase_project_id": {
+      "anyOf": [
+       {
+        "type": "string",
+        "maxLength": 64
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Firebase Project Id"
+     },
+     "signup_credits": {
+      "type": "integer",
+      "maximum": 100000.0,
+      "minimum": 0.0,
+      "title": "Signup Credits",
+      "default": 0
+     },
+     "require_login": {
+      "type": "boolean",
+      "title": "Require Login",
+      "default": false
+     },
+     "payment_provider": {
+      "type": "string",
+      "pattern": "^(none|razorpay|phonepe)$",
+      "title": "Payment Provider",
+      "default": "none"
+     },
+     "payment_mode": {
+      "type": "string",
+      "pattern": "^(test|live)$",
+      "title": "Payment Mode",
+      "default": "test"
+     },
+     "razorpay_key_id": {
+      "anyOf": [
+       {
+        "type": "string",
+        "maxLength": 64
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Razorpay Key Id"
+     },
+     "phonepe_merchant_id": {
+      "anyOf": [
+       {
+        "type": "string",
+        "maxLength": 64
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Phonepe Merchant Id"
+     }
+    },
+    "type": "object",
+    "required": [
+     "name"
+    ],
+    "title": "AppFields"
+   },
+   "AppInfo": {
+    "properties": {
+     "slug": {
+      "type": "string",
+      "title": "Slug"
+     },
+     "name": {
+      "type": "string",
+      "title": "Name"
+     },
+     "description": {
+      "type": "string",
+      "title": "Description"
+     },
+     "platform": {
+      "type": "string",
+      "title": "Platform"
+     }
+    },
+    "type": "object",
+    "required": [
+     "slug",
+     "name",
+     "description",
+     "platform"
+    ],
+    "title": "AppInfo",
+    "description": "What an app learns about itself."
+   },
+   "AppKeyCreate": {
+    "properties": {
+     "name": {
+      "type": "string",
+      "maxLength": 200,
+      "minLength": 1,
+      "title": "Name"
+     }
+    },
+    "type": "object",
+    "required": [
+     "name"
+    ],
+    "title": "AppKeyCreate"
+   },
+   "AppKeyCreated": {
+    "properties": {
+     "id": {
+      "type": "string",
+      "format": "uuid",
+      "title": "Id"
+     },
+     "name": {
+      "type": "string",
+      "title": "Name"
+     },
+     "prefix": {
+      "type": "string",
+      "title": "Prefix"
+     },
+     "created_at": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Created At"
+     },
+     "last_used_at": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "date-time"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Last Used At"
+     },
+     "revoked_at": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "date-time"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Revoked At"
+     },
+     "key": {
+      "type": "string",
+      "title": "Key"
+     }
+    },
+    "type": "object",
+    "required": [
+     "id",
+     "name",
+     "prefix",
+     "created_at",
+     "last_used_at",
+     "revoked_at",
+     "key"
+    ],
+    "title": "AppKeyCreated"
+   },
+   "AppKeyOut": {
+    "properties": {
+     "id": {
+      "type": "string",
+      "format": "uuid",
+      "title": "Id"
+     },
+     "name": {
+      "type": "string",
+      "title": "Name"
+     },
+     "prefix": {
+      "type": "string",
+      "title": "Prefix"
+     },
+     "created_at": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Created At"
+     },
+     "last_used_at": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "date-time"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Last Used At"
+     },
+     "revoked_at": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "date-time"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Revoked At"
+     }
+    },
+    "type": "object",
+    "required": [
+     "id",
+     "name",
+     "prefix",
+     "created_at",
+     "last_used_at",
+     "revoked_at"
+    ],
+    "title": "AppKeyOut"
+   },
+   "AppOut": {
+    "properties": {
+     "id": {
+      "type": "string",
+      "format": "uuid",
+      "title": "Id"
+     },
+     "slug": {
+      "type": "string",
+      "title": "Slug"
+     },
+     "name": {
+      "type": "string",
+      "title": "Name"
+     },
+     "description": {
+      "type": "string",
+      "title": "Description"
+     },
+     "platform": {
+      "type": "string",
+      "title": "Platform"
+     },
+     "status": {
+      "type": "string",
+      "enum": [
+       "active",
+       "disabled"
+      ],
+      "title": "Status"
+     },
+     "daily_job_limit": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Daily Job Limit"
+     },
+     "device_hourly_limit": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Device Hourly Limit"
+     },
+     "auth_google_enabled": {
+      "type": "boolean",
+      "title": "Auth Google Enabled"
+     },
+     "auth_phone_enabled": {
+      "type": "boolean",
+      "title": "Auth Phone Enabled"
+     },
+     "google_client_ids": {
+      "items": {
+       "type": "string"
+      },
+      "type": "array",
+      "title": "Google Client Ids"
+     },
+     "phone_provider": {
+      "type": "string",
+      "enum": [
+       "msg91",
+       "firebase"
+      ],
+      "title": "Phone Provider"
+     },
+     "msg91_template_id": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Msg91 Template Id"
+     },
+     "msg91_otp_var": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Msg91 Otp Var"
+     },
+     "msg91_auth_key_set": {
+      "type": "boolean",
+      "title": "Msg91 Auth Key Set",
+      "description": "an MSG91 auth key is saved (the key itself is write-only)"
+     },
+     "firebase_project_id": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Firebase Project Id"
+     },
+     "secrets_key_set": {
+      "type": "boolean",
+      "title": "Secrets Key Set",
+      "description": "app detail only: the server can store credentials (SECRETS_KEY is set)",
+      "default": false
+     },
+     "signup_credits": {
+      "type": "integer",
+      "title": "Signup Credits"
+     },
+     "require_login": {
+      "type": "boolean",
+      "title": "Require Login"
+     },
+     "payment_provider": {
+      "type": "string",
+      "enum": [
+       "none",
+       "razorpay",
+       "phonepe"
+      ],
+      "title": "Payment Provider"
+     },
+     "payment_mode": {
+      "type": "string",
+      "enum": [
+       "test",
+       "live"
+      ],
+      "title": "Payment Mode"
+     },
+     "razorpay_key_id": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Razorpay Key Id"
+     },
+     "phonepe_merchant_id": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Phonepe Merchant Id"
+     },
+     "created_at": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Created At"
+     },
+     "updated_at": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Updated At"
+     },
+     "template_count": {
+      "type": "integer",
+      "title": "Template Count",
+      "default": 0
+     },
+     "active_template_count": {
+      "type": "integer",
+      "title": "Active Template Count",
+      "default": 0
+     },
+     "active_key_count": {
+      "type": "integer",
+      "title": "Active Key Count",
+      "default": 0
+     },
+     "member_count": {
+      "type": "integer",
+      "title": "Member Count",
+      "default": 0
+     }
+    },
+    "type": "object",
+    "required": [
+     "id",
+     "slug",
+     "name",
+     "description",
+     "platform",
+     "status",
+     "daily_job_limit",
+     "device_hourly_limit",
+     "auth_google_enabled",
+     "auth_phone_enabled",
+     "google_client_ids",
+     "phone_provider",
+     "msg91_template_id",
+     "msg91_otp_var",
+     "msg91_auth_key_set",
+     "firebase_project_id",
+     "signup_credits",
+     "require_login",
+     "payment_provider",
+     "payment_mode",
+     "razorpay_key_id",
+     "phonepe_merchant_id",
+     "created_at",
+     "updated_at"
+    ],
+    "title": "AppOut"
+   },
+   "AppPatch": {
+    "properties": {
+     "name": {
+      "anyOf": [
+       {
+        "type": "string",
+        "maxLength": 200,
+        "minLength": 1
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Name"
+     },
+     "description": {
+      "anyOf": [
+       {
+        "type": "string",
+        "maxLength": 2000
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Description"
+     },
+     "platform": {
+      "type": "string",
+      "pattern": "^(android|ios|web|other)$",
+      "title": "Platform",
+      "default": "android"
+     },
+     "status": {
+      "type": "string",
+      "pattern": "^(active|disabled)$",
+      "title": "Status",
+      "default": "active"
+     },
+     "daily_job_limit": {
+      "anyOf": [
+       {
+        "type": "integer",
+        "minimum": 1.0
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Daily Job Limit"
+     },
+     "device_hourly_limit": {
+      "anyOf": [
+       {
+        "type": "integer",
+        "minimum": 1.0
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Device Hourly Limit"
+     },
+     "auth_google_enabled": {
+      "type": "boolean",
+      "title": "Auth Google Enabled",
+      "default": false
+     },
+     "auth_phone_enabled": {
+      "type": "boolean",
+      "title": "Auth Phone Enabled",
+      "default": false
+     },
+     "google_client_ids": {
+      "items": {
+       "type": "string"
+      },
+      "type": "array",
+      "maxItems": 10,
+      "title": "Google Client Ids"
+     },
+     "phone_provider": {
+      "type": "string",
+      "pattern": "^(msg91|firebase)$",
+      "title": "Phone Provider",
+      "default": "msg91"
+     },
+     "msg91_template_id": {
+      "anyOf": [
+       {
+        "type": "string",
+        "maxLength": 64
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Msg91 Template Id"
+     },
+     "msg91_otp_var": {
+      "anyOf": [
+       {
+        "type": "string",
+        "maxLength": 32
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Msg91 Otp Var"
+     },
+     "msg91_auth_key": {
+      "anyOf": [
+       {
+        "type": "string",
+        "maxLength": 200
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Msg91 Auth Key"
+     },
+     "firebase_project_id": {
+      "anyOf": [
+       {
+        "type": "string",
+        "maxLength": 64
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Firebase Project Id"
+     },
+     "signup_credits": {
+      "type": "integer",
+      "maximum": 100000.0,
+      "minimum": 0.0,
+      "title": "Signup Credits",
+      "default": 0
+     },
+     "require_login": {
+      "type": "boolean",
+      "title": "Require Login",
+      "default": false
+     },
+     "payment_provider": {
+      "type": "string",
+      "pattern": "^(none|razorpay|phonepe)$",
+      "title": "Payment Provider",
+      "default": "none"
+     },
+     "payment_mode": {
+      "type": "string",
+      "pattern": "^(test|live)$",
+      "title": "Payment Mode",
+      "default": "test"
+     },
+     "razorpay_key_id": {
+      "anyOf": [
+       {
+        "type": "string",
+        "maxLength": 64
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Razorpay Key Id"
+     },
+     "phonepe_merchant_id": {
+      "anyOf": [
+       {
+        "type": "string",
+        "maxLength": 64
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Phonepe Merchant Id"
+     }
+    },
+    "type": "object",
+    "title": "AppPatch",
+    "description": "PATCH: only the fields sent change (each settings section saves on its own)."
+   },
+   "AppRunResponse": {
+    "properties": {
+     "id": {
+      "type": "string",
+      "format": "uuid",
+      "title": "Id"
+     },
+     "status": {
+      "type": "string",
+      "enum": [
+       "queued",
+       "running",
+       "succeeded",
+       "failed"
+      ],
+      "title": "Status"
+     },
+     "media_type": {
+      "type": "string",
+      "title": "Media Type"
+     },
+     "provider": {
+      "type": "string",
+      "title": "Provider"
+     },
+     "model": {
+      "type": "string",
+      "title": "Model"
+     },
+     "request": {
+      "additionalProperties": true,
+      "type": "object",
+      "title": "Request"
+     },
+     "template": {
+      "anyOf": [
+       {
+        "$ref": "#/components/schemas/JobTemplateRef"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     },
+     "inputs": {
+      "items": {
+       "$ref": "#/components/schemas/InputOut"
+      },
+      "type": "array",
+      "title": "Inputs"
+     },
+     "assets": {
+      "items": {
+       "$ref": "#/components/schemas/AssetOut"
+      },
+      "type": "array",
+      "title": "Assets"
+     },
+     "error": {
+      "anyOf": [
+       {
+        "$ref": "#/components/schemas/JobError"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     },
+     "attempt": {
+      "type": "integer",
+      "title": "Attempt"
+     },
+     "max_attempts": {
+      "type": "integer",
+      "title": "Max Attempts"
+     },
+     "created_at": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Created At"
+     },
+     "started_at": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "date-time"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Started At"
+     },
+     "finished_at": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "date-time"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Finished At"
+     },
+     "webhook": {
+      "anyOf": [
+       {
+        "$ref": "#/components/schemas/WebhookState"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     },
+     "created_by": {
+      "anyOf": [
+       {
+        "$ref": "#/components/schemas/UserRef"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     },
+     "app": {
+      "anyOf": [
+       {
+        "$ref": "#/components/schemas/JobAppRef"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     },
+     "credits": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Credits"
+     }
+    },
+    "type": "object",
+    "required": [
+     "id",
+     "status",
+     "media_type",
+     "provider",
+     "model",
+     "request",
+     "template",
+     "inputs",
+     "assets",
+     "error",
+     "attempt",
+     "max_attempts",
+     "created_at",
+     "started_at",
+     "finished_at",
+     "webhook",
+     "created_by"
+    ],
+    "title": "AppRunResponse",
+    "description": "POST /v1/app/templates/{slug}/generations: the queued job, plus the user's balance after the charge\n(null without a signed-in user) so the app can show it at once."
+   },
+   "AppUserAdminOut": {
+    "properties": {
+     "id": {
+      "type": "string",
+      "format": "uuid",
+      "title": "Id"
+     },
+     "name": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Name"
+     },
+     "email": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Email"
+     },
+     "phone": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Phone"
+     },
+     "photo_url": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Photo Url"
+     },
+     "sign_in": {
+      "type": "string",
+      "enum": [
+       "google",
+       "phone"
+      ],
+      "title": "Sign In"
+     },
+     "credits": {
+      "type": "integer",
+      "title": "Credits"
+     },
+     "subscription": {
+      "anyOf": [
+       {
+        "$ref": "#/components/schemas/SubscriptionOut"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     },
+     "created_at": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Created At"
+     },
+     "status": {
+      "type": "string",
+      "enum": [
+       "active",
+       "blocked"
+      ],
+      "title": "Status"
+     },
+     "last_seen_at": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "date-time"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Last Seen At"
+     }
+    },
+    "type": "object",
+    "required": [
+     "id",
+     "name",
+     "email",
+     "phone",
+     "photo_url",
+     "sign_in",
+     "credits",
+     "created_at",
+     "status",
+     "last_seen_at"
+    ],
+    "title": "AppUserAdminOut"
+   },
+   "AppUserDetail": {
+    "properties": {
+     "id": {
+      "type": "string",
+      "format": "uuid",
+      "title": "Id"
+     },
+     "name": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Name"
+     },
+     "email": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Email"
+     },
+     "phone": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Phone"
+     },
+     "photo_url": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Photo Url"
+     },
+     "sign_in": {
+      "type": "string",
+      "enum": [
+       "google",
+       "phone"
+      ],
+      "title": "Sign In"
+     },
+     "credits": {
+      "type": "integer",
+      "title": "Credits"
+     },
+     "subscription": {
+      "anyOf": [
+       {
+        "$ref": "#/components/schemas/SubscriptionOut"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     },
+     "created_at": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Created At"
+     },
+     "status": {
+      "type": "string",
+      "enum": [
+       "active",
+       "blocked"
+      ],
+      "title": "Status"
+     },
+     "last_seen_at": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "date-time"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Last Seen At"
+     },
+     "subscriptions": {
+      "items": {
+       "$ref": "#/components/schemas/SubscriptionAdminOut"
+      },
+      "type": "array",
+      "title": "Subscriptions"
+     },
+     "ledger": {
+      "items": {
+       "$ref": "#/components/schemas/CreditEntryOut"
+      },
+      "type": "array",
+      "title": "Ledger"
+     }
+    },
+    "type": "object",
+    "required": [
+     "id",
+     "name",
+     "email",
+     "phone",
+     "photo_url",
+     "sign_in",
+     "credits",
+     "created_at",
+     "status",
+     "last_seen_at",
+     "subscriptions",
+     "ledger"
+    ],
+    "title": "AppUserDetail"
+   },
+   "AppUserOut": {
+    "properties": {
+     "id": {
+      "type": "string",
+      "format": "uuid",
+      "title": "Id"
+     },
+     "name": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Name"
+     },
+     "email": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Email"
+     },
+     "phone": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Phone"
+     },
+     "photo_url": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Photo Url"
+     },
+     "sign_in": {
+      "type": "string",
+      "enum": [
+       "google",
+       "phone"
+      ],
+      "title": "Sign In"
+     },
+     "credits": {
+      "type": "integer",
+      "title": "Credits"
+     },
+     "subscription": {
+      "anyOf": [
+       {
+        "$ref": "#/components/schemas/SubscriptionOut"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     },
+     "created_at": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Created At"
+     }
+    },
+    "type": "object",
+    "required": [
+     "id",
+     "name",
+     "email",
+     "phone",
+     "photo_url",
+     "sign_in",
+     "credits",
+     "created_at"
+    ],
+    "title": "AppUserOut"
+   },
+   "AppUserPage": {
+    "properties": {
+     "items": {
+      "items": {
+       "$ref": "#/components/schemas/AppUserAdminOut"
+      },
+      "type": "array",
+      "title": "Items"
+     },
+     "total": {
+      "type": "integer",
+      "title": "Total",
+      "description": "users matching the search, across all pages"
+     },
+     "limit": {
+      "type": "integer",
+      "title": "Limit"
+     },
+     "offset": {
+      "type": "integer",
+      "title": "Offset"
+     }
+    },
+    "type": "object",
+    "required": [
+     "items",
+     "total",
+     "limit",
+     "offset"
+    ],
+    "title": "AppUserPage"
+   },
+   "AppUserStatusIn": {
+    "properties": {
+     "status": {
+      "type": "string",
+      "enum": [
+       "active",
+       "blocked"
+      ],
+      "title": "Status"
+     }
+    },
+    "type": "object",
+    "required": [
+     "status"
+    ],
+    "title": "AppUserStatusIn"
+   },
+   "AssetOut": {
+    "properties": {
+     "id": {
+      "type": "string",
+      "format": "uuid",
+      "title": "Id"
+     },
+     "url": {
+      "type": "string",
+      "title": "Url"
+     },
+     "mime_type": {
+      "type": "string",
+      "title": "Mime Type"
+     },
+     "size_bytes": {
+      "type": "integer",
+      "title": "Size Bytes"
+     },
+     "width": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Width"
+     },
+     "height": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Height"
+     },
+     "duration_seconds": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Duration Seconds"
+     }
+    },
+    "type": "object",
+    "required": [
+     "id",
+     "url",
+     "mime_type",
+     "size_bytes",
+     "width",
+     "height",
+     "duration_seconds"
+    ],
+    "title": "AssetOut"
+   },
+   "Body_upload_v1_apps__app_id__uploads_post": {
+    "properties": {
+     "file": {
+      "type": "string",
+      "contentMediaType": "application/octet-stream",
+      "title": "File"
+     }
+    },
+    "type": "object",
+    "required": [
+     "file"
+    ],
+    "title": "Body_upload_v1_apps__app_id__uploads_post"
+   },
+   "CreditAdjustIn": {
+    "properties": {
+     "delta": {
+      "type": "integer",
+      "maximum": 1000000.0,
+      "minimum": -1000000.0,
+      "title": "Delta",
+      "description": "credits to add (negative: remove)"
+     },
+     "note": {
+      "type": "string",
+      "maxLength": 500,
+      "minLength": 1,
+      "title": "Note"
+     }
+    },
+    "type": "object",
+    "required": [
+     "delta",
+     "note"
+    ],
+    "title": "CreditAdjustIn"
+   },
+   "CreditBalance": {
+    "properties": {
+     "credits": {
+      "type": "integer",
+      "title": "Credits"
+     }
+    },
+    "type": "object",
+    "required": [
+     "credits"
+    ],
+    "title": "CreditBalance"
+   },
+   "CreditEntryOut": {
+    "properties": {
+     "id": {
+      "type": "string",
+      "format": "uuid",
+      "title": "Id"
+     },
+     "delta": {
+      "type": "integer",
+      "title": "Delta"
+     },
+     "reason": {
+      "type": "string",
+      "enum": [
+       "signup",
+       "subscription_grant",
+       "generation",
+       "refund",
+       "admin_adjust"
+      ],
+      "title": "Reason"
+     },
+     "note": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Note"
+     },
+     "job_id": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "uuid"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Job Id"
+     },
+     "created_at": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Created At"
+     }
+    },
+    "type": "object",
+    "required": [
+     "id",
+     "delta",
+     "reason",
+     "note",
+     "job_id",
+     "created_at"
+    ],
+    "title": "CreditEntryOut"
+   },
+   "CreditEntryPage": {
+    "properties": {
+     "items": {
+      "items": {
+       "$ref": "#/components/schemas/CreditEntryOut"
+      },
+      "type": "array",
+      "title": "Items"
+     },
+     "total": {
+      "type": "integer",
+      "title": "Total"
+     },
+     "limit": {
+      "type": "integer",
+      "title": "Limit"
+     },
+     "offset": {
+      "type": "integer",
+      "title": "Offset"
+     }
+    },
+    "type": "object",
+    "required": [
+     "items",
+     "total",
+     "limit",
+     "offset"
+    ],
+    "title": "CreditEntryPage"
+   },
+   "FirebaseSignInIn": {
+    "properties": {
+     "id_token": {
+      "type": "string",
+      "maxLength": 8000,
+      "minLength": 20,
+      "title": "Id Token",
+      "description": "FirebaseUser.getIdToken() after phone sign-in"
+     }
+    },
+    "type": "object",
+    "required": [
+     "id_token"
+    ],
+    "title": "FirebaseSignInIn"
+   },
+   "GenerationCreate": {
+    "properties": {
+     "prompt": {
+      "type": "string",
+      "maxLength": 4000,
+      "minLength": 1,
+      "title": "Prompt"
+     },
+     "media_type": {
+      "type": "string",
+      "enum": [
+       "image",
+       "video"
+      ],
+      "title": "Media Type",
+      "default": "image"
+     },
+     "provider": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Provider"
+     },
+     "model": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Model"
+     },
+     "aspect_ratio": {
+      "type": "string",
+      "title": "Aspect Ratio",
+      "default": "1:1"
+     },
+     "n": {
+      "type": "integer",
+      "maximum": 8.0,
+      "minimum": 1.0,
+      "title": "N",
+      "default": 1
+     },
+     "duration_seconds": {
+      "anyOf": [
+       {
+        "type": "integer",
+        "maximum": 60.0,
+        "minimum": 1.0
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Duration Seconds"
+     },
+     "negative_prompt": {
+      "anyOf": [
+       {
+        "type": "string",
+        "maxLength": 2000
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Negative Prompt"
+     },
+     "seed": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Seed"
+     },
+     "webhook_url": {
+      "anyOf": [
+       {
+        "type": "string",
+        "maxLength": 2083,
+        "minLength": 1,
+        "format": "uri"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Webhook Url"
+     }
+    },
+    "type": "object",
+    "required": [
+     "prompt"
+    ],
+    "title": "GenerationCreate"
+   },
+   "GoogleSignInIn": {
+    "properties": {
+     "id_token": {
+      "type": "string",
+      "maxLength": 8000,
+      "minLength": 20,
+      "title": "Id Token"
+     }
+    },
+    "type": "object",
+    "required": [
+     "id_token"
+    ],
+    "title": "GoogleSignInIn"
+   },
+   "HTTPValidationError": {
+    "properties": {
+     "detail": {
+      "items": {
+       "$ref": "#/components/schemas/ValidationError"
+      },
+      "type": "array",
+      "title": "Detail"
+     }
+    },
+    "type": "object",
+    "title": "HTTPValidationError"
+   },
+   "HealthResponse": {
+    "properties": {
+     "status": {
+      "type": "string",
+      "enum": [
+       "ok",
+       "degraded"
+      ],
+      "title": "Status"
+     },
+     "db": {
+      "type": "string",
+      "const": "ok",
+      "title": "Db"
+     },
+     "workers": {
+      "items": {
+       "$ref": "#/components/schemas/WorkerInfo"
+      },
+      "type": "array",
+      "title": "Workers"
+     },
+     "jobs": {
+      "additionalProperties": {
+       "type": "integer"
+      },
+      "type": "object",
+      "title": "Jobs"
+     }
+    },
+    "type": "object",
+    "required": [
+     "status",
+     "db",
+     "workers",
+     "jobs"
+    ],
+    "title": "HealthResponse"
+   },
+   "InputOut": {
+    "properties": {
+     "id": {
+      "type": "string",
+      "format": "uuid",
+      "title": "Id"
+     },
+     "slot": {
+      "type": "string",
+      "title": "Slot"
+     },
+     "role": {
+      "type": "string",
+      "title": "Role"
+     },
+     "url": {
+      "type": "string",
+      "title": "Url"
+     },
+     "mime_type": {
+      "type": "string",
+      "title": "Mime Type"
+     },
+     "width": {
+      "type": "integer",
+      "title": "Width"
+     },
+     "height": {
+      "type": "integer",
+      "title": "Height"
+     }
+    },
+    "type": "object",
+    "required": [
+     "id",
+     "slot",
+     "role",
+     "url",
+     "mime_type",
+     "width",
+     "height"
+    ],
+    "title": "InputOut"
+   },
+   "InputSlot": {
+    "properties": {
+     "name": {
+      "type": "string",
+      "title": "Name"
+     },
+     "label": {
+      "type": "string",
+      "title": "Label",
+      "default": ""
+     },
+     "required": {
+      "type": "boolean",
+      "title": "Required",
+      "default": true
+     }
+    },
+    "type": "object",
+    "required": [
+     "name"
+    ],
+    "title": "InputSlot"
+   },
+   "JobAppRef": {
+    "properties": {
+     "id": {
+      "type": "string",
+      "format": "uuid",
+      "title": "Id"
+     },
+     "slug": {
+      "type": "string",
+      "title": "Slug"
+     },
+     "name": {
+      "type": "string",
+      "title": "Name"
+     },
+     "device_id": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Device Id"
+     }
+    },
+    "type": "object",
+    "required": [
+     "id",
+     "slug",
+     "name"
+    ],
+    "title": "JobAppRef"
+   },
+   "JobError": {
+    "properties": {
+     "code": {
+      "type": "string",
+      "title": "Code"
+     },
+     "message": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Message"
+     }
+    },
+    "type": "object",
+    "required": [
+     "code",
+     "message"
+    ],
+    "title": "JobError"
+   },
+   "JobList": {
+    "properties": {
+     "items": {
+      "items": {
+       "$ref": "#/components/schemas/JobResponse"
+      },
+      "type": "array",
+      "title": "Items"
+     }
+    },
+    "type": "object",
+    "required": [
+     "items"
+    ],
+    "title": "JobList"
+   },
+   "JobResponse": {
+    "properties": {
+     "id": {
+      "type": "string",
+      "format": "uuid",
+      "title": "Id"
+     },
+     "status": {
+      "type": "string",
+      "enum": [
+       "queued",
+       "running",
+       "succeeded",
+       "failed"
+      ],
+      "title": "Status"
+     },
+     "media_type": {
+      "type": "string",
+      "title": "Media Type"
+     },
+     "provider": {
+      "type": "string",
+      "title": "Provider"
+     },
+     "model": {
+      "type": "string",
+      "title": "Model"
+     },
+     "request": {
+      "additionalProperties": true,
+      "type": "object",
+      "title": "Request"
+     },
+     "template": {
+      "anyOf": [
+       {
+        "$ref": "#/components/schemas/JobTemplateRef"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     },
+     "inputs": {
+      "items": {
+       "$ref": "#/components/schemas/InputOut"
+      },
+      "type": "array",
+      "title": "Inputs"
+     },
+     "assets": {
+      "items": {
+       "$ref": "#/components/schemas/AssetOut"
+      },
+      "type": "array",
+      "title": "Assets"
+     },
+     "error": {
+      "anyOf": [
+       {
+        "$ref": "#/components/schemas/JobError"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     },
+     "attempt": {
+      "type": "integer",
+      "title": "Attempt"
+     },
+     "max_attempts": {
+      "type": "integer",
+      "title": "Max Attempts"
+     },
+     "created_at": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Created At"
+     },
+     "started_at": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "date-time"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Started At"
+     },
+     "finished_at": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "date-time"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Finished At"
+     },
+     "webhook": {
+      "anyOf": [
+       {
+        "$ref": "#/components/schemas/WebhookState"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     },
+     "created_by": {
+      "anyOf": [
+       {
+        "$ref": "#/components/schemas/UserRef"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     },
+     "app": {
+      "anyOf": [
+       {
+        "$ref": "#/components/schemas/JobAppRef"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     }
+    },
+    "type": "object",
+    "required": [
+     "id",
+     "status",
+     "media_type",
+     "provider",
+     "model",
+     "request",
+     "template",
+     "inputs",
+     "assets",
+     "error",
+     "attempt",
+     "max_attempts",
+     "created_at",
+     "started_at",
+     "finished_at",
+     "webhook",
+     "created_by"
+    ],
+    "title": "JobResponse"
+   },
+   "JobTemplateRef": {
+    "properties": {
+     "id": {
+      "type": "string",
+      "format": "uuid",
+      "title": "Id"
+     },
+     "slug": {
+      "type": "string",
+      "title": "Slug"
+     },
+     "title": {
+      "type": "string",
+      "title": "Title"
+     },
+     "version": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Version"
+     }
+    },
+    "type": "object",
+    "required": [
+     "id",
+     "slug",
+     "title",
+     "version"
+    ],
+    "title": "JobTemplateRef"
+   },
+   "LoginIn": {
+    "properties": {
+     "email": {
+      "type": "string",
+      "maxLength": 320,
+      "title": "Email"
+     },
+     "password": {
+      "type": "string",
+      "maxLength": 256,
+      "title": "Password"
+     }
+    },
+    "type": "object",
+    "required": [
+     "email",
+     "password"
+    ],
+    "title": "LoginIn"
+   },
+   "MeResponse": {
+    "properties": {
+     "id": {
+      "type": "string",
+      "format": "uuid",
+      "title": "Id"
+     },
+     "email": {
+      "type": "string",
+      "title": "Email"
+     },
+     "name": {
+      "type": "string",
+      "title": "Name"
+     },
+     "role": {
+      "type": "string",
+      "enum": [
+       "admin",
+       "user"
+      ],
+      "title": "Role"
+     },
+     "must_change_password": {
+      "type": "boolean",
+      "title": "Must Change Password"
+     }
+    },
+    "type": "object",
+    "required": [
+     "id",
+     "email",
+     "name",
+     "role",
+     "must_change_password"
+    ],
+    "title": "MeResponse"
+   },
+   "MeUpdate": {
+    "properties": {
+     "name": {
+      "anyOf": [
+       {
+        "type": "string",
+        "maxLength": 200
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Name"
+     }
+    },
+    "type": "object",
+    "title": "MeUpdate"
+   },
+   "MemberIn": {
+    "properties": {
+     "role": {
+      "type": "string",
+      "enum": [
+       "editor",
+       "tester"
+      ],
+      "title": "Role"
+     }
+    },
+    "type": "object",
+    "required": [
+     "role"
+    ],
+    "title": "MemberIn"
+   },
+   "MemberOut": {
+    "properties": {
+     "user_id": {
+      "type": "string",
+      "format": "uuid",
+      "title": "User Id"
+     },
+     "name": {
+      "type": "string",
+      "title": "Name"
+     },
+     "email": {
+      "type": "string",
+      "title": "Email"
+     },
+     "role": {
+      "type": "string",
+      "enum": [
+       "editor",
+       "tester"
+      ],
+      "title": "Role"
+     },
+     "is_active": {
+      "type": "boolean",
+      "title": "Is Active"
+     }
+    },
+    "type": "object",
+    "required": [
+     "user_id",
+     "name",
+     "email",
+     "role",
+     "is_active"
+    ],
+    "title": "MemberOut"
+   },
+   "Membership": {
+    "properties": {
+     "app_id": {
+      "type": "string",
+      "format": "uuid",
+      "title": "App Id"
+     },
+     "app_slug": {
+      "type": "string",
+      "title": "App Slug"
+     },
+     "app_name": {
+      "type": "string",
+      "title": "App Name"
+     },
+     "role": {
+      "type": "string",
+      "enum": [
+       "editor",
+       "tester"
+      ],
+      "title": "Role"
+     }
+    },
+    "type": "object",
+    "required": [
+     "app_id",
+     "app_slug",
+     "app_name",
+     "role"
+    ],
+    "title": "Membership"
+   },
+   "MyApp": {
+    "properties": {
+     "id": {
+      "type": "string",
+      "format": "uuid",
+      "title": "Id"
+     },
+     "slug": {
+      "type": "string",
+      "title": "Slug"
+     },
+     "name": {
+      "type": "string",
+      "title": "Name"
+     },
+     "description": {
+      "type": "string",
+      "title": "Description"
+     },
+     "platform": {
+      "type": "string",
+      "title": "Platform"
+     },
+     "status": {
+      "type": "string",
+      "enum": [
+       "active",
+       "disabled"
+      ],
+      "title": "Status"
+     },
+     "daily_job_limit": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Daily Job Limit"
+     },
+     "device_hourly_limit": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Device Hourly Limit"
+     },
+     "auth_google_enabled": {
+      "type": "boolean",
+      "title": "Auth Google Enabled"
+     },
+     "auth_phone_enabled": {
+      "type": "boolean",
+      "title": "Auth Phone Enabled"
+     },
+     "google_client_ids": {
+      "items": {
+       "type": "string"
+      },
+      "type": "array",
+      "title": "Google Client Ids"
+     },
+     "phone_provider": {
+      "type": "string",
+      "enum": [
+       "msg91",
+       "firebase"
+      ],
+      "title": "Phone Provider"
+     },
+     "msg91_template_id": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Msg91 Template Id"
+     },
+     "msg91_otp_var": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Msg91 Otp Var"
+     },
+     "msg91_auth_key_set": {
+      "type": "boolean",
+      "title": "Msg91 Auth Key Set",
+      "description": "an MSG91 auth key is saved (the key itself is write-only)"
+     },
+     "firebase_project_id": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Firebase Project Id"
+     },
+     "secrets_key_set": {
+      "type": "boolean",
+      "title": "Secrets Key Set",
+      "description": "app detail only: the server can store credentials (SECRETS_KEY is set)",
+      "default": false
+     },
+     "signup_credits": {
+      "type": "integer",
+      "title": "Signup Credits"
+     },
+     "require_login": {
+      "type": "boolean",
+      "title": "Require Login"
+     },
+     "payment_provider": {
+      "type": "string",
+      "enum": [
+       "none",
+       "razorpay",
+       "phonepe"
+      ],
+      "title": "Payment Provider"
+     },
+     "payment_mode": {
+      "type": "string",
+      "enum": [
+       "test",
+       "live"
+      ],
+      "title": "Payment Mode"
+     },
+     "razorpay_key_id": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Razorpay Key Id"
+     },
+     "phonepe_merchant_id": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Phonepe Merchant Id"
+     },
+     "created_at": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Created At"
+     },
+     "updated_at": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Updated At"
+     },
+     "template_count": {
+      "type": "integer",
+      "title": "Template Count",
+      "default": 0
+     },
+     "active_template_count": {
+      "type": "integer",
+      "title": "Active Template Count",
+      "default": 0
+     },
+     "active_key_count": {
+      "type": "integer",
+      "title": "Active Key Count",
+      "default": 0
+     },
+     "member_count": {
+      "type": "integer",
+      "title": "Member Count",
+      "default": 0
+     },
+     "role": {
+      "type": "string",
+      "enum": [
+       "admin",
+       "editor",
+       "tester"
+      ],
+      "title": "Role"
+     }
+    },
+    "type": "object",
+    "required": [
+     "id",
+     "slug",
+     "name",
+     "description",
+     "platform",
+     "status",
+     "daily_job_limit",
+     "device_hourly_limit",
+     "auth_google_enabled",
+     "auth_phone_enabled",
+     "google_client_ids",
+     "phone_provider",
+     "msg91_template_id",
+     "msg91_otp_var",
+     "msg91_auth_key_set",
+     "firebase_project_id",
+     "signup_credits",
+     "require_login",
+     "payment_provider",
+     "payment_mode",
+     "razorpay_key_id",
+     "phonepe_merchant_id",
+     "created_at",
+     "updated_at",
+     "role"
+    ],
+    "title": "MyApp",
+    "description": "An app as its member sees it, with their role in it."
+   },
+   "NameChange": {
+    "properties": {
+     "name": {
+      "type": "string",
+      "maxLength": 200,
+      "minLength": 1,
+      "title": "Name"
+     }
+    },
+    "type": "object",
+    "required": [
+     "name"
+    ],
+    "title": "NameChange"
+   },
+   "OtpSendIn": {
+    "properties": {
+     "phone": {
+      "type": "string",
+      "maxLength": 24,
+      "minLength": 6,
+      "title": "Phone",
+      "description": "+<country><number>, or 10 digits"
+     }
+    },
+    "type": "object",
+    "required": [
+     "phone"
+    ],
+    "title": "OtpSendIn"
+   },
+   "OtpSendOut": {
+    "properties": {
+     "challenge_id": {
+      "type": "string",
+      "format": "uuid",
+      "title": "Challenge Id"
+     },
+     "phone": {
+      "type": "string",
+      "title": "Phone",
+      "description": "the number the code was sent to, in E.164"
+     },
+     "expires_in_s": {
+      "type": "integer",
+      "title": "Expires In S"
+     },
+     "resend_after_s": {
+      "type": "integer",
+      "title": "Resend After S"
+     }
+    },
+    "type": "object",
+    "required": [
+     "challenge_id",
+     "phone",
+     "expires_in_s",
+     "resend_after_s"
+    ],
+    "title": "OtpSendOut"
+   },
+   "OtpVerifyIn": {
+    "properties": {
+     "challenge_id": {
+      "type": "string",
+      "format": "uuid",
+      "title": "Challenge Id"
+     },
+     "code": {
+      "type": "string",
+      "maxLength": 12,
+      "minLength": 1,
+      "title": "Code"
+     }
+    },
+    "type": "object",
+    "required": [
+     "challenge_id",
+     "code"
+    ],
+    "title": "OtpVerifyIn"
+   },
+   "PasswordChange": {
+    "properties": {
+     "current_password": {
+      "type": "string",
+      "title": "Current Password"
+     },
+     "new_password": {
+      "type": "string",
+      "title": "New Password"
+     }
+    },
+    "type": "object",
+    "required": [
+     "current_password",
+     "new_password"
+    ],
+    "title": "PasswordChange"
+   },
+   "PaymentConfig": {
+    "properties": {
+     "provider": {
+      "type": "string",
+      "enum": [
+       "none",
+       "razorpay",
+       "phonepe"
+      ],
+      "title": "Provider",
+      "description": "the gateway purchases go through; none = payments not available yet"
+     },
+     "mode": {
+      "type": "string",
+      "enum": [
+       "test",
+       "live"
+      ],
+      "title": "Mode"
+     },
+     "razorpay_key_id": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Razorpay Key Id",
+      "description": "for Razorpay Checkout on the device"
+     }
+    },
+    "type": "object",
+    "required": [
+     "provider",
+     "mode"
+    ],
+    "title": "PaymentConfig"
+   },
+   "PlanAdminOut": {
+    "properties": {
+     "id": {
+      "type": "string",
+      "format": "uuid",
+      "title": "Id"
+     },
+     "slug": {
+      "type": "string",
+      "title": "Slug"
+     },
+     "name": {
+      "type": "string",
+      "title": "Name"
+     },
+     "description": {
+      "type": "string",
+      "title": "Description"
+     },
+     "price_minor": {
+      "type": "integer",
+      "title": "Price Minor",
+      "description": "in the currency's minor unit, e.g. 19900 = Rs 199.00"
+     },
+     "currency": {
+      "type": "string",
+      "title": "Currency"
+     },
+     "billing_period": {
+      "type": "string",
+      "enum": [
+       "month",
+       "year"
+      ],
+      "title": "Billing Period"
+     },
+     "credits_per_month": {
+      "type": "integer",
+      "title": "Credits Per Month"
+     },
+     "badge": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Badge"
+     },
+     "status": {
+      "type": "string",
+      "enum": [
+       "active",
+       "archived"
+      ],
+      "title": "Status"
+     },
+     "position": {
+      "type": "integer",
+      "title": "Position"
+     },
+     "created_at": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Created At"
+     },
+     "updated_at": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Updated At"
+     }
+    },
+    "type": "object",
+    "required": [
+     "id",
+     "slug",
+     "name",
+     "description",
+     "price_minor",
+     "currency",
+     "billing_period",
+     "credits_per_month",
+     "badge",
+     "status",
+     "position",
+     "created_at",
+     "updated_at"
+    ],
+    "title": "PlanAdminOut"
+   },
+   "PlanCreate": {
+    "properties": {
+     "name": {
+      "type": "string",
+      "maxLength": 200,
+      "minLength": 1,
+      "title": "Name"
+     },
+     "description": {
+      "type": "string",
+      "maxLength": 2000,
+      "title": "Description",
+      "default": ""
+     },
+     "price_minor": {
+      "type": "integer",
+      "maximum": 100000000.0,
+      "minimum": 0.0,
+      "title": "Price Minor",
+      "description": "price in the currency's minor unit (paise)"
+     },
+     "currency": {
+      "type": "string",
+      "pattern": "^[A-Z]{3}$",
+      "title": "Currency",
+      "default": "INR"
+     },
+     "billing_period": {
+      "type": "string",
+      "pattern": "^(month|year)$",
+      "title": "Billing Period",
+      "default": "month"
+     },
+     "credits_per_month": {
+      "type": "integer",
+      "maximum": 1000000.0,
+      "minimum": 0.0,
+      "title": "Credits Per Month"
+     },
+     "badge": {
+      "anyOf": [
+       {
+        "type": "string",
+        "maxLength": 60
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Badge"
+     },
+     "status": {
+      "type": "string",
+      "pattern": "^(active|archived)$",
+      "title": "Status",
+      "default": "active"
+     },
+     "slug": {
+      "type": "string",
+      "title": "Slug"
+     }
+    },
+    "type": "object",
+    "required": [
+     "name",
+     "price_minor",
+     "credits_per_month",
+     "slug"
+    ],
+    "title": "PlanCreate"
+   },
+   "PlanFields": {
+    "properties": {
+     "name": {
+      "type": "string",
+      "maxLength": 200,
+      "minLength": 1,
+      "title": "Name"
+     },
+     "description": {
+      "type": "string",
+      "maxLength": 2000,
+      "title": "Description",
+      "default": ""
+     },
+     "price_minor": {
+      "type": "integer",
+      "maximum": 100000000.0,
+      "minimum": 0.0,
+      "title": "Price Minor",
+      "description": "price in the currency's minor unit (paise)"
+     },
+     "currency": {
+      "type": "string",
+      "pattern": "^[A-Z]{3}$",
+      "title": "Currency",
+      "default": "INR"
+     },
+     "billing_period": {
+      "type": "string",
+      "pattern": "^(month|year)$",
+      "title": "Billing Period",
+      "default": "month"
+     },
+     "credits_per_month": {
+      "type": "integer",
+      "maximum": 1000000.0,
+      "minimum": 0.0,
+      "title": "Credits Per Month"
+     },
+     "badge": {
+      "anyOf": [
+       {
+        "type": "string",
+        "maxLength": 60
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Badge"
+     },
+     "status": {
+      "type": "string",
+      "pattern": "^(active|archived)$",
+      "title": "Status",
+      "default": "active"
+     }
+    },
+    "type": "object",
+    "required": [
+     "name",
+     "price_minor",
+     "credits_per_month"
+    ],
+    "title": "PlanFields"
+   },
+   "PlanOrderIn": {
+    "properties": {
+     "plan_ids": {
+      "items": {
+       "type": "string",
+       "format": "uuid"
+      },
+      "type": "array",
+      "maxItems": 100,
+      "title": "Plan Ids"
+     }
+    },
+    "type": "object",
+    "required": [
+     "plan_ids"
+    ],
+    "title": "PlanOrderIn"
+   },
+   "PlanOut": {
+    "properties": {
+     "id": {
+      "type": "string",
+      "format": "uuid",
+      "title": "Id"
+     },
+     "slug": {
+      "type": "string",
+      "title": "Slug"
+     },
+     "name": {
+      "type": "string",
+      "title": "Name"
+     },
+     "description": {
+      "type": "string",
+      "title": "Description"
+     },
+     "price_minor": {
+      "type": "integer",
+      "title": "Price Minor",
+      "description": "in the currency's minor unit, e.g. 19900 = Rs 199.00"
+     },
+     "currency": {
+      "type": "string",
+      "title": "Currency"
+     },
+     "billing_period": {
+      "type": "string",
+      "enum": [
+       "month",
+       "year"
+      ],
+      "title": "Billing Period"
+     },
+     "credits_per_month": {
+      "type": "integer",
+      "title": "Credits Per Month"
+     },
+     "badge": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Badge"
+     }
+    },
+    "type": "object",
+    "required": [
+     "id",
+     "slug",
+     "name",
+     "description",
+     "price_minor",
+     "currency",
+     "billing_period",
+     "credits_per_month",
+     "badge"
+    ],
+    "title": "PlanOut"
+   },
+   "PlanRef": {
+    "properties": {
+     "id": {
+      "type": "string",
+      "format": "uuid",
+      "title": "Id"
+     },
+     "slug": {
+      "type": "string",
+      "title": "Slug"
+     },
+     "name": {
+      "type": "string",
+      "title": "Name"
+     }
+    },
+    "type": "object",
+    "required": [
+     "id",
+     "slug",
+     "name"
+    ],
+    "title": "PlanRef"
+   },
+   "ProviderInfo": {
+    "properties": {
+     "name": {
+      "type": "string",
+      "title": "Name"
+     },
+     "image": {
+      "type": "boolean",
+      "title": "Image"
+     },
+     "video": {
+      "type": "boolean",
+      "title": "Video"
+     },
+     "default_image_model": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Default Image Model"
+     },
+     "default_video_model": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Default Video Model"
+     },
+     "known_image_models": {
+      "items": {
+       "type": "string"
+      },
+      "type": "array",
+      "title": "Known Image Models"
+     },
+     "known_video_models": {
+      "items": {
+       "type": "string"
+      },
+      "type": "array",
+      "title": "Known Video Models"
+     },
+     "max_images": {
+      "type": "integer",
+      "title": "Max Images"
+     },
+     "image_aspect_ratios": {
+      "items": {
+       "type": "string"
+      },
+      "type": "array",
+      "title": "Image Aspect Ratios"
+     },
+     "video_aspect_ratios": {
+      "items": {
+       "type": "string"
+      },
+      "type": "array",
+      "title": "Video Aspect Ratios"
+     },
+     "video_durations": {
+      "items": {
+       "type": "integer"
+      },
+      "type": "array",
+      "title": "Video Durations"
+     },
+     "supports_negative_prompt": {
+      "type": "boolean",
+      "title": "Supports Negative Prompt"
+     },
+     "supports_seed": {
+      "type": "boolean",
+      "title": "Supports Seed"
+     },
+     "image_input": {
+      "type": "boolean",
+      "title": "Image Input"
+     },
+     "image_input_models": {
+      "items": {
+       "type": "string"
+      },
+      "type": "array",
+      "title": "Image Input Models"
+     },
+     "max_input_images": {
+      "type": "integer",
+      "title": "Max Input Images"
+     }
+    },
+    "type": "object",
+    "required": [
+     "name",
+     "image",
+     "video",
+     "default_image_model",
+     "default_video_model",
+     "known_image_models",
+     "known_video_models",
+     "max_images",
+     "image_aspect_ratios",
+     "video_aspect_ratios",
+     "video_durations",
+     "supports_negative_prompt",
+     "supports_seed",
+     "image_input",
+     "image_input_models",
+     "max_input_images"
+    ],
+    "title": "ProviderInfo"
+   },
+   "SetupIn": {
+    "properties": {
+     "setup_token": {
+      "type": "string",
+      "title": "Setup Token"
+     },
+     "email": {
+      "type": "string",
+      "format": "email",
+      "title": "Email"
+     },
+     "name": {
+      "type": "string",
+      "maxLength": 200,
+      "minLength": 1,
+      "title": "Name"
+     },
+     "password": {
+      "type": "string",
+      "title": "Password"
+     }
+    },
+    "type": "object",
+    "required": [
+     "setup_token",
+     "email",
+     "name",
+     "password"
+    ],
+    "title": "SetupIn"
+   },
+   "SetupState": {
+    "properties": {
+     "needed": {
+      "type": "boolean",
+      "title": "Needed"
+     }
+    },
+    "type": "object",
+    "required": [
+     "needed"
+    ],
+    "title": "SetupState"
+   },
+   "SignInMethods": {
+    "properties": {
+     "google": {
+      "type": "boolean",
+      "title": "Google"
+     },
+     "phone": {
+      "type": "boolean",
+      "title": "Phone"
+     },
+     "google_client_id": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Google Client Id",
+      "description": "the OAuth Web client id to request Google ID tokens for (Credential Manager)"
+     },
+     "phone_provider": {
+      "anyOf": [
+       {
+        "type": "string",
+        "enum": [
+         "msg91",
+         "firebase"
+        ]
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Phone Provider",
+      "description": "with phone on: msg91 = /auth/otp/send + /auth/otp/verify (our server texts the code); firebase = verify the number with Firebase Auth on the device, then POST /auth/firebase"
+     },
+     "firebase_project_id": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Firebase Project Id",
+      "description": "with phone_provider firebase: the Firebase project of the app's google-services.json"
+     }
+    },
+    "type": "object",
+    "required": [
+     "google",
+     "phone"
+    ],
+    "title": "SignInMethods"
+   },
+   "SignInOut": {
+    "properties": {
+     "token": {
+      "type": "string",
+      "title": "Token",
+      "description": "send as `Authorization: Bearer <token>`; keep it in secure storage"
+     },
+     "expires_at": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Expires At",
+      "description": "sliding: extended each day the token is used"
+     },
+     "is_new": {
+      "type": "boolean",
+      "title": "Is New"
+     },
+     "user": {
+      "$ref": "#/components/schemas/AppUserOut"
+     }
+    },
+    "type": "object",
+    "required": [
+     "token",
+     "expires_at",
+     "is_new",
+     "user"
+    ],
+    "title": "SignInOut"
+   },
+   "SubscriptionAdminOut": {
+    "properties": {
+     "id": {
+      "type": "string",
+      "format": "uuid",
+      "title": "Id"
+     },
+     "plan": {
+      "$ref": "#/components/schemas/PlanRef"
+     },
+     "status": {
+      "type": "string",
+      "enum": [
+       "active",
+       "cancelled",
+       "expired"
+      ],
+      "title": "Status"
+     },
+     "provider": {
+      "type": "string",
+      "title": "Provider"
+     },
+     "current_period_start": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Current Period Start"
+     },
+     "current_period_end": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Current Period End"
+     },
+     "next_credit_grant_at": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "date-time"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Next Credit Grant At"
+     },
+     "created_at": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Created At"
+     },
+     "provider_ref": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Provider Ref",
+      "description": "the gateway's subscription id (Razorpay `sub_\u2026`, PhonePe subscription id)"
+     },
+     "cancel_at_period_end": {
+      "type": "boolean",
+      "title": "Cancel At Period End",
+      "default": false
+     }
+    },
+    "type": "object",
+    "required": [
+     "id",
+     "plan",
+     "status",
+     "provider",
+     "current_period_start",
+     "current_period_end",
+     "next_credit_grant_at",
+     "created_at"
+    ],
+    "title": "SubscriptionAdminOut",
+    "description": "A subscription as admins see it: also the payment-gateway subscription it is linked to."
+   },
+   "SubscriptionGrantIn": {
+    "properties": {
+     "plan_id": {
+      "type": "string",
+      "format": "uuid",
+      "title": "Plan Id"
+     }
+    },
+    "type": "object",
+    "required": [
+     "plan_id"
+    ],
+    "title": "SubscriptionGrantIn"
+   },
+   "SubscriptionLinkIn": {
+    "properties": {
+     "provider": {
+      "type": "string",
+      "enum": [
+       "manual",
+       "razorpay",
+       "phonepe"
+      ],
+      "title": "Provider"
+     },
+     "provider_ref": {
+      "anyOf": [
+       {
+        "type": "string",
+        "maxLength": 255
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Provider Ref"
+     }
+    },
+    "type": "object",
+    "required": [
+     "provider"
+    ],
+    "title": "SubscriptionLinkIn"
+   },
+   "SubscriptionOut": {
+    "properties": {
+     "id": {
+      "type": "string",
+      "format": "uuid",
+      "title": "Id"
+     },
+     "plan": {
+      "$ref": "#/components/schemas/PlanRef"
+     },
+     "status": {
+      "type": "string",
+      "enum": [
+       "active",
+       "cancelled",
+       "expired"
+      ],
+      "title": "Status"
+     },
+     "provider": {
+      "type": "string",
+      "title": "Provider"
+     },
+     "current_period_start": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Current Period Start"
+     },
+     "current_period_end": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Current Period End"
+     },
+     "next_credit_grant_at": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "date-time"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Next Credit Grant At"
+     },
+     "created_at": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Created At"
+     }
+    },
+    "type": "object",
+    "required": [
+     "id",
+     "plan",
+     "status",
+     "provider",
+     "current_period_start",
+     "current_period_end",
+     "next_credit_grant_at",
+     "created_at"
+    ],
+    "title": "SubscriptionOut"
+   },
+   "TemplateCopyIn": {
+    "properties": {
+     "target_app_id": {
+      "type": "string",
+      "format": "uuid",
+      "title": "Target App Id"
+     },
+     "slug": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Slug"
+     }
+    },
+    "type": "object",
+    "required": [
+     "target_app_id"
+    ],
+    "title": "TemplateCopyIn"
+   },
+   "TemplateCreate": {
+    "properties": {
+     "title": {
+      "type": "string",
+      "maxLength": 200,
+      "minLength": 1,
+      "title": "Title"
+     },
+     "description": {
+      "type": "string",
+      "maxLength": 4000,
+      "title": "Description",
+      "default": ""
+     },
+     "media_type": {
+      "type": "string",
+      "pattern": "^(image|video)$",
+      "title": "Media Type",
+      "default": "image"
+     },
+     "provider": {
+      "type": "string",
+      "maxLength": 64,
+      "minLength": 1,
+      "title": "Provider"
+     },
+     "model": {
+      "type": "string",
+      "maxLength": 256,
+      "minLength": 1,
+      "title": "Model"
+     },
+     "allowed_models": {
+      "items": {
+       "type": "string"
+      },
+      "type": "array",
+      "title": "Allowed Models"
+     },
+     "prompt": {
+      "type": "string",
+      "maxLength": 8000,
+      "minLength": 1,
+      "title": "Prompt"
+     },
+     "negative_prompt": {
+      "anyOf": [
+       {
+        "type": "string",
+        "maxLength": 4000
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Negative Prompt"
+     },
+     "params": {
+      "$ref": "#/components/schemas/TemplateParams"
+     },
+     "inputs": {
+      "items": {
+       "$ref": "#/components/schemas/InputSlot"
+      },
+      "type": "array",
+      "maxItems": 8,
+      "title": "Inputs"
+     },
+     "variables": {
+      "items": {
+       "$ref": "#/components/schemas/Variable"
+      },
+      "type": "array",
+      "maxItems": 20,
+      "title": "Variables"
+     },
+     "reference_uploads": {
+      "items": {
+       "type": "string"
+      },
+      "type": "array",
+      "maxItems": 8,
+      "title": "Reference Uploads"
+     },
+     "cover_upload": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Cover Upload"
+     },
+     "note": {
+      "anyOf": [
+       {
+        "type": "string",
+        "maxLength": 500
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Note"
+     },
+     "slug": {
+      "type": "string",
+      "title": "Slug"
+     },
+     "credit_cost": {
+      "anyOf": [
+       {
+        "type": "integer",
+        "maximum": 10000.0,
+        "minimum": 0.0
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Credit Cost"
+     }
+    },
+    "type": "object",
+    "required": [
+     "title",
+     "provider",
+     "model",
+     "prompt",
+     "slug"
+    ],
+    "title": "TemplateCreate"
+   },
+   "TemplateFull": {
+    "properties": {
+     "id": {
+      "type": "string",
+      "format": "uuid",
+      "title": "Id"
+     },
+     "app_id": {
+      "type": "string",
+      "format": "uuid",
+      "title": "App Id"
+     },
+     "slug": {
+      "type": "string",
+      "title": "Slug"
+     },
+     "title": {
+      "type": "string",
+      "title": "Title"
+     },
+     "description": {
+      "type": "string",
+      "title": "Description"
+     },
+     "status": {
+      "type": "string",
+      "enum": [
+       "draft",
+       "active"
+      ],
+      "title": "Status"
+     },
+     "position": {
+      "type": "integer",
+      "title": "Position"
+     },
+     "current_version": {
+      "type": "integer",
+      "title": "Current Version"
+     },
+     "credit_cost": {
+      "type": "integer",
+      "title": "Credit Cost"
+     },
+     "cover_url": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Cover Url"
+     },
+     "created_at": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Created At"
+     },
+     "updated_at": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Updated At"
+     },
+     "current": {
+      "$ref": "#/components/schemas/TemplateVersionOut"
+     },
+     "versions": {
+      "anyOf": [
+       {
+        "items": {
+         "$ref": "#/components/schemas/TemplateVersionOut"
+        },
+        "type": "array"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Versions"
+     }
+    },
+    "type": "object",
+    "required": [
+     "id",
+     "app_id",
+     "slug",
+     "title",
+     "description",
+     "status",
+     "position",
+     "current_version",
+     "credit_cost",
+     "created_at",
+     "updated_at",
+     "current"
+    ],
+    "title": "TemplateFull"
+   },
+   "TemplateOrderIn": {
+    "properties": {
+     "template_ids": {
+      "items": {
+       "type": "string",
+       "format": "uuid"
+      },
+      "type": "array",
+      "maxItems": 500,
+      "title": "Template Ids"
+     }
+    },
+    "type": "object",
+    "required": [
+     "template_ids"
+    ],
+    "title": "TemplateOrderIn"
+   },
+   "TemplateParams": {
+    "properties": {
+     "aspect_ratio": {
+      "type": "string",
+      "title": "Aspect Ratio",
+      "default": "auto"
+     },
+     "n": {
+      "type": "integer",
+      "maximum": 8.0,
+      "minimum": 1.0,
+      "title": "N",
+      "default": 1
+     },
+     "seed": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Seed"
+     },
+     "duration_seconds": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Duration Seconds"
+     }
+    },
+    "type": "object",
+    "title": "TemplateParams"
+   },
+   "TemplatePublic": {
+    "properties": {
+     "id": {
+      "type": "string",
+      "format": "uuid",
+      "title": "Id"
+     },
+     "slug": {
+      "type": "string",
+      "title": "Slug"
+     },
+     "title": {
+      "type": "string",
+      "title": "Title"
+     },
+     "description": {
+      "type": "string",
+      "title": "Description"
+     },
+     "media_type": {
+      "type": "string",
+      "title": "Media Type"
+     },
+     "version": {
+      "type": "integer",
+      "title": "Version"
+     },
+     "inputs": {
+      "items": {
+       "$ref": "#/components/schemas/InputSlot"
+      },
+      "type": "array",
+      "title": "Inputs"
+     },
+     "variables": {
+      "items": {
+       "$ref": "#/components/schemas/Variable"
+      },
+      "type": "array",
+      "title": "Variables"
+     },
+     "model": {
+      "type": "string",
+      "title": "Model"
+     },
+     "allowed_models": {
+      "items": {
+       "type": "string"
+      },
+      "type": "array",
+      "title": "Allowed Models"
+     },
+     "has_reference_images": {
+      "type": "boolean",
+      "title": "Has Reference Images"
+     },
+     "cover_url": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Cover Url"
+     },
+     "credit_cost": {
+      "type": "integer",
+      "title": "Credit Cost",
+      "description": "credits a signed-in user pays per run"
+     }
+    },
+    "type": "object",
+    "required": [
+     "id",
+     "slug",
+     "title",
+     "description",
+     "media_type",
+     "version",
+     "inputs",
+     "variables",
+     "model",
+     "allowed_models",
+     "has_reference_images",
+     "credit_cost"
+    ],
+    "title": "TemplatePublic"
+   },
+   "TemplateSaved": {
+    "properties": {
+     "template": {
+      "$ref": "#/components/schemas/TemplateFull"
+     },
+     "warnings": {
+      "items": {
+       "type": "string"
+      },
+      "type": "array",
+      "title": "Warnings"
+     }
+    },
+    "type": "object",
+    "required": [
+     "template",
+     "warnings"
+    ],
+    "title": "TemplateSaved"
+   },
+   "TemplateStatusIn": {
+    "properties": {
+     "status": {
+      "type": "string",
+      "enum": [
+       "draft",
+       "active"
+      ],
+      "title": "Status"
+     }
+    },
+    "type": "object",
+    "required": [
+     "status"
+    ],
+    "title": "TemplateStatusIn"
+   },
+   "TemplateUpdate": {
+    "properties": {
+     "title": {
+      "type": "string",
+      "maxLength": 200,
+      "minLength": 1,
+      "title": "Title"
+     },
+     "description": {
+      "type": "string",
+      "maxLength": 4000,
+      "title": "Description",
+      "default": ""
+     },
+     "media_type": {
+      "type": "string",
+      "pattern": "^(image|video)$",
+      "title": "Media Type",
+      "default": "image"
+     },
+     "provider": {
+      "type": "string",
+      "maxLength": 64,
+      "minLength": 1,
+      "title": "Provider"
+     },
+     "model": {
+      "type": "string",
+      "maxLength": 256,
+      "minLength": 1,
+      "title": "Model"
+     },
+     "allowed_models": {
+      "items": {
+       "type": "string"
+      },
+      "type": "array",
+      "title": "Allowed Models"
+     },
+     "prompt": {
+      "type": "string",
+      "maxLength": 8000,
+      "minLength": 1,
+      "title": "Prompt"
+     },
+     "negative_prompt": {
+      "anyOf": [
+       {
+        "type": "string",
+        "maxLength": 4000
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Negative Prompt"
+     },
+     "params": {
+      "$ref": "#/components/schemas/TemplateParams"
+     },
+     "inputs": {
+      "items": {
+       "$ref": "#/components/schemas/InputSlot"
+      },
+      "type": "array",
+      "maxItems": 8,
+      "title": "Inputs"
+     },
+     "variables": {
+      "items": {
+       "$ref": "#/components/schemas/Variable"
+      },
+      "type": "array",
+      "maxItems": 20,
+      "title": "Variables"
+     },
+     "reference_uploads": {
+      "items": {
+       "type": "string"
+      },
+      "type": "array",
+      "maxItems": 8,
+      "title": "Reference Uploads"
+     },
+     "cover_upload": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Cover Upload"
+     },
+     "note": {
+      "anyOf": [
+       {
+        "type": "string",
+        "maxLength": 500
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Note"
+     },
+     "base_version": {
+      "type": "integer",
+      "title": "Base Version"
+     },
+     "credit_cost": {
+      "anyOf": [
+       {
+        "type": "integer",
+        "maximum": 10000.0,
+        "minimum": 0.0
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Credit Cost"
+     }
+    },
+    "type": "object",
+    "required": [
+     "title",
+     "provider",
+     "model",
+     "prompt",
+     "base_version"
+    ],
+    "title": "TemplateUpdate"
+   },
+   "TemplateVersionOut": {
+    "properties": {
+     "version": {
+      "type": "integer",
+      "title": "Version"
+     },
+     "title": {
+      "type": "string",
+      "title": "Title"
+     },
+     "description": {
+      "type": "string",
+      "title": "Description"
+     },
+     "media_type": {
+      "type": "string",
+      "title": "Media Type"
+     },
+     "provider": {
+      "type": "string",
+      "title": "Provider"
+     },
+     "model": {
+      "type": "string",
+      "title": "Model"
+     },
+     "allowed_models": {
+      "items": {
+       "type": "string"
+      },
+      "type": "array",
+      "title": "Allowed Models"
+     },
+     "prompt": {
+      "type": "string",
+      "title": "Prompt"
+     },
+     "negative_prompt": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Negative Prompt"
+     },
+     "params": {
+      "$ref": "#/components/schemas/TemplateParams"
+     },
+     "inputs": {
+      "items": {
+       "$ref": "#/components/schemas/InputSlot"
+      },
+      "type": "array",
+      "title": "Inputs"
+     },
+     "variables": {
+      "items": {
+       "$ref": "#/components/schemas/Variable"
+      },
+      "type": "array",
+      "title": "Variables"
+     },
+     "reference_uploads": {
+      "items": {
+       "type": "string",
+       "format": "uuid"
+      },
+      "type": "array",
+      "title": "Reference Uploads"
+     },
+     "cover_upload": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "uuid"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Cover Upload"
+     },
+     "note": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Note"
+     },
+     "created_by": {
+      "$ref": "#/components/schemas/UserRef"
+     },
+     "created_at": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Created At"
+     }
+    },
+    "type": "object",
+    "required": [
+     "version",
+     "title",
+     "description",
+     "media_type",
+     "provider",
+     "model",
+     "allowed_models",
+     "prompt",
+     "negative_prompt",
+     "params",
+     "inputs",
+     "variables",
+     "reference_uploads",
+     "note",
+     "created_by",
+     "created_at"
+    ],
+    "title": "TemplateVersionOut"
+   },
+   "TemporaryPassword": {
+    "properties": {
+     "temporary_password": {
+      "type": "string",
+      "title": "Temporary Password"
+     }
+    },
+    "type": "object",
+    "required": [
+     "temporary_password"
+    ],
+    "title": "TemporaryPassword"
+   },
+   "TokenCreate": {
+    "properties": {
+     "name": {
+      "type": "string",
+      "maxLength": 200,
+      "minLength": 1,
+      "title": "Name"
+     }
+    },
+    "type": "object",
+    "required": [
+     "name"
+    ],
+    "title": "TokenCreate"
+   },
+   "TokenCreated": {
+    "properties": {
+     "id": {
+      "type": "string",
+      "format": "uuid",
+      "title": "Id"
+     },
+     "name": {
+      "type": "string",
+      "title": "Name"
+     },
+     "prefix": {
+      "type": "string",
+      "title": "Prefix"
+     },
+     "created_at": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Created At"
+     },
+     "last_used_at": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "date-time"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Last Used At"
+     },
+     "revoked_at": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "date-time"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Revoked At"
+     },
+     "token": {
+      "type": "string",
+      "title": "Token"
+     }
+    },
+    "type": "object",
+    "required": [
+     "id",
+     "name",
+     "prefix",
+     "created_at",
+     "last_used_at",
+     "revoked_at",
+     "token"
+    ],
+    "title": "TokenCreated"
+   },
+   "TokenOut": {
+    "properties": {
+     "id": {
+      "type": "string",
+      "format": "uuid",
+      "title": "Id"
+     },
+     "name": {
+      "type": "string",
+      "title": "Name"
+     },
+     "prefix": {
+      "type": "string",
+      "title": "Prefix"
+     },
+     "created_at": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Created At"
+     },
+     "last_used_at": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "date-time"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Last Used At"
+     },
+     "revoked_at": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "date-time"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Revoked At"
+     }
+    },
+    "type": "object",
+    "required": [
+     "id",
+     "name",
+     "prefix",
+     "created_at",
+     "last_used_at",
+     "revoked_at"
+    ],
+    "title": "TokenOut"
+   },
+   "UploadOut": {
+    "properties": {
+     "id": {
+      "type": "string",
+      "format": "uuid",
+      "title": "Id"
+     },
+     "url": {
+      "type": "string",
+      "title": "Url"
+     },
+     "mime_type": {
+      "type": "string",
+      "title": "Mime Type"
+     },
+     "width": {
+      "type": "integer",
+      "title": "Width"
+     },
+     "height": {
+      "type": "integer",
+      "title": "Height"
+     }
+    },
+    "type": "object",
+    "required": [
+     "id",
+     "url",
+     "mime_type",
+     "width",
+     "height"
+    ],
+    "title": "UploadOut"
+   },
+   "UserCreate": {
+    "properties": {
+     "email": {
+      "type": "string",
+      "format": "email",
+      "title": "Email"
+     },
+     "name": {
+      "type": "string",
+      "maxLength": 200,
+      "minLength": 1,
+      "title": "Name"
+     },
+     "role": {
+      "type": "string",
+      "enum": [
+       "admin",
+       "user"
+      ],
+      "title": "Role",
+      "default": "user"
+     }
+    },
+    "type": "object",
+    "required": [
+     "email",
+     "name"
+    ],
+    "title": "UserCreate"
+   },
+   "UserCreated": {
+    "properties": {
+     "user": {
+      "$ref": "#/components/schemas/UserOut"
+     },
+     "temporary_password": {
+      "type": "string",
+      "title": "Temporary Password"
+     }
+    },
+    "type": "object",
+    "required": [
+     "user",
+     "temporary_password"
+    ],
+    "title": "UserCreated"
+   },
+   "UserOut": {
+    "properties": {
+     "id": {
+      "type": "string",
+      "format": "uuid",
+      "title": "Id"
+     },
+     "email": {
+      "type": "string",
+      "title": "Email"
+     },
+     "name": {
+      "type": "string",
+      "title": "Name"
+     },
+     "role": {
+      "type": "string",
+      "enum": [
+       "admin",
+       "user"
+      ],
+      "title": "Role"
+     },
+     "is_active": {
+      "type": "boolean",
+      "title": "Is Active"
+     },
+     "must_change_password": {
+      "type": "boolean",
+      "title": "Must Change Password"
+     },
+     "created_at": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Created At"
+     },
+     "last_login_at": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "date-time"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Last Login At"
+     },
+     "active_tokens": {
+      "type": "integer",
+      "title": "Active Tokens",
+      "default": 0
+     }
+    },
+    "type": "object",
+    "required": [
+     "id",
+     "email",
+     "name",
+     "role",
+     "is_active",
+     "must_change_password",
+     "created_at",
+     "last_login_at"
+    ],
+    "title": "UserOut"
+   },
+   "UserRef": {
+    "properties": {
+     "id": {
+      "type": "string",
+      "format": "uuid",
+      "title": "Id"
+     },
+     "name": {
+      "type": "string",
+      "title": "Name"
+     }
+    },
+    "type": "object",
+    "required": [
+     "id",
+     "name"
+    ],
+    "title": "UserRef"
+   },
+   "UserUpdate": {
+    "properties": {
+     "name": {
+      "anyOf": [
+       {
+        "type": "string",
+        "maxLength": 200,
+        "minLength": 1
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Name"
+     },
+     "role": {
+      "anyOf": [
+       {
+        "type": "string",
+        "enum": [
+         "admin",
+         "user"
+        ]
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Role"
+     },
+     "is_active": {
+      "anyOf": [
+       {
+        "type": "boolean"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Is Active"
+     }
+    },
+    "type": "object",
+    "title": "UserUpdate"
+   },
+   "ValidationError": {
+    "properties": {
+     "loc": {
+      "items": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "integer"
+        }
+       ]
+      },
+      "type": "array",
+      "title": "Location"
+     },
+     "msg": {
+      "type": "string",
+      "title": "Message"
+     },
+     "type": {
+      "type": "string",
+      "title": "Error Type"
+     },
+     "input": {
+      "title": "Input"
+     },
+     "ctx": {
+      "type": "object",
+      "title": "Context"
+     }
+    },
+    "type": "object",
+    "required": [
+     "loc",
+     "msg",
+     "type"
+    ],
+    "title": "ValidationError"
+   },
+   "Variable": {
+    "properties": {
+     "name": {
+      "type": "string",
+      "title": "Name"
+     },
+     "label": {
+      "type": "string",
+      "title": "Label",
+      "default": ""
+     },
+     "default": {
+      "type": "string",
+      "title": "Default",
+      "default": ""
+     },
+     "max_length": {
+      "type": "integer",
+      "maximum": 1000.0,
+      "minimum": 1.0,
+      "title": "Max Length",
+      "default": 100
+     },
+     "choices": {
+      "anyOf": [
+       {
+        "items": {
+         "type": "string"
+        },
+        "type": "array"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Choices"
+     }
+    },
+    "type": "object",
+    "required": [
+     "name"
+    ],
+    "title": "Variable"
+   },
+   "WebhookState": {
+    "properties": {
+     "url": {
+      "type": "string",
+      "title": "Url"
+     },
+     "status": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Status"
+     },
+     "attempts": {
+      "type": "integer",
+      "title": "Attempts"
+     }
+    },
+    "type": "object",
+    "required": [
+     "url",
+     "status",
+     "attempts"
+    ],
+    "title": "WebhookState"
+   },
+   "WorkerInfo": {
+    "properties": {
+     "id": {
+      "type": "string",
+      "title": "Id"
+     },
+     "hostname": {
+      "type": "string",
+      "title": "Hostname"
+     },
+     "heartbeat_at": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Heartbeat At"
+     },
+     "inflight": {
+      "type": "integer",
+      "title": "Inflight"
+     },
+     "fresh": {
+      "type": "boolean",
+      "title": "Fresh"
+     }
+    },
+    "type": "object",
+    "required": [
+     "id",
+     "hostname",
+     "heartbeat_at",
+     "inflight",
+     "fresh"
+    ],
+    "title": "WorkerInfo"
+   }
+  }
+ }
+}
