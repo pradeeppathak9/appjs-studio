@@ -1,0 +1,45 @@
+# ${STUDIO_API} is filled in from the environment when the container starts (nginx templates).
+server {
+    listen 80;
+    server_name _;
+    root /usr/share/nginx/html;
+
+    client_max_body_size 25m;
+
+    # Look the API up through Docker's DNS on each request (cached 10 s), so a restarted api
+    # container's new address is picked up without restarting this one.
+    resolver 127.0.0.11 valid=10s ipv6=off;
+    set $studio ${STUDIO_API};
+
+    # Keep the browser's Host: Studio checks a browser's Origin against it on writes made before
+    # sign-in (sending a code, Google sign-in).
+    proxy_set_header Host $http_host;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+    proxy_read_timeout 60s;
+
+    # Only the app API (/v1/app and /v1/app/...): Studio's console and admin routes (/v1/apps/...,
+    # /v1/admin/...) are not reachable through this site.
+    location = /v1/app {
+        proxy_pass $studio;
+    }
+    location /v1/app/ {
+        proxy_pass $studio;
+        proxy_buffering off;
+    }
+    location /v1/ {
+        return 404;
+    }
+
+    location = /config.js {
+        add_header Cache-Control "no-cache";
+    }
+    location /assets/ {
+        add_header Cache-Control "public, max-age=31536000, immutable";
+        try_files $uri =404;
+    }
+    location / {
+        add_header Cache-Control "no-cache";
+        try_files $uri /index.html;
+    }
+}
