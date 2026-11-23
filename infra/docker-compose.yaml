@@ -59,7 +59,6 @@ services:
     environment:
       APPJS_DOMAIN: ${APPJS_DOMAIN:-appjs.localhost}
       STUDIO_DOMAIN: ${STUDIO_DOMAIN:-studio.localhost}
-      STUDIO_API_DOMAIN: ${STUDIO_API_DOMAIN:-api.localhost}
       RESTYLE_DOMAIN: ${RESTYLE_DOMAIN:-restyle.localhost}
       AUTOREV_DOMAIN: ${AUTOREV_DOMAIN:-autorev.localhost}
     ports:

@@ -64,7 +64,8 @@ docker compose exec -T postgres pg_dump -U postgres -Fc appjs > appjs-$(date +%F
 ## Caddy (servers)
 
 [`caddy/Caddyfile`](caddy/Caddyfile) lists the public sites; domains come from `.env`
-(`APPJS_DOMAIN`, `STUDIO_DOMAIN`, `STUDIO_API_DOMAIN`, `RESTYLE_DOMAIN`). `APPJS_DOMAIN` serves the static
+(`APPJS_DOMAIN`, `STUDIO_DOMAIN`, `RESTYLE_DOMAIN`, `AUTOREV_DOMAIN`). `APPJS_DOMAIN` serves the static
 company site from `../website`; the other sites proxy to network aliases that each app's
-compose file sets on the `appjs` network (`studio-web`, `studio-api`, `restyle-web`). A new site is a
-block in the Caddyfile plus an alias in the app's compose, then `docker compose --profile edge up -d caddy`.
+compose file sets on the `appjs` network (`studio-web`, `studio-api` under `/api/*`, `restyle-web`,
+`autorev-web`, `autorev-api` under `/api/*`). A new site is a block in the Caddyfile plus an alias in the
+app's compose, then `docker compose --profile edge up -d caddy`.

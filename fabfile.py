@@ -231,7 +231,7 @@ def infra(c, target="prod", pull=True, edge=None):
     _require_env(conn, cfg, "infra/.env")
     if edge is None:
         has_domain = conn.run(
-            f"grep -Eq '^(APPJS_DOMAIN|STUDIO_DOMAIN|STUDIO_API_DOMAIN|RESTYLE_DOMAIN|AUTOREV_DOMAIN)=[^[:space:]#]+' {_repo(cfg, 'infra/.env')}",
+            f"grep -Eq '^(APPJS_DOMAIN|STUDIO_DOMAIN|RESTYLE_DOMAIN|AUTOREV_DOMAIN)=[^[:space:]#]+' {_repo(cfg, 'infra/.env')}",
             warn=True,
             hide=True,
         ).ok
