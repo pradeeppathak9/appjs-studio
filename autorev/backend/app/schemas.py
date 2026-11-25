@@ -129,8 +129,9 @@ class AdminUserResponse(BaseModel):
 class AdminAppCreate(BaseModel):
     user_id: int
     name: str
-    phonepe_enabled: bool = True
-    razorpay_enabled: bool = False
+    # None: PhonePe when this server offers it, else Razorpay (see AUTOREV_GATEWAYS)
+    phonepe_enabled: bool | None = None
+    razorpay_enabled: bool | None = None
 
 
 class AdminAppUpdate(BaseModel):

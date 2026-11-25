@@ -176,6 +176,15 @@ celery_app.conf.beat_schedule = {
     },
 }
 
+# AUTOREV_GATEWAYS (same setting as the backend's) leaves out a gateway's scheduled tasks, e.g.
+# AUTOREV_GATEWAYS=razorpay runs no PhonePe sync at all.
+_GATEWAYS = {g.strip().lower() for g in os.environ.get("AUTOREV_GATEWAYS", "phonepe,razorpay").split(",") if g.strip()}
+celery_app.conf.beat_schedule = {
+    name: entry
+    for name, entry in celery_app.conf.beat_schedule.items()
+    if entry["task"].split("-", 1)[0] not in {"phonepe", "razorpay"} or entry["task"].split("-", 1)[0] in _GATEWAYS
+}
+
 celery_app.conf.timezone = "UTC"
 
 # docker exec autorev-workers-worker-1   celery -A phone_worker.celery_app call phonepe-revoke-duplicate-subscriptions

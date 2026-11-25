@@ -1,14 +1,23 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { adminListApps, adminListUsers, adminCreateApp, adminUpdateApp, adminDeleteApp, getToken, adminListAppUsers } from "../api";
+import { adminListApps, adminListUsers, adminCreateApp, adminUpdateApp, adminDeleteApp, getToken, adminListAppUsers, useServerGateways } from "../api";
 
 function CreateAppModal({ users, onClose, onCreate }) {
+  const gateways = useServerGateways();
   const [form, setForm] = useState({
     user_id: users[0]?.id || "",
     name: "",
     phonepe_enabled: true,
     razorpay_enabled: false,
   });
+  // A server running only some gateways (AUTOREV_GATEWAYS) offers only those.
+  useEffect(() => {
+    setForm((f) => ({
+      ...f,
+      phonepe_enabled: gateways.includes("phonepe") && f.phonepe_enabled,
+      razorpay_enabled: gateways.includes("razorpay") && (f.razorpay_enabled || !gateways.includes("phonepe")),
+    }));
+  }, [gateways]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -52,14 +61,18 @@ function CreateAppModal({ users, onClose, onCreate }) {
           <input name="name" value={form.name} onChange={handleChange} placeholder="e.g. my-app" style={modal.input} required />
 
           <label style={modal.label}>Payment Gateways</label>
-          <label style={modal.checkboxRow}>
-            <input type="checkbox" name="phonepe_enabled" checked={form.phonepe_enabled} onChange={handleChange} />
-            PhonePe
-          </label>
-          <label style={modal.checkboxRow}>
-            <input type="checkbox" name="razorpay_enabled" checked={form.razorpay_enabled} onChange={handleChange} />
-            Razorpay
-          </label>
+          {gateways.includes("phonepe") && (
+            <label style={modal.checkboxRow}>
+              <input type="checkbox" name="phonepe_enabled" checked={form.phonepe_enabled} onChange={handleChange} />
+              PhonePe
+            </label>
+          )}
+          {gateways.includes("razorpay") && (
+            <label style={modal.checkboxRow}>
+              <input type="checkbox" name="razorpay_enabled" checked={form.razorpay_enabled} onChange={handleChange} />
+              Razorpay
+            </label>
+          )}
           <p style={modal.hint}>Credentials and environment are configured by the app owner on the app's Settings page.</p>
 
           <div style={modal.actions}>
@@ -75,6 +88,7 @@ function CreateAppModal({ users, onClose, onCreate }) {
 }
 
 function EditAppModal({ app, onClose, onUpdate }) {
+  const gateways = useServerGateways();
   const [enabled, setEnabled] = useState(app.enabled);
   const [phonepeEnabled, setPhonepeEnabled] = useState(app.phonepe_enabled);
   const [razorpayEnabled, setRazorpayEnabled] = useState(app.razorpay_enabled);
@@ -114,14 +128,18 @@ function EditAppModal({ app, onClose, onUpdate }) {
           </label>
 
           <label style={modal.label}>Payment Gateways</label>
-          <label style={modal.checkboxRow}>
-            <input type="checkbox" checked={phonepeEnabled} onChange={(e) => setPhonepeEnabled(e.target.checked)} />
-            PhonePe
-          </label>
-          <label style={modal.checkboxRow}>
-            <input type="checkbox" checked={razorpayEnabled} onChange={(e) => setRazorpayEnabled(e.target.checked)} />
-            Razorpay
-          </label>
+          {(gateways.includes("phonepe") || phonepeEnabled) && (
+            <label style={modal.checkboxRow}>
+              <input type="checkbox" checked={phonepeEnabled} onChange={(e) => setPhonepeEnabled(e.target.checked)} />
+              PhonePe{!gateways.includes("phonepe") && " (not offered on this server)"}
+            </label>
+          )}
+          {(gateways.includes("razorpay") || razorpayEnabled) && (
+            <label style={modal.checkboxRow}>
+              <input type="checkbox" checked={razorpayEnabled} onChange={(e) => setRazorpayEnabled(e.target.checked)} />
+              Razorpay{!gateways.includes("razorpay") && " (not offered on this server)"}
+            </label>
+          )}
 
           <div style={modal.actions}>
             <button type="button" onClick={onClose} style={modal.cancelBtn}>Cancel</button>

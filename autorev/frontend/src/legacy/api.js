@@ -1,3 +1,4 @@
+import React from "react";
 import { API_BASE } from "../config";
 
 function authHeaders(token) {
@@ -38,6 +39,22 @@ export async function changePassword(currentPassword, newPassword) {
     headers: authHeaders(getToken()),
     body: JSON.stringify({ current_password: currentPassword, new_password: newPassword }),
   });
+}
+
+// The gateways this server offers (AUTOREV_GATEWAYS); public, no sign-in.
+export async function getServerConfig() {
+  return request("/api/config");
+}
+
+/** The gateways this server offers; both until the server answers, or if it can't be reached. */
+export function useServerGateways() {
+  const [gateways, setGateways] = React.useState(["phonepe", "razorpay"]);
+  React.useEffect(() => {
+    getServerConfig()
+      .then((c) => Array.isArray(c?.gateways) && setGateways(c.gateways))
+      .catch(() => {});
+  }, []);
+  return gateways;
 }
 
 // Apps

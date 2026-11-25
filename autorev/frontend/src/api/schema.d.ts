@@ -946,6 +946,43 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/config": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Server Config */
+        get: operations["server_config_api_config_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/{app_id}/config": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * App Config
+         * @description The app's gateways that are switched on and offered here, with public settings only.
+         */
+        get: operations["app_config_api_v1__app_id__config_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/admin/redis/keys": {
         parameters: {
             query?: never;
@@ -1128,16 +1165,10 @@ export interface components {
             user_id: number;
             /** Name */
             name: string;
-            /**
-             * Phonepe Enabled
-             * @default true
-             */
-            phonepe_enabled: boolean;
-            /**
-             * Razorpay Enabled
-             * @default false
-             */
-            razorpay_enabled: boolean;
+            /** Phonepe Enabled */
+            phonepe_enabled?: boolean | null;
+            /** Razorpay Enabled */
+            razorpay_enabled?: boolean | null;
         };
         /** AdminAppGrantUser */
         AdminAppGrantUser: {
@@ -1399,6 +1430,8 @@ export interface components {
             method: string | null;
             /** Trail Days */
             trail_days?: number | null;
+            /** External Ref */
+            external_ref?: string | null;
         };
         /** RazorpaySubscriptionResponse */
         RazorpaySubscriptionResponse: {
@@ -3582,6 +3615,59 @@ export interface operations {
             query?: never;
             header?: {
                 "X-Razorpay-Signature"?: string;
+            };
+            path: {
+                app_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    server_config_api_config_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+        };
+    };
+    app_config_api_v1__app_id__config_get: {
+        parameters: {
+            query?: never;
+            header: {
+                authorization: string;
             };
             path: {
                 app_id: string;

@@ -3509,6 +3509,75 @@
     }
    }
   },
+  "/api/config": {
+   "get": {
+    "tags": [
+     "integration"
+    ],
+    "summary": "Server Config",
+    "operationId": "server_config_api_config_get",
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/v1/{app_id}/config": {
+   "get": {
+    "tags": [
+     "integration"
+    ],
+    "summary": "App Config",
+    "description": "The app's gateways that are switched on and offered here, with public settings only.",
+    "operationId": "app_config_api_v1__app_id__config_get",
+    "parameters": [
+     {
+      "name": "app_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "App Id"
+      }
+     },
+     {
+      "name": "authorization",
+      "in": "header",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Authorization"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
   "/api/admin/redis/keys": {
    "get": {
     "tags": [
@@ -4030,14 +4099,26 @@
       "title": "Name"
      },
      "phonepe_enabled": {
-      "type": "boolean",
-      "title": "Phonepe Enabled",
-      "default": true
+      "anyOf": [
+       {
+        "type": "boolean"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Phonepe Enabled"
      },
      "razorpay_enabled": {
-      "type": "boolean",
-      "title": "Razorpay Enabled",
-      "default": false
+      "anyOf": [
+       {
+        "type": "boolean"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Razorpay Enabled"
      }
     },
     "type": "object",
@@ -4876,6 +4957,18 @@
        }
       ],
       "title": "Trail Days"
+     },
+     "external_ref": {
+      "anyOf": [
+       {
+        "type": "string",
+        "maxLength": 200
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "External Ref"
      }
     },
     "type": "object",

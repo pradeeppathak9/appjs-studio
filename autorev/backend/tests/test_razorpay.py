@@ -252,7 +252,7 @@ def test_revoke_cancels_the_token(db, client, rzp):
     sub_id = active_sub(db, client, rzp, due=date.today())
     rzp.routes["POST /customers/cust_1/tokens/token_new/cancel"] = {"id": "token_new", "status": "cancelled"}
     r = client.post(f"{BASE}/revoke/{sub_id}", headers=AUTH)
-    assert r.json() == {"subscription_id": sub_id, "state": "CANCELLED"}
+    assert r.json() == {"subscription_id": sub_id, "external_ref": None, "state": "CANCELLED"}
     assert client.post(f"{BASE}/revoke/{sub_id}", headers=AUTH).status_code == 409
 
 

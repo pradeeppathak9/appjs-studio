@@ -56,7 +56,9 @@ def _config(app: App, reveal: bool = False) -> dict:
             {
                 "name": name,
                 "description": desc,
-                "sample": webhooks.sample_payload(name, app.id, app.name),
+                "sample": webhooks.sample_payload(
+                    name, app.id, app.name, "phonepe" if app.phonepe_enabled else "razorpay"
+                ),
                 "sample_headers": webhooks.sample_headers(name),
             }
             for name, desc in webhooks.EVENTS.items()

@@ -5,12 +5,14 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from app.config import settings
 from app.database import Base, engine
 from app.setup import ensure_setup_token
 from app.router.admin import router as admin_router
 from app.router.auth import router as auth_router
 from app.router.apps import router as apps_router
 from app.router.dashboard import router as dashboard_router
+from app.router.integration_router import router as integration_router
 from app.router.phonepe_router import router as subscription_router
 from app.router.razorpay_router import router as razorpay_subscription_router
 from app.router.redis_router import router as redis_admin_router
@@ -54,8 +56,11 @@ app.include_router(auth_router)
 app.include_router(admin_router)
 app.include_router(apps_router)
 app.include_router(dashboard_router)
-app.include_router(subscription_router)
-app.include_router(razorpay_subscription_router)
+if settings.gateway_on("phonepe"):
+    app.include_router(subscription_router)
+if settings.gateway_on("razorpay"):
+    app.include_router(razorpay_subscription_router)
+app.include_router(integration_router)
 app.include_router(redis_admin_router)
 app.include_router(tasks_router)
 app.include_router(webhooks_router)

@@ -6,7 +6,7 @@ from uuid import uuid4
 from fastapi import APIRouter, Body, Depends, Header, HTTPException, Path, Request
 from fastapi.exceptions import HTTPException as FastAPIHTTPException
 from fastapi.responses import JSONResponse
-from pydantic import BaseModel, EmailStr, field_validator
+from pydantic import BaseModel, EmailStr, Field, field_validator
 from sqlalchemy.orm import Session
 
 from app.database import get_db
@@ -58,6 +58,8 @@ class RazorpaySetupPayload(BaseModel):
     frequency: Optional[str] = "ON_DEMAND"
     method: Optional[str] = "upi"          # upi | emandate | card
     trail_days: Optional[int] = None
+    # The integration's own reference, echoed in status responses and webhooks.
+    external_ref: Optional[str] = Field(None, max_length=200)
 
     @field_validator("name")
     @classmethod
@@ -135,7 +137,8 @@ def setup_subscription(
 
     subscription_id = uuid4().hex[:24]
 
-    handler = get_handler(_get_razorpay_detail(app.id, db))
+    detail = _get_razorpay_detail(app.id, db)
+    handler = get_handler(detail)
 
     try:
         customer = handler.create_customer(
@@ -169,6 +172,7 @@ def setup_subscription(
         frequency=body.frequency,
         method=body.method,
         trail_days=trail_days,
+        external_ref=body.external_ref,
         expire_at=(now_s + ten_years_s) * 1000,
         razorpay_customer_id=customer_id,
         state="INITIATED",
@@ -188,6 +192,9 @@ def setup_subscription(
         db.commit()
         return {
             "subscription_id": sub.id,
+            "external_ref": sub.external_ref,
+            # public: what Razorpay Checkout on the device opens the order with
+            "razorpay_key_id": detail.razorpay_key_id if detail else None,
             "razorpay_customer_id": customer_id,
             "razorpay_order_id": order.get("id"),
             "amount": order.get("amount", amount),
@@ -224,6 +231,7 @@ def subscription_status(
     except RazorpayException as e:
         raise HTTPException(status_code=502, detail=str(e))
 
+    before = sub.state
     if order.get("status") == "paid" and not sub.razorpay_token_id:
         try:
             token_id = billing.token_for_order(handler, sub)
@@ -232,9 +240,12 @@ def subscription_status(
         except RazorpayException as e:
             logger.error(f"razorpay token lookup failed for {sub.id}: {e}")
     db.commit()
+    if sub.state != before:
+        billing.announce(db, changed=[sub])
 
     return JSONResponse(content={
         "subscription_id": sub.id,
+        "external_ref": sub.external_ref,
         "state": sub.state,
         "razorpay_order_status": order.get("status"),
         "razorpay_token_id": sub.razorpay_token_id,
@@ -289,6 +300,7 @@ def user_subscriptions(
             "phone_number": s.phone_number,
             "name": s.name,
             "email": s.email,
+            "external_ref": s.external_ref,
             "amount": s.amount,
             "frequency": s.frequency,
             "state": s.state,
@@ -385,7 +397,8 @@ def revoke_subscription(
     # Without a token there is no mandate yet; cancelling only stops the setup.
     sub.state = "CANCELLED"
     db.commit()
-    return JSONResponse(content={"subscription_id": sub.id, "state": sub.state})
+    billing.announce(db, changed=[sub])
+    return JSONResponse(content={"subscription_id": sub.id, "external_ref": sub.external_ref, "state": sub.state})
 
 
 # ── Webhook ────────────────────────────────────────────────────────────────────
@@ -424,11 +437,15 @@ async def razorpay_webhook(
             .filter(RazorpaySubscription.app_id == app_id, RazorpayTransaction.razorpay_order_id == order_id)
             .first()
         )
+        announcement = {}
         if txn:
             if event_type in ("payment.captured", "order.paid"):
+                sub = txn.subscription
+                announcement = {"advanced": [(sub, sub.next_payment_date)], "changed": [sub]}
                 billing.apply_success(txn, payment.get("id"))
             elif event_type == "payment.failed":
                 billing.apply_failure(txn)
+                announcement = {"failed": [txn]}
             # payment.authorized alone changes nothing: charge orders auto-capture.
         elif event_type != "payment.failed":
             # Not a collection: the customer's authorisation payment for a new mandate.
@@ -445,7 +462,10 @@ async def razorpay_webhook(
                         logger.error(f"webhook token lookup failed for {sub.id}: {e}")
                 if token_id:
                     billing.activate(sub, token_id)
+                    announcement = {"changed": [sub]}
         db.commit()
+        if announcement:
+            billing.announce(db, **announcement)
 
     elif event_type in ("token.confirmed", "token.rejected", "token.cancelled"):
         token = payload.get("token", {}).get("entity", {})
@@ -459,6 +479,7 @@ async def razorpay_webhook(
                 # Cancelled by the customer in their UPI app, at the bank, or by us.
                 sub.state = "CANCELLED"
             db.commit()
+            billing.announce(db, changed=[sub])
 
     return JSONResponse(content={"status": "ok"})
 

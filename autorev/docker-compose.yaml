@@ -13,6 +13,8 @@ services:
       AUTOREV_REDIS_URL: ${AUTOREV_REDIS_URL:-redis://redis:6379/0}
       AUTOREV_SECRET_KEY: ${AUTOREV_SECRET_KEY:-change-me-in-production}
       AUTOREV_SETUP_TOKEN: ${AUTOREV_SETUP_TOKEN:-}
+      AUTOREV_GATEWAYS: ${AUTOREV_GATEWAYS:-phonepe,razorpay}
+      AUTOREV_WEBHOOK_ALLOW_PRIVATE: ${AUTOREV_WEBHOOK_ALLOW_PRIVATE:-false}
       AUTOREV_CELERY_BROKER_URL: ${CELERY_BROKER_URL:-redis://redis:6379/1}
       CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:3000}
     networks:

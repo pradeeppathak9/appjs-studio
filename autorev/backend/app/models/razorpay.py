@@ -23,6 +23,8 @@ class RazorpaySubscription(Base):
     phone_number = Column(String, nullable=False)
     name = Column(String, nullable=False)
     email = Column(String, nullable=True)
+    # The integration's own reference (e.g. Studio's order), echoed in status and webhooks.
+    external_ref = Column(String(200), nullable=True)
 
     amount = Column(Integer, nullable=False)          # in paise
     max_amount = Column(Integer, nullable=True)
@@ -51,6 +53,12 @@ class RazorpaySubscription(Base):
     __table_args__ = (
         Index("ix_razorpay_subs_app_created", "app_id", created_at.desc()),
         Index("ix_razorpay_subs_app_phone", "app_id", "phone_number"),
+        Index(
+            "ix_razorpay_subs_app_external_ref",
+            "app_id",
+            "external_ref",
+            postgresql_where=(external_ref.isnot(None)),
+        ),
         # webhook: payment.authorized / order.paid resolve the sub by order id
         Index("ix_razorpay_subs_app_order", "app_id", "razorpay_order_id"),
         # worker collect_due: ACTIVE subscriptions coming due

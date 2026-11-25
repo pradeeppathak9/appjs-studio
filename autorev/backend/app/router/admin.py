@@ -5,6 +5,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import func
 from sqlalchemy.orm import Session
 
+from app.config import settings
 from app.auth import get_current_admin_user, hash_password
 from app.database import get_db
 from app.models import App, AppUser, PhonePeApp, RazorpayApp, User
@@ -267,6 +268,14 @@ def list_apps(
     ]
 
 
+def _check_gateways_offered(*, phonepe: bool | None, razorpay: bool | None) -> None:
+    """Refuse to switch on a gateway this server doesn't offer (AUTOREV_GATEWAYS)."""
+    for name, on in (("phonepe", phonepe), ("razorpay", razorpay)):
+        if on and not settings.gateway_on(name):
+            label = {"phonepe": "PhonePe", "razorpay": "Razorpay"}[name]
+            raise HTTPException(status_code=400, detail=f"{label} is not offered on this server")
+
+
 @router.post("/apps", response_model=AdminAppResponse, status_code=status.HTTP_201_CREATED)
 def create_app(
     body: AdminAppCreate,
@@ -277,19 +286,24 @@ def create_app(
     if not owner:
         raise HTTPException(status_code=404, detail="User not found")
 
+    phonepe_on = settings.gateway_on("phonepe")
+    phonepe = body.phonepe_enabled if body.phonepe_enabled is not None else phonepe_on
+    razorpay = body.razorpay_enabled if body.razorpay_enabled is not None else not phonepe_on
+    _check_gateways_offered(phonepe=phonepe, razorpay=razorpay)
+
     app = App(
         id=uuid.uuid4().hex,
         name=body.name,
-        phonepe_enabled=body.phonepe_enabled,
-        razorpay_enabled=body.razorpay_enabled,
+        phonepe_enabled=phonepe,
+        razorpay_enabled=razorpay,
         api_key=secrets.token_hex(32),
     )
     db.add(app)
     db.flush()  # get app.id before creating dependent rows
 
-    if body.phonepe_enabled:
+    if phonepe:
         db.add(PhonePeApp(app_id=app.id))
-    if body.razorpay_enabled:
+    if razorpay:
         db.add(RazorpayApp(app_id=app.id))
 
     # grant owner access — this AppUser row is also the only record of who owns the app
@@ -311,6 +325,7 @@ def update_app(
         raise HTTPException(status_code=404, detail="App not found")
 
     data = body.model_dump(exclude_none=True)
+    _check_gateways_offered(phonepe=data.get("phonepe_enabled"), razorpay=data.get("razorpay_enabled"))
     trial_fields = {"trial_enabled", "trial_amount", "trial_period_days"}
     gateway_fields = {"phonepe_enabled", "razorpay_enabled"}
 

@@ -123,6 +123,35 @@ def validity_end_date(sub: RazorpaySubscription) -> Optional[str]:
     return None
 
 
+# ── Outbound webhooks ─────────────────────────────────────────────────────────
+
+def announce(db: Session, *, changed=(), advanced=(), failed=()) -> None:
+    """Send the integration's webhooks for what just happened. Call after the commit.
+
+    changed   subscriptions whose state may have moved (activated / halted / revoked;
+              the event comes from the state read back, and each is claimed once)
+    advanced  (subscription, previous next_payment_date) after a successful collection
+    failed    transactions whose collection attempt failed
+
+    Never raises: a webhook problem must not undo or fail a billing change. Claims
+    are unique, so announcing the same thing twice sends it once.
+    """
+    from app import webhooks
+
+    try:
+        if changed:
+            webhooks.dispatch_state_changes(db, list(changed))
+        moved = [(sub, prev) for sub, prev in advanced if sub.next_payment_date and sub.next_payment_date != prev]
+        if moved:
+            webhooks.dispatch_next_payment_updated(db, moved)
+        failures = [t for t in failed if t.state == "FAILED"]
+        if failures:
+            webhooks.dispatch_payment_failed(db, failures)
+    except Exception as e:
+        db.rollback()
+        logger.error(f"razorpay webhook dispatch failed: {e}")
+
+
 # ── Activation ────────────────────────────────────────────────────────────────
 
 def token_for_order(handler: RazorpayAPIHandler, sub: RazorpaySubscription) -> Optional[str]:
@@ -303,16 +332,19 @@ def collect_due(db: Session, handler: RazorpayAPIHandler, app_id: str, now: Opti
         .all()
     )
     counts = {"collect": 0, "wait": 0, "halt": 0, "skip": 0}
+    halted, failed = [], []
     for sub in subs:
         action = next_action(db, sub, now)
         counts[action] += 1
         if action == "collect":
-            start_collection(db, handler, sub, now)
+            failed.append(start_collection(db, handler, sub, now))
         elif action == "halt":
             sub.state = "HALTED"
             sub.last_payment_status = "FAILED"
             db.commit()
+            halted.append(sub)
             logger.info(f"razorpay subscription {sub.id} halted after {MAX_ATTEMPTS_PER_CYCLE} failed attempts")
+    announce(db, changed=halted, failed=failed)
     return counts
 
 
@@ -333,6 +365,7 @@ def reconcile(db: Session, handler: RazorpayAPIHandler, app_id: str, now: Option
         .all()
     )
     counts = {"success": 0, "failed": 0, "pending": 0}
+    advanced, failed, changed = [], [], []
     for txn in rows:
         if txn.state == "INITIATED" and txn.created_at > now - RECONCILE_AFTER:
             continue
@@ -343,11 +376,15 @@ def reconcile(db: Session, handler: RazorpayAPIHandler, app_id: str, now: Option
             continue
         status = (payment or {}).get("status")
         if status == "captured":
+            sub = txn.subscription
+            advanced.append((sub, sub.next_payment_date))
+            changed.append(sub)  # a HALTED subscription goes back to ACTIVE
             apply_success(txn, payment.get("id"))
             counts["success"] += 1
         elif status == "failed" or (payment is None and txn.state == "NOTIFIED"):
             # failed at Razorpay, or a charge order that was never charged
             apply_failure(txn)
+            failed.append(txn)
             counts["failed"] += 1
         else:
             if payment and txn.state == "NOTIFIED":
@@ -355,6 +392,7 @@ def reconcile(db: Session, handler: RazorpayAPIHandler, app_id: str, now: Option
                 txn.razorpay_payment_id = payment.get("id")
             counts["pending"] += 1
         db.commit()
+    announce(db, changed=changed, advanced=advanced, failed=failed)
     return counts
 
 

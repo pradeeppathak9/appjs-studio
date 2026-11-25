@@ -33,7 +33,9 @@ from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.orm import Session
 from sqlalchemy.orm.exc import ObjectDeletedError, StaleDataError
 
+from app.config import settings
 from app.models.app import App
+from app.models.razorpay import RazorpaySubscription
 from app.models.webhook import WebhookDelivery
 
 logger = logging.getLogger("autorev.webhooks")
@@ -62,6 +64,16 @@ EVENTS: dict[str, str] = {
         "A recurring payment was confirmed and the next payment date moved "
         "forward. Fires once per billing cycle and carries the previous date."
     ),
+    "subscription.halted": (
+        "Razorpay: every attempt to collect the current cycle failed, so AutoRev "
+        "stopped collecting. The customer is paid up to next_payment_date. Fires "
+        "once per subscription."
+    ),
+    "subscription.payment_failed": (
+        "Razorpay: one attempt to collect a cycle failed. AutoRev retries the next "
+        "day, up to 3 attempts per cycle, then halts the subscription. Fires once "
+        "per failed attempt and carries the attempt in data.payment."
+    ),
 }
 
 NEXT_PAYMENT_EVENT = "subscription.next_payment_updated"
@@ -77,6 +89,17 @@ STATE_EVENTS: dict[str, str] = {
     "PAUSED": "subscription.paused",
     "REVOKED": "subscription.revoked",
 }
+
+# The same idea for Razorpay subscriptions, whose states differ: HALTED is
+# collection giving up, CANCELLED is the mandate ending (revoked by the payer,
+# their bank, or through /revoke).
+RAZORPAY_STATE_EVENTS: dict[str, str] = {
+    "ACTIVE": "subscription.activated",
+    "HALTED": "subscription.halted",
+    "CANCELLED": "subscription.revoked",
+}
+
+PAYMENT_FAILED_EVENT = "subscription.payment_failed"
 
 TEST_EVENT = "webhook.test"
 
@@ -124,6 +147,8 @@ def _resolve_guard(hostname: str) -> None:
     except socket.gaierror as e:
         raise ValueError(f"Webhook host does not resolve: {hostname} ({e.strerror or e})")
 
+    if settings.webhook_allow_private:  # development only (AUTOREV_WEBHOOK_ALLOW_PRIVATE)
+        return
     for info in infos:
         ip = ipaddress.ip_address(info[4][0])
         if ip.is_loopback or ip.is_private or ip.is_link_local or ip.is_reserved or ip.is_multicast:
@@ -191,6 +216,52 @@ def _ms_to_date(ms: int | None) -> str | None:
     return datetime.fromtimestamp(ms / 1000, tz=IST).strftime("%Y-%m-%d")
 
 
+def _is_razorpay(sub) -> bool:
+    return isinstance(sub, RazorpaySubscription) or getattr(sub, "gateway", None) == "razorpay"
+
+
+def payload_for(sub) -> dict:
+    """The subscription body for either gateway."""
+    return razorpay_subscription_payload(sub) if _is_razorpay(sub) else subscription_payload(sub)
+
+
+def _rz_date(ms: int | None) -> str | None:
+    # Razorpay rows store dates as epoch ms of UTC midnight (app.razorpay_billing).
+    if ms is None:
+        return None
+    return datetime.fromtimestamp(ms / 1000, tz=timezone.utc).strftime("%Y-%m-%d")
+
+
+def razorpay_subscription_payload(sub) -> dict:
+    """The body of every subscription.* event about a Razorpay subscription.
+
+    Field names follow GET /razorpay/status/{id}, plus external_ref: the
+    integration's own reference given at /setup.
+    """
+    from app.razorpay_billing import validity_end_date
+
+    return {
+        "gateway": "razorpay",
+        "subscription_id": sub.id,
+        "app_id": sub.app_id,
+        "external_ref": sub.external_ref,
+        "phone_number": sub.phone_number,
+        "email": sub.email,
+        "state": sub.state,
+        "amount": sub.amount,
+        "max_amount": sub.max_amount,
+        "frequency": sub.frequency,
+        "method": sub.method,
+        "next_payment_date": _rz_date(sub.next_payment_date),
+        "subscription_validity_end_date": validity_end_date(sub),
+        "total_payments": sub.total_payments or 0,
+        "last_payment_status": sub.last_payment_status,
+        "razorpay_customer_id": sub.razorpay_customer_id,
+        "razorpay_token_id": sub.razorpay_token_id,
+        "created_at": sub.created_at.astimezone(IST).isoformat() if sub.created_at else None,
+    }
+
+
 def subscription_payload(sub) -> dict:
     """The subscription body sent with every subscription.* event.
 
@@ -198,6 +269,7 @@ def subscription_payload(sub) -> dict:
     integration already reading that endpoint needs no second mapping.
     """
     return {
+        "gateway": "phonepe",
         "subscription_id": sub.id,
         "app_id": sub.app_id,
         "phone_number": sub.phone_number,
@@ -251,7 +323,56 @@ _SAMPLE_STATE = {
 }
 
 
-def sample_payload(event: str, app_id: str, app_name: str | None) -> dict | None:
+_RAZORPAY_SAMPLE_STATE = {
+    "subscription.activated": "ACTIVE",
+    "subscription.halted": "HALTED",
+    "subscription.revoked": "CANCELLED",
+    "subscription.payment_failed": "ACTIVE",
+    NEXT_PAYMENT_EVENT: "ACTIVE",
+}
+
+RAZORPAY_ONLY_EVENTS = {"subscription.halted", PAYMENT_FAILED_EVENT}
+PHONEPE_ONLY_EVENTS = {"subscription.paused"}
+
+
+def _razorpay_sample(event: str, app_id: str, app_name: str | None) -> dict:
+    now = datetime.now(IST)
+    due = (now + timedelta(days=30)).date()
+    sub = SimpleNamespace(
+        gateway="razorpay",
+        id="5c2e9a7b1d3f4e6a8b0c2d4e",
+        app_id=app_id,
+        external_ref="studio:0b6f3c1e-8a2d-4f5b-9c7e-1d2a3b4c5d6e",
+        phone_number="9876543210",
+        email="jane@example.com",
+        state=_RAZORPAY_SAMPLE_STATE.get(event, "ACTIVE"),
+        amount=9900,
+        max_amount=9900,
+        frequency="MONTHLY",
+        method="upi",
+        next_payment_date=int(datetime(due.year, due.month, due.day, tzinfo=timezone.utc).timestamp() * 1000),
+        total_payments=3,
+        last_payment_status="FAILED" if event in RAZORPAY_ONLY_EVENTS else "SUCCESS",
+        razorpay_customer_id="cust_N5bJ0kX9yZ1a2B",
+        razorpay_token_id="token_N5bJ1mQ8wE3r4T",
+        created_at=now - timedelta(days=90),
+    )
+    data = razorpay_subscription_payload(sub)
+    if event == NEXT_PAYMENT_EVENT:
+        data["previous_payment_date"] = now.date().isoformat()
+    if event == PAYMENT_FAILED_EVENT:
+        data["payment"] = {
+            "attempt_id": "9f8e7d6c5b4a39281706f5e4d3c2b1a0",
+            "amount": 9900,
+            "state": "FAILED",
+            "payment_due_date": data["next_payment_date"],
+            "razorpay_order_id": "order_N5bJ2pL7vC5x6Y",
+            "razorpay_payment_id": "pay_N5bJ3sK6uB7z8W",
+        }
+    return envelope(event, "7a1b9c3d5e7f41a2b3c4d5e6f7a8b9c0", app_id, app_name, data)
+
+
+def sample_payload(event: str, app_id: str, app_name: str | None, gateway: str = "phonepe") -> dict | None:
     """A realistic payload for `event`, for the docs panel in Settings.
 
     Deliberately built by running the real builders over a stand-in
@@ -263,6 +384,8 @@ def sample_payload(event: str, app_id: str, app_name: str | None) -> dict | None
     """
     if event not in EVENTS:
         return None
+    if event in RAZORPAY_ONLY_EVENTS or (gateway == "razorpay" and event not in PHONEPE_ONLY_EVENTS):
+        return _razorpay_sample(event, app_id, app_name)
 
     now = datetime.now(IST)
     sub = SimpleNamespace(
@@ -412,10 +535,10 @@ def dispatch_state_changes(db: Session, subs: list) -> None:
     """
     by_event: dict[str, list[tuple[str, str, dict]]] = {}
     for sub in subs:
-        event = STATE_EVENTS.get(sub.state)
+        event = (RAZORPAY_STATE_EVENTS if _is_razorpay(sub) else STATE_EVENTS).get(sub.state)
         if not event:
             continue
-        by_event.setdefault(event, []).append((sub.app_id, sub.id, subscription_payload(sub)))
+        by_event.setdefault(event, []).append((sub.app_id, sub.id, payload_for(sub)))
 
     for event, items in by_event.items():
         enqueue(claim(db, event, items))
@@ -443,11 +566,33 @@ def dispatch_next_payment_updated(db: Session, subs_with_previous: list[tuple]) 
     for sub, previous_ms in subs_with_previous:
         if sub.next_payment_date is None:
             continue
-        data = subscription_payload(sub)
-        data["previous_payment_date"] = _ms_to_date(previous_ms)
+        data = payload_for(sub)
+        data["previous_payment_date"] = (_rz_date if _is_razorpay(sub) else _ms_to_date)(previous_ms)
         items.append((sub.app_id, f"{sub.id}:{sub.next_payment_date}", data))
 
     enqueue(claim(db, NEXT_PAYMENT_EVENT, items))
+
+
+def dispatch_payment_failed(db: Session, txns: list) -> None:
+    """Announce failed collection attempts (Razorpay transactions), one delivery per attempt.
+
+    Claimed against the transaction id, so a failure seen by both the webhook and
+    the reconcile sweep is announced once.
+    """
+    items = []
+    for txn in txns:
+        sub = txn.subscription
+        data = payload_for(sub)
+        data["payment"] = {
+            "attempt_id": txn.id,
+            "amount": txn.amount,
+            "state": txn.state,
+            "payment_due_date": _rz_date(txn.payment_due_date),
+            "razorpay_order_id": txn.razorpay_order_id,
+            "razorpay_payment_id": txn.razorpay_payment_id,
+        }
+        items.append((sub.app_id, txn.id, data))
+    enqueue(claim(db, PAYMENT_FAILED_EVENT, items))
 
 
 # ── Sending ────────────────────────────────────────────────────────────────────
