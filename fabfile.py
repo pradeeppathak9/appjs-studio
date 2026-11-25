@@ -5,7 +5,7 @@ Run it without installing anything into the repo (there is no root toolchain):
     uvx --from fabric fab -l                      # list tasks
     uvx --from fabric fab check                   # can we reach the server, is Docker there?
     uvx --from fabric fab bootstrap               # first time: clone the repo, create .env files
-    uvx --from fabric fab deploy                  # infra + studio + autorev
+    uvx --from fabric fab deploy                  # infra + studio (autorev is off: add --with-autorev)
     uvx --from fabric fab studio --tag 2026-11-24-abc1234
 
 Pick the server with `--target <name>` (a key of TARGETS below, default "prod"), or override it from
@@ -300,15 +300,28 @@ def autorev(c, target="prod", workers=True, pull=True):
         "target": "Server name from TARGETS (default: prod)",
         "tag": "Studio image tag",
         "build": "Build Studio images on the server instead of pulling from ghcr.io (default: no)",
+        "with_autorev": "Also deploy autorev (default: no, it is switched off for now; see `fab autorev-stop`)",
     }
 )
-def deploy(c, target="prod", tag="", build=False):
-    """Everything, in order: infra, then studio, then autorev."""
+def deploy(c, target="prod", tag="", build=False, with_autorev=False):
+    """Infra, then studio (and autorev with --with-autorev, which is off for now)."""
     conn, cfg = _conn(c, target)
     _update_code(conn, cfg)
     infra(conn, target=target, pull=False)
     studio(conn, target=target, tag=tag, pull=False, build=build)
-    autorev(conn, target=target, pull=False)
+    if with_autorev:
+        autorev(conn, target=target, pull=False)
+    else:
+        print("Skipping autorev (switched off). Deploy it with --with-autorev or `fab autorev`.")
+
+
+@task(help={"target": "Server name from TARGETS (default: prod)"})
+def autorev_stop(c, target="prod"):
+    """Switch autorev off: stop its backend, console and Celery workers. Data stays; `fab autorev` brings it back."""
+    conn, cfg = _conn(c, target)
+    with conn.cd(_repo(cfg, "autorev")):
+        conn.run(f"{AUTOREV_WORKERS_COMPOSE} stop", warn=True)
+        conn.run("docker compose stop", warn=True)
 
 
 # ── Tasks: operate ───────────────────────────────────────────────────────────────────────────

@@ -13,7 +13,8 @@ in that folder: read it before changing the service.
 - `restyle-web/`: the Restyle web app (React + Vite, `npm run dev` on :5180 proxies /v1 to Studio on
   :8010; key in `.env.local`). Same API contract as the Android app; its Docker image's nginx only
   forwards `/v1/app/*`.
-- `autorev/`: autorev payments. Python via `requirements*.txt` (no pyproject; don't add one), hand-applied
+- `autorev/`: autorev payments. **Switched off in production for now** (containers stopped with
+  `fab autorev-stop`; `fab deploy` skips it unless `--with-autorev`). Python via `requirements*.txt` (no pyproject; don't add one), hand-applied
   SQL migrations (no Alembic), Celery workers, `frontend/` console. This is money movement: never call
   live Razorpay/PhonePe endpoints, and don't change idempotency, signatures or retries without a test.
 

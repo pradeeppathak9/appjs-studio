@@ -37,7 +37,7 @@ uvx --from fabric fab -l                 # list tasks
 uvx --from fabric fab check              # SSH works, Docker is there
 uvx --from fabric fab bootstrap          # first time: clone, create .env files (edit them on the server)
 uvx --from fabric fab build-studio       # build + push Studio/restyle-web images (your machine)
-uvx --from fabric fab deploy             # infra, then studio, then autorev
+uvx --from fabric fab deploy             # infra, then studio (autorev is switched off; --with-autorev adds it)
 uvx --from fabric fab logs studio --service api --follow
 uvx --from fabric fab backup             # pg_dump of every schema, downloaded to ./backups
 ```
