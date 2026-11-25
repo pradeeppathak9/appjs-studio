@@ -505,7 +505,8 @@ class SubscriptionOut(BaseModel):
     id: UUID
     plan: PlanRef
     status: Literal["active", "cancelled", "expired"]
-    provider: str
+    provider: str = Field(description="`manual`, `trial`, or a payment gateway")
+    trial: bool = Field(False, description="a free trial: ends at current_period_end, no monthly grants")
     current_period_start: datetime
     current_period_end: datetime
     next_credit_grant_at: datetime | None
@@ -521,6 +522,7 @@ class AppUserOut(BaseModel):
     sign_in: Literal["google", "phone"]
     credits: int
     subscription: SubscriptionOut | None = None
+    trial_used: bool = Field(False, description="the user has had their one free trial in this app")
     created_at: datetime
 
 
@@ -554,6 +556,9 @@ class PlanOut(BaseModel):
     billing_period: Literal["month", "year"]
     credits_per_month: int
     badge: str | None
+    trial_enabled: bool = Field(description="the plan offers a free trial (POST /v1/app/me/trial)")
+    trial_days: int
+    trial_credits: int = Field(description="granted once when the trial starts")
 
 
 class PlanAdminOut(PlanOut):
@@ -638,3 +643,7 @@ class CreditBalance(BaseModel):
 
 class SubscriptionGrantIn(BaseModel):
     plan_id: UUID
+
+
+class TrialStartIn(BaseModel):
+    plan_id: UUID = Field(description="a plan with `trial_enabled`, e.g. the monthly or yearly one")

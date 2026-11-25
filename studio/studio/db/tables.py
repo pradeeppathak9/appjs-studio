@@ -441,6 +441,7 @@ class Plan(Base):
         CheckConstraint("status IN ('active','archived')", name="status"),
         CheckConstraint("billing_period IN ('month','year')", name="billing_period"),
         CheckConstraint("credits_per_month >= 0 AND price_minor >= 0", name="amounts"),
+        CheckConstraint("trial_days BETWEEN 1 AND 365 AND trial_credits >= 0", name="trial"),
         UniqueConstraint("app_id", "slug"),
     )
 
@@ -454,6 +455,10 @@ class Plan(Base):
     billing_period: Mapped[str] = mapped_column(String(8))
     credits_per_month: Mapped[int] = mapped_column(Integer)
     badge: Mapped[str | None] = mapped_column(String(60))
+    # free trial: a user may start one trial (of any plan) per app; it grants trial_credits once
+    trial_enabled: Mapped[bool] = mapped_column(Boolean, server_default=text("false"))
+    trial_days: Mapped[int] = mapped_column(Integer, server_default="7")
+    trial_credits: Mapped[int] = mapped_column(Integer, server_default="10")
     position: Mapped[int] = mapped_column(Integer, server_default="0")
     status: Mapped[str] = mapped_column(String(16), server_default="active")
     external_ids: Mapped[dict] = mapped_column(JSONB, server_default=text("'{}'::jsonb"))
@@ -467,6 +472,7 @@ class Subscription(Base):
         CheckConstraint("status IN ('active','cancelled','expired')", name="status"),
         Index("ix_subscriptions_user", "app_user_id", text("created_at DESC")),
         Index("ix_subscriptions_due", "next_credit_grant_at", postgresql_where=text("status = 'active'")),
+        Index("ux_subscriptions_one_trial", "app_user_id", unique=True, postgresql_where=text("is_trial")),
     )
 
     id: Mapped[UUID] = mapped_column(PgUUID(as_uuid=True), primary_key=True)
@@ -481,6 +487,7 @@ class Subscription(Base):
     current_period_end: Mapped[datetime] = _ts()
     next_credit_grant_at: Mapped[datetime | None] = _ts(nullable=True)
     cancel_at_period_end: Mapped[bool] = mapped_column(Boolean, server_default=text("false"))
+    is_trial: Mapped[bool] = mapped_column(Boolean, server_default=text("false"))
     created_by: Mapped[UUID | None] = mapped_column(PgUUID(as_uuid=True), ForeignKey("users.id"))
     created_at: Mapped[datetime] = _ts(default_now=True)
     updated_at: Mapped[datetime] = _ts(default_now=True)

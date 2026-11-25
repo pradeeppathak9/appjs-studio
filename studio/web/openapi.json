@@ -3710,6 +3710,48 @@
     }
    }
   },
+  "/v1/app/me/trial": {
+   "post": {
+    "tags": [
+     "app clients: sign-in and account"
+    ],
+    "summary": "Start Trial",
+    "description": "Start the free trial of a plan that offers one. Grants the plan's `trial_credits` once; the trial\nends after `trial_days` (credits stay). One trial per user. 409 `conflict` if a subscription is\nalready active, 409 `trial_used` if the user has had a trial, 422 if the plan has no trial.",
+    "operationId": "start_trial_v1_app_me_trial_post",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/TrialStartIn"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "201": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/AppUserOut"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
   "/v1/app/templates": {
    "get": {
     "tags": [
@@ -5668,6 +5710,12 @@
        }
       ]
      },
+     "trial_used": {
+      "type": "boolean",
+      "title": "Trial Used",
+      "description": "the user has had their one free trial in this app",
+      "default": false
+     },
      "created_at": {
       "type": "string",
       "format": "date-time",
@@ -5781,6 +5829,12 @@
         "type": "null"
        }
       ]
+     },
+     "trial_used": {
+      "type": "boolean",
+      "title": "Trial Used",
+      "description": "the user has had their one free trial in this app",
+      "default": false
      },
      "created_at": {
       "type": "string",
@@ -5911,6 +5965,12 @@
         "type": "null"
        }
       ]
+     },
+     "trial_used": {
+      "type": "boolean",
+      "title": "Trial Used",
+      "description": "the user has had their one free trial in this app",
+      "default": false
      },
      "created_at": {
       "type": "string",
@@ -7317,6 +7377,20 @@
       ],
       "title": "Badge"
      },
+     "trial_enabled": {
+      "type": "boolean",
+      "title": "Trial Enabled",
+      "description": "the plan offers a free trial (POST /v1/app/me/trial)"
+     },
+     "trial_days": {
+      "type": "integer",
+      "title": "Trial Days"
+     },
+     "trial_credits": {
+      "type": "integer",
+      "title": "Trial Credits",
+      "description": "granted once when the trial starts"
+     },
      "status": {
       "type": "string",
       "enum": [
@@ -7351,6 +7425,9 @@
      "billing_period",
      "credits_per_month",
      "badge",
+     "trial_enabled",
+     "trial_days",
+     "trial_credits",
      "status",
      "position",
      "created_at",
@@ -7414,6 +7491,25 @@
       "pattern": "^(active|archived)$",
       "title": "Status",
       "default": "active"
+     },
+     "trial_enabled": {
+      "type": "boolean",
+      "title": "Trial Enabled",
+      "default": false
+     },
+     "trial_days": {
+      "type": "integer",
+      "maximum": 365.0,
+      "minimum": 1.0,
+      "title": "Trial Days",
+      "default": 7
+     },
+     "trial_credits": {
+      "type": "integer",
+      "maximum": 1000000.0,
+      "minimum": 0.0,
+      "title": "Trial Credits",
+      "default": 10
      },
      "slug": {
       "type": "string",
@@ -7485,6 +7581,25 @@
       "pattern": "^(active|archived)$",
       "title": "Status",
       "default": "active"
+     },
+     "trial_enabled": {
+      "type": "boolean",
+      "title": "Trial Enabled",
+      "default": false
+     },
+     "trial_days": {
+      "type": "integer",
+      "maximum": 365.0,
+      "minimum": 1.0,
+      "title": "Trial Days",
+      "default": 7
+     },
+     "trial_credits": {
+      "type": "integer",
+      "maximum": 1000000.0,
+      "minimum": 0.0,
+      "title": "Trial Credits",
+      "default": 10
      }
     },
     "type": "object",
@@ -7563,6 +7678,20 @@
        }
       ],
       "title": "Badge"
+     },
+     "trial_enabled": {
+      "type": "boolean",
+      "title": "Trial Enabled",
+      "description": "the plan offers a free trial (POST /v1/app/me/trial)"
+     },
+     "trial_days": {
+      "type": "integer",
+      "title": "Trial Days"
+     },
+     "trial_credits": {
+      "type": "integer",
+      "title": "Trial Credits",
+      "description": "granted once when the trial starts"
      }
     },
     "type": "object",
@@ -7575,7 +7704,10 @@
      "currency",
      "billing_period",
      "credits_per_month",
-     "badge"
+     "badge",
+     "trial_enabled",
+     "trial_days",
+     "trial_credits"
     ],
     "title": "PlanOut"
    },
@@ -7876,7 +8008,14 @@
      },
      "provider": {
       "type": "string",
-      "title": "Provider"
+      "title": "Provider",
+      "description": "`manual`, `trial`, or a payment gateway"
+     },
+     "trial": {
+      "type": "boolean",
+      "title": "Trial",
+      "description": "a free trial: ends at current_period_end, no monthly grants",
+      "default": false
      },
      "current_period_start": {
       "type": "string",
@@ -7915,7 +8054,7 @@
        }
       ],
       "title": "Provider Ref",
-      "description": "the gateway's subscription id (Razorpay `sub_\u2026`, PhonePe subscription id)"
+      "description": "the gateway's subscription id (Razorpay `sub_…`, PhonePe subscription id)"
      },
      "cancel_at_period_end": {
       "type": "boolean",
@@ -8002,7 +8141,14 @@
      },
      "provider": {
       "type": "string",
-      "title": "Provider"
+      "title": "Provider",
+      "description": "`manual`, `trial`, or a payment gateway"
+     },
+     "trial": {
+      "type": "boolean",
+      "title": "Trial",
+      "description": "a free trial: ends at current_period_end, no monthly grants",
+      "default": false
      },
      "current_period_start": {
       "type": "string",
@@ -8895,6 +9041,21 @@
      "revoked_at"
     ],
     "title": "TokenOut"
+   },
+   "TrialStartIn": {
+    "properties": {
+     "plan_id": {
+      "type": "string",
+      "format": "uuid",
+      "title": "Plan Id",
+      "description": "a plan with `trial_enabled`, e.g. the monthly or yearly one"
+     }
+    },
+    "type": "object",
+    "required": [
+     "plan_id"
+    ],
+    "title": "TrialStartIn"
    },
    "UploadOut": {
     "properties": {

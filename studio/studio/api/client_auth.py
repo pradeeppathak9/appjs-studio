@@ -23,6 +23,7 @@ from studio.api.schemas import (
     SignInMethods,
     SignInOut,
     SubscriptionOut,
+    TrialStartIn,
 )
 from studio.apps.service import AppPrincipal
 from studio.deps import AppState, app_key, get_state, signed_in_app_user
@@ -40,6 +41,7 @@ def subscription_out(sub, plan) -> SubscriptionOut:
         plan=PlanRef(id=plan.id, slug=plan.slug, name=plan.name),
         status=sub.status,
         provider=sub.provider,
+        trial=sub.is_trial,
         current_period_start=sub.current_period_start,
         current_period_end=sub.current_period_end,
         next_credit_grant_at=sub.next_credit_grant_at,
@@ -47,7 +49,7 @@ def subscription_out(sub, plan) -> SubscriptionOut:
     )
 
 
-def user_fields(user, active: tuple | None) -> dict:
+def user_fields(user, active: tuple | None, trial_used: bool = False) -> dict:
     return {
         "id": user.id,
         "name": user.name,
@@ -57,13 +59,15 @@ def user_fields(user, active: tuple | None) -> dict:
         "sign_in": "google" if user.google_sub else "phone",
         "credits": user.credits,
         "subscription": subscription_out(*active) if active else None,
+        "trial_used": trial_used,
         "created_at": user.created_at,
     }
 
 
 async def me_out(state: AppState, user) -> AppUserOut:
     active = (await state.billing.active_subscriptions([user.id])).get(user.id)
-    return AppUserOut(**user_fields(user, active))
+    trial_used = user.id in await state.billing.trial_users([user.id])
+    return AppUserOut(**user_fields(user, active, trial_used))
 
 
 def entry_out(e) -> CreditEntryOut:
@@ -83,6 +87,9 @@ def plan_out(p) -> PlanOut:
         billing_period=p.billing_period,
         credits_per_month=p.credits_per_month,
         badge=p.badge,
+        trial_enabled=p.trial_enabled,
+        trial_days=p.trial_days,
+        trial_credits=p.trial_credits,
     )
 
 
@@ -202,3 +209,14 @@ async def my_credits(
 async def plans(a: AppPrincipal = Depends(app_key), state: AppState = Depends(get_state)):
     """The app's plans, in display order (for the Subscribe screen)."""
     return [plan_out(p) for p in await state.billing.plans(a.app.id, active_only=True)]
+
+
+@router.post("/me/trial", response_model=AppUserOut, status_code=201)
+async def start_trial(
+    body: TrialStartIn, a: AppPrincipal = Depends(signed_in_app_user), state: AppState = Depends(get_state)
+):
+    """Start the free trial of a plan that offers one. Grants the plan's `trial_credits` once; the trial
+    ends after `trial_days` (credits stay). One trial per user. 409 `conflict` if a subscription is
+    already active, 409 `trial_used` if the user has had a trial, 422 if the plan has no trial."""
+    await state.billing.start_trial(a.user, body.plan_id)
+    return await me_out(state, await state.endusers.get(a.app.id, a.user.id))

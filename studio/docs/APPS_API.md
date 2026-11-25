@@ -111,9 +111,10 @@ A token for another client id, expired, or for an unverified email is 401 `inval
 {
   "id": "…", "name": "Priya", "email": null, "phone": "+919876543210", "photo_url": null,
   "sign_in": "phone", "credits": 38,
-  "subscription": {"id": "…", "plan": {"id": "…", "slug": "monthly", "name": "Monthly"}, "status": "active",
+  "subscription": {"id": "…", "plan": {"id": "…", "slug": "monthly", "name": "Monthly"}, "status": "active", "trial": false,
                    "provider": "manual", "current_period_start": "…", "current_period_end": "…",
                    "next_credit_grant_at": null, "created_at": "…"},
+  "trial_used": false,
   "created_at": "…"
 }
 ```
@@ -134,8 +135,22 @@ A token for another client id, expired, or for an unverified email is 401 `inval
   (the app key alone can be pulled out of an APK). Without a session it is 401 `unauthenticated`:
   show sign-in. Free templates (`credit_cost` 0) run without one.
 - `GET /v1/app/plans` lists the plans to show on the Subscribe screen, in order:
-  `{"id", "slug", "name", "description", "price_minor", "currency", "billing_period", "credits_per_month", "badge"}`.
+  `{"id", "slug", "name", "description", "price_minor", "currency", "billing_period", "credits_per_month", "badge",
+  "trial_enabled", "trial_days", "trial_credits"}`.
   `price_minor` is in paise (19900 = ₹199). Every plan grants `credits_per_month` each month, yearly ones too.
+- **Free trial.** An admin can switch a trial on per plan (`trial_enabled`, `trial_days`, `trial_credits`).
+  `GET /v1/app/me` carries `trial_used`. A trial is on offer when the user has no `subscription`,
+  `trial_used` is false and at least one plan has `trial_enabled`. Start it with
+  `POST /v1/app/me/trial {"plan_id": "…"}` (signed in) → 201 with the updated `me`: an active
+  `subscription` with `"trial": true`, `"provider": "trial"`, ending `trial_days` after now, and
+  `trial_credits` added once (a `subscription_grant` entry, note "<plan>: free trial"). There are no
+  monthly grants during a trial. When it ends the subscription expires and the credits stay. One trial per
+  user per app, whichever plan. Errors: 409 `conflict` (a subscription is already active), 409 `trial_used`,
+  422 `validation_error` (the plan has no trial or is archived).
+- **After sign-in (Restyle AI):** if `me.subscription` is null, show the "Set up your subscription" prompt
+  with the plans. With a trial on offer, lead with "Start free trial" and a Monthly / Yearly choice
+  (the plans with `trial_enabled`). "Maybe later" closes it; it shows again on the next launch or sign-in
+  while there is no subscription.
 - **Payments are not connected yet.** Until they are, an admin gives a plan to a user in the console
   (Admin → Apps → the app → Users). Show prices, and a "coming soon"/contact action instead of a purchase.
 

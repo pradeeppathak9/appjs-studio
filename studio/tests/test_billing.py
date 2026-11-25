@@ -422,3 +422,68 @@ async def test_admin_links_a_subscription_to_its_gateway_id(app, state, admin):
 
     r = await admin.put(link, json={"provider": "manual", "provider_ref": "ignored"})
     assert (r.json()["provider"], r.json()["provider_ref"]) == ("manual", None)
+
+
+# ---- free trials ----------------------------------------------------------------------------------------
+
+
+async def test_admins_switch_a_plan_trial_on_and_the_app_sees_it(app, state, admin):
+    c = await setup_app(app, state)
+    base = f"/v1/admin/apps/{c.app_row.id}/plans"
+    m = (await admin.post(base, json=MONTHLY)).json()
+    assert (m["trial_enabled"], m["trial_days"], m["trial_credits"]) == (False, 7, 10)
+    r = await admin.put(f"{base}/{m['id']}", json={**MONTHLY, "trial_enabled": True, "trial_days": 14})
+    assert r.status_code == 200 and r.json()["trial_enabled"] and r.json()["trial_days"] == 14
+    listed = (await c.get("/v1/app/plans")).json()
+    assert [(p["trial_enabled"], p["trial_days"], p["trial_credits"]) for p in listed] == [(True, 14, 10)]
+    r = await admin.put(f"{base}/{m['id']}", json={**MONTHLY, "trial_enabled": True, "trial_days": 0})
+    assert r.status_code == 422
+
+
+async def test_a_user_starts_one_free_trial_which_expires_and_keeps_its_credits(app, state, admin):
+    c = await setup_app(app, state)
+    base = f"/v1/admin/apps/{c.app_row.id}/plans"
+    m = (await admin.post(base, json=MONTHLY)).json()
+    y = (await admin.post(base, json={**YEARLY, "trial_enabled": True, "trial_credits": 15})).json()
+    start = await credits_of(c)
+    me = (await c.get("/v1/app/me")).json()
+    assert me["trial_used"] is False and me["subscription"] is None
+
+    r = await c.post("/v1/app/me/trial", json={"plan_id": m["id"]})  # monthly has no trial
+    assert r.status_code == 422, r.text
+    r = await c.post("/v1/app/me/trial", json={"plan_id": y["id"]})
+    assert r.status_code == 201, r.text
+    me = r.json()
+    sub = me["subscription"]
+    assert me["credits"] == start + 15 and me["trial_used"] is True
+    assert sub["trial"] is True and sub["provider"] == "trial" and sub["plan"]["slug"] == "yearly"
+    assert sub["next_credit_grant_at"] is None
+    end = datetime.fromisoformat(sub["current_period_end"]) - datetime.fromisoformat(
+        sub["current_period_start"]
+    )
+    assert end == timedelta(days=7)
+
+    r = await c.post("/v1/app/me/trial", json={"plan_id": y["id"]})
+    assert r.status_code == 409 and r.json()["error"]["code"] == "conflict"  # already active
+
+    await state.billing.grant_due_credits(datetime.now(UTC) + timedelta(days=8))
+    me = (await c.get("/v1/app/me")).json()
+    assert me["subscription"] is None and me["credits"] == start + 15  # expired; credits stay
+    r = await c.post("/v1/app/me/trial", json={"plan_id": y["id"]})
+    assert r.status_code == 409 and r.json()["error"]["code"] == "trial_used"
+
+    users = f"/v1/admin/apps/{c.app_row.id}/users"
+    assert (await admin.get(f"{users}/{c.user_id}")).json()["trial_used"] is True
+    assert (await admin.get(users)).json()["items"][0]["trial_used"] is True
+
+
+async def test_parallel_trial_starts_make_one_trial(app, state, admin):
+    c = await setup_app(app, state)
+    y = (
+        await admin.post(f"/v1/admin/apps/{c.app_row.id}/plans", json={**YEARLY, "trial_enabled": True})
+    ).json()
+    rs = await asyncio.gather(*[c.post("/v1/app/me/trial", json={"plan_id": y["id"]}) for _ in range(4)])
+    assert sorted(r.status_code for r in rs) == [201, 409, 409, 409]
+    assert await credits_of(c) >= 10
+    entries = (await c.get("/v1/app/me/credits")).json()
+    assert [e["note"] for e in entries].count("Yearly: free trial") == 1

@@ -23,6 +23,10 @@ class ConflictError(ServiceError):
     status, code = 409, "conflict"
 
 
+class TrialUsed(ConflictError):
+    code = "trial_used"
+
+
 class ForbiddenError(ServiceError):
     status, code = 403, "forbidden"
 

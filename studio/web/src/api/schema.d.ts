@@ -1146,6 +1146,28 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/app/me/trial": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Start Trial
+         * @description Start the free trial of a plan that offers one. Grants the plan's `trial_credits` once; the trial
+         *     ends after `trial_days` (credits stay). One trial per user. 409 `conflict` if a subscription is
+         *     already active, 409 `trial_used` if the user has had a trial, 422 if the plan has no trial.
+         */
+        post: operations["start_trial_v1_app_me_trial_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/app/templates": {
         parameters: {
             query?: never;
@@ -1918,6 +1940,12 @@ export interface components {
             credits: number;
             subscription?: components["schemas"]["SubscriptionOut"] | null;
             /**
+             * Trial Used
+             * @description the user has had their one free trial in this app
+             * @default false
+             */
+            trial_used: boolean;
+            /**
              * Created At
              * Format: date-time
              */
@@ -1953,6 +1981,12 @@ export interface components {
             /** Credits */
             credits: number;
             subscription?: components["schemas"]["SubscriptionOut"] | null;
+            /**
+             * Trial Used
+             * @description the user has had their one free trial in this app
+             * @default false
+             */
+            trial_used: boolean;
             /**
              * Created At
              * Format: date-time
@@ -1993,6 +2027,12 @@ export interface components {
             /** Credits */
             credits: number;
             subscription?: components["schemas"]["SubscriptionOut"] | null;
+            /**
+             * Trial Used
+             * @description the user has had their one free trial in this app
+             * @default false
+             */
+            trial_used: boolean;
             /**
              * Created At
              * Format: date-time
@@ -2573,6 +2613,18 @@ export interface components {
             /** Badge */
             badge: string | null;
             /**
+             * Trial Enabled
+             * @description the plan offers a free trial (POST /v1/app/me/trial)
+             */
+            trial_enabled: boolean;
+            /** Trial Days */
+            trial_days: number;
+            /**
+             * Trial Credits
+             * @description granted once when the trial starts
+             */
+            trial_credits: number;
+            /**
              * Status
              * @enum {string}
              */
@@ -2623,6 +2675,21 @@ export interface components {
              * @default active
              */
             status: string;
+            /**
+             * Trial Enabled
+             * @default false
+             */
+            trial_enabled: boolean;
+            /**
+             * Trial Days
+             * @default 7
+             */
+            trial_days: number;
+            /**
+             * Trial Credits
+             * @default 10
+             */
+            trial_credits: number;
             /** Slug */
             slug: string;
         };
@@ -2659,6 +2726,21 @@ export interface components {
              * @default active
              */
             status: string;
+            /**
+             * Trial Enabled
+             * @default false
+             */
+            trial_enabled: boolean;
+            /**
+             * Trial Days
+             * @default 7
+             */
+            trial_days: number;
+            /**
+             * Trial Credits
+             * @default 10
+             */
+            trial_credits: number;
         };
         /** PlanOrderIn */
         PlanOrderIn: {
@@ -2694,6 +2776,18 @@ export interface components {
             credits_per_month: number;
             /** Badge */
             badge: string | null;
+            /**
+             * Trial Enabled
+             * @description the plan offers a free trial (POST /v1/app/me/trial)
+             */
+            trial_enabled: boolean;
+            /** Trial Days */
+            trial_days: number;
+            /**
+             * Trial Credits
+             * @description granted once when the trial starts
+             */
+            trial_credits: number;
         };
         /** PlanRef */
         PlanRef: {
@@ -2816,8 +2910,17 @@ export interface components {
              * @enum {string}
              */
             status: "active" | "cancelled" | "expired";
-            /** Provider */
+            /**
+             * Provider
+             * @description `manual`, `trial`, or a payment gateway
+             */
             provider: string;
+            /**
+             * Trial
+             * @description a free trial: ends at current_period_end, no monthly grants
+             * @default false
+             */
+            trial: boolean;
             /**
              * Current Period Start
              * Format: date-time
@@ -2877,8 +2980,17 @@ export interface components {
              * @enum {string}
              */
             status: "active" | "cancelled" | "expired";
-            /** Provider */
+            /**
+             * Provider
+             * @description `manual`, `trial`, or a payment gateway
+             */
             provider: string;
+            /**
+             * Trial
+             * @description a free trial: ends at current_period_end, no monthly grants
+             * @default false
+             */
+            trial: boolean;
             /**
              * Current Period Start
              * Format: date-time
@@ -3194,6 +3306,15 @@ export interface components {
             last_used_at: string | null;
             /** Revoked At */
             revoked_at: string | null;
+        };
+        /** TrialStartIn */
+        TrialStartIn: {
+            /**
+             * Plan Id
+             * Format: uuid
+             * @description a plan with `trial_enabled`, e.g. the monthly or yearly one
+             */
+            plan_id: string;
         };
         /** UploadOut */
         UploadOut: {
@@ -5805,6 +5926,39 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["PlanOut"][];
+                };
+            };
+        };
+    };
+    start_trial_v1_app_me_trial_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TrialStartIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AppUserOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };

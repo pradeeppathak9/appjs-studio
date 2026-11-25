@@ -1,8 +1,11 @@
 """Plans, subscriptions and credits of an app's users.
 
 A plan grants `credits_per_month` every month while a subscription is active, whatever its billing
-period (a yearly plan grants monthly). Payments aren't collected yet: subscriptions are granted by an
-admin (`provider="manual"`). A `PaymentProvider` (Razorpay, ...) will create and renew them later.
+period (a yearly plan grants monthly). A plan can also offer a free trial (`trial_enabled`): the user
+starts it themselves, it lasts `trial_days`, grants `trial_credits` once, and then expires (the credits
+stay). Each user gets one trial per app, whichever plan it was. Payments aren't collected yet:
+subscriptions are granted by an admin (`provider="manual"`). A `PaymentProvider` (Razorpay, ...)
+will create and renew them later.
 """
 
 from __future__ import annotations
@@ -11,7 +14,7 @@ import calendar
 import logging
 import re
 import uuid
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 from typing import Protocol
 from uuid import UUID
 
@@ -22,7 +25,7 @@ from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 from studio.db.tables import AppUser, CreditEntry, Plan, Subscription, User
 from studio.endusers.credits import apply_entry, lock_balance
-from studio.errors import ConflictError, InsufficientCredits, NotFoundError, ValidationFailed
+from studio.errors import ConflictError, InsufficientCredits, NotFoundError, TrialUsed, ValidationFailed
 
 log = logging.getLogger(__name__)
 SLUG_RE = re.compile(r"^[a-z0-9](?:[a-z0-9-]{0,62}[a-z0-9])?$")
@@ -37,6 +40,9 @@ class PlanFields(BaseModel):
     credits_per_month: int = Field(ge=0, le=1_000_000)
     badge: str | None = Field(None, max_length=60)
     status: str = Field("active", pattern="^(active|archived)$")
+    trial_enabled: bool = False
+    trial_days: int = Field(7, ge=1, le=365)
+    trial_credits: int = Field(10, ge=0, le=1_000_000)
 
 
 class PlanCreate(PlanFields):
@@ -199,6 +205,72 @@ class BillingService:
                     subscription_id=sub.id,
                     note=f"{plan.name}: month 1",
                 )
+        return sub
+
+    async def trial_users(self, user_ids: list[UUID]) -> set[UUID]:
+        """Which of these users have already had their free trial."""
+        if not user_ids:
+            return set()
+        async with self.db() as s:
+            rows = await s.scalars(
+                select(Subscription.app_user_id).where(
+                    Subscription.app_user_id.in_(user_ids), Subscription.is_trial.is_(True)
+                )
+            )
+            return set(rows.all())
+
+    async def start_trial(self, user: AppUser, plan_id: UUID, *, now: datetime | None = None) -> Subscription:
+        """The user starts the plan's free trial: `trial_days` long, `trial_credits` granted once, no
+        monthly grants. One trial per user per app."""
+        plan = await self.plan(user.app_id, plan_id)
+        if plan.status != "active":
+            raise ValidationFailed("this plan is archived", "plan_id")
+        if not plan.trial_enabled:
+            raise ValidationFailed("this plan has no free trial", "plan_id")
+        now = now or datetime.now(UTC)
+        sub = Subscription(
+            id=uuid.uuid4(),
+            app_user_id=user.id,
+            plan_id=plan.id,
+            status="active",
+            provider="trial",
+            current_period_start=now,
+            current_period_end=now + timedelta(days=plan.trial_days),
+            next_credit_grant_at=None,
+            is_trial=True,
+        )
+        try:
+            async with self.db.begin() as s:
+                locked = await s.scalar(select(AppUser).where(AppUser.id == user.id).with_for_update())
+                if locked is None or locked.deleted_at is not None:
+                    raise NotFoundError("user not found")
+                if await s.scalar(
+                    select(Subscription.id).where(
+                        Subscription.app_user_id == user.id, Subscription.status == "active"
+                    )
+                ):
+                    raise ConflictError("you already have an active subscription")
+                if await s.scalar(
+                    select(Subscription.id).where(
+                        Subscription.app_user_id == user.id, Subscription.is_trial.is_(True)
+                    )
+                ):
+                    raise TrialUsed("you have already used your free trial")
+                s.add(sub)
+                await s.flush()
+                if plan.trial_credits:
+                    await apply_entry(
+                        s,
+                        app_id=user.app_id,
+                        app_user_id=user.id,
+                        delta=plan.trial_credits,
+                        reason="subscription_grant",
+                        key=f"trial:{sub.id}",
+                        subscription_id=sub.id,
+                        note=f"{plan.name}: free trial",
+                    )
+        except IntegrityError as e:  # a second trial started at the same moment
+            raise TrialUsed("you have already used your free trial") from e
         return sub
 
     async def cancel_subscription(self, app_id: UUID, user_id: UUID, sub_id: UUID) -> None:

@@ -17,6 +17,7 @@ import {
   Select,
   Skeleton,
   Stack,
+  Switch,
   Table,
   Text,
   Textarea,
@@ -60,6 +61,9 @@ type PlanValues = {
   credits_per_month: number | string;
   badge: string;
   status: "active" | "archived";
+  trial_enabled: boolean;
+  trial_days: number | string;
+  trial_credits: number | string;
 };
 
 const EMPTY_PLAN: PlanValues = {
@@ -72,6 +76,9 @@ const EMPTY_PLAN: PlanValues = {
   credits_per_month: 40,
   badge: "",
   status: "active",
+  trial_enabled: false,
+  trial_days: 7,
+  trial_credits: 10,
 };
 
 function planValues(p: PlanAdmin): PlanValues {
@@ -85,6 +92,9 @@ function planValues(p: PlanAdmin): PlanValues {
     credits_per_month: p.credits_per_month,
     badge: p.badge ?? "",
     status: p.status,
+    trial_enabled: p.trial_enabled,
+    trial_days: p.trial_days,
+    trial_credits: p.trial_credits,
   };
 }
 
@@ -98,6 +108,9 @@ function planBody(v: PlanValues) {
     credits_per_month: Number(v.credits_per_month),
     badge: v.badge || null,
     status: v.status,
+    trial_enabled: v.trial_enabled,
+    trial_days: Number(v.trial_days),
+    trial_credits: Number(v.trial_credits),
   };
 }
 
@@ -199,6 +212,32 @@ function PlanForm({ app, plan, onDone }: { app: AppDetail; plan: PlanAdmin | nul
             />
           )}
         </Group>
+        <Divider />
+        <Switch
+          label="Offer a free trial"
+          description="Signed-in users can start it once from the app, on this plan or another with a trial"
+          {...form.getInputProps("trial_enabled", { type: "checkbox" })}
+        />
+        {form.values.trial_enabled && (
+          <Group grow align="flex-start">
+            <NumberInput
+              label="Trial days"
+              min={1}
+              max={365}
+              allowDecimal={false}
+              required
+              {...form.getInputProps("trial_days")}
+            />
+            <NumberInput
+              label="Trial credits"
+              description="Granted once when the trial starts; kept after it ends"
+              min={0}
+              allowDecimal={false}
+              required
+              {...form.getInputProps("trial_credits")}
+            />
+          </Group>
+        )}
         <Button type="submit" loading={save.isPending}>
           {plan ? "Save plan" : "Create plan"}
         </Button>
@@ -241,6 +280,7 @@ export function Plans({ app }: { app: AppDetail }) {
               <Table.Th>Plan</Table.Th>
               <Table.Th>Price</Table.Th>
               <Table.Th>Credits / month</Table.Th>
+              <Table.Th>Free trial</Table.Th>
               <Table.Th />
             </Table.Tr>
           </Table.Thead>
@@ -271,6 +311,15 @@ export function Plans({ app }: { app: AppDetail }) {
                   {formatPrice(p.price_minor, p.currency)} / {p.billing_period}
                 </Table.Td>
                 <Table.Td className="tabular">{p.credits_per_month}</Table.Td>
+                <Table.Td className="tabular" data-testid="plan-trial">
+                  {p.trial_enabled ? (
+                    `${p.trial_days} days · ${p.trial_credits} credits`
+                  ) : (
+                    <Text size="sm" c="dimmed">
+                      Off
+                    </Text>
+                  )}
+                </Table.Td>
                 <Table.Td w={150}>
                   <Group gap={4} justify="flex-end" wrap="nowrap">
                     <Button size="compact-xs" variant="subtle" onClick={() => setEditing(p)}>
@@ -323,7 +372,7 @@ function who(u: AppUserAdmin): string {
   return u.name || u.email || u.phone || "Unnamed user";
 }
 
-const PROVIDERS: Record<string, string> = { manual: "Given by an admin", razorpay: "Razorpay", phonepe: "PhonePe" };
+const PROVIDERS: Record<string, string> = { manual: "Given by an admin", trial: "Free trial", razorpay: "Razorpay", phonepe: "PhonePe" };
 
 /** Which payment-gateway subscription pays for this one: shown, and editable by admins. */
 function GatewayLink({ app, userId, sub }: { app: AppDetail; userId: string; sub: SubscriptionAdmin }) {
@@ -573,12 +622,13 @@ function UserDetail({ app, userId }: { app: AppDetail; userId: string }) {
           <div>
             <Text size="sm" fw={500}>
               {active.plan.name}
+              {active.trial && " · free trial"}
             </Text>
             <Text size="xs" c="dimmed">
               until {formatDate(active.current_period_end)}
               {active.next_credit_grant_at && ` · next credits ${formatDate(active.next_credit_grant_at)}`}
             </Text>
-            {activeAdmin && (
+            {activeAdmin && !activeAdmin.trial && (
               <Box mt={6}>
                 <GatewayLink key={activeAdmin.provider + (activeAdmin.provider_ref ?? "")} app={app} userId={userId} sub={activeAdmin} />
               </Box>

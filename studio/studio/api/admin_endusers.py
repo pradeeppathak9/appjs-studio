@@ -32,8 +32,8 @@ def plan_admin_out(p) -> PlanAdminOut:
     return PlanAdminOut.model_validate(p, from_attributes=True)
 
 
-def user_admin_out(u, active) -> AppUserAdminOut:
-    return AppUserAdminOut(**user_fields(u, active), status=u.status, last_seen_at=u.last_seen_at)
+def user_admin_out(u, active, trial_used: bool = False) -> AppUserAdminOut:
+    return AppUserAdminOut(**user_fields(u, active, trial_used), status=u.status, last_seen_at=u.last_seen_at)
 
 
 def subscription_admin_out(sub, plan) -> SubscriptionAdminOut:
@@ -48,7 +48,7 @@ async def user_detail(state: AppState, u) -> AppUserDetail:
     subs = await state.billing.subscriptions(u.id)
     active = next(((s, p) for s, p in subs if s.status == "active"), None)
     return AppUserDetail(
-        **user_admin_out(u, active).model_dump(),
+        **user_admin_out(u, active, any(s.is_trial for s, _ in subs)).model_dump(),
         subscriptions=[subscription_admin_out(s, p) for s, p in subs],
         ledger=[entry_out(e) for e in await state.billing.history(u.id, 100)],
     )
@@ -103,8 +103,12 @@ async def list_users(
     await state.apps.get(app_id)
     users, total = await state.endusers.page(app_id, q, limit, offset)
     active = await state.billing.active_subscriptions([u.id for u in users])
+    trials = await state.billing.trial_users([u.id for u in users])
     return AppUserPage(
-        items=[user_admin_out(u, active.get(u.id)) for u in users], total=total, limit=limit, offset=offset
+        items=[user_admin_out(u, active.get(u.id), u.id in trials) for u in users],
+        total=total,
+        limit=limit,
+        offset=offset,
     )
 
 
