@@ -1,4 +1,4 @@
-# autorev. Postgres, Redis and RabbitMQ come from ../infra (start it first:
+# autorev. Postgres and Redis come from ../infra (start it first:
 # cd ../infra && docker compose up -d). The backend connects as role `autorev` to database `appjs`, whose
 # search_path is schema `autorev` (AUTOREV_DATABASE_URL in .env).
 name: autorev

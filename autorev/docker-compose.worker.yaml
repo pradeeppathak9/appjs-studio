@@ -51,4 +51,3 @@ networks:
 # docker compose -f docker-compose.worker.yaml logs -f beat -n 100
 # docker compose -f docker-compose.worker.yaml logs -f flower -n 100
 # Flower UI: http://localhost:5555
-# RabbitMQ management UI (in ../infra): http://localhost:15672

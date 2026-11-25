@@ -22,7 +22,7 @@ in that folder: read it before changing the service.
 - Run commands from inside the service folder (`cd studio`, `cd autorev`); there is no root toolchain.
 - Don't share code between the services or add a shared package. They talk over HTTP and webhooks.
 - Changing an API one side calls means changing both, in one commit when possible.
-- Ports: infra publishes Postgres :5432, Redis :6379 and RabbitMQ's UI :15672 on 127.0.0.1; autorev's
+- Ports: infra publishes Postgres :5432 and Redis :6379 on 127.0.0.1 (RabbitMQ is disabled; Celery uses Redis); autorev's
   backend uses :8000 (as do marktmakrs and fin-agent elsewhere in ~/Work). Check `lsof -i :8000`
   before starting autorev, and don't stop another project's containers without asking.
 - Databases: an app only ever touches its own schema, connecting as its own role. Never give an app

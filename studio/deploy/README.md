@@ -8,7 +8,7 @@ Three images, built on your machine and pushed to a registry; the server only pu
 | `appjs-studio-web` | `studio/web/Dockerfile` | the console (nginx), which also proxies `/v1` to the API |
 | `restyle-web` | `restyle-web/Dockerfile` | the Restyle web app (nginx), which proxies only `/v1/app` to the API |
 
-The server runs [`../../infra`](../../infra) first (shared Postgres, Redis, RabbitMQ, and Caddy for
+The server runs [`../../infra`](../../infra) first (shared Postgres, Redis, and Caddy for
 HTTPS on `STUDIO_DOMAIN` and `RESTYLE_DOMAIN`), then [`docker-compose.prod.yaml`](docker-compose.prod.yaml)
 (Studio's api, worker and console, and the Restyle web app), which joins infra's `appjs` network. Only
 ports 80 and 443 are open.
@@ -46,7 +46,7 @@ Needs Docker with the compose plugin, and DNS A records for both domains pointin
 ```bash
 git clone git@github.com:pradeeppathak9/appjs-studio.git ~/appjs   # or copy infra/ and studio/deploy/
 
-# 1. infra: Postgres (role + schema per app), Redis, RabbitMQ, Caddy
+# 1. infra: Postgres (role + schema per app), Redis, Caddy
 cd ~/appjs/infra
 cp .env.example .env && chmod 600 .env
 nano .env           # long random passwords, APP_DB_CREATEDB=false, STUDIO_DOMAIN, RESTYLE_DOMAIN

@@ -13,7 +13,7 @@ webhooks to client apps.
 - `backend/migrations/`: **no Alembic**. The schema comes from `Base.metadata.create_all()`, and
   changes are numbered idempotent `.sql` files applied by hand with
   `python migrations/apply.py migrations/NNN_name.sql`.
-- `workers/`: Celery (RabbitMQ broker) PhonePe/Razorpay sync workers + beat. Compose file:
+- `workers/`: Celery (Redis broker, `redis://redis:6379/1`) PhonePe/Razorpay sync workers + beat. Compose file:
   `docker-compose.worker.yaml`.
 - `frontend/`: React 19 + Mantine console, same stack as appjs-studio's. `src/legacy/` holds pages
   not yet ported from the old CRA console; port them into `src/pages/` one at a time.
@@ -21,7 +21,7 @@ webhooks to client apps.
 ## Commands
 
 ```bash
-(cd ../infra && docker compose up -d)                  # Postgres, Redis, RabbitMQ (shared; autorev = role/schema `autorev`)
+(cd ../infra && docker compose up -d)                  # Postgres, Redis (shared; autorev = role/schema `autorev`)
 docker compose up -d                                   # backend :8000, frontend :3000
 docker compose -f docker-compose.worker.yaml up -d     # worker, beat, flower :5555
 

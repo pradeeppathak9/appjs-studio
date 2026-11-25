@@ -8,7 +8,7 @@ Copy `.env.example` to `.env` and fill in the real values — `.env` is gitignor
 
 ```bash
 cp .env.example .env
-(cd ../infra && docker compose up -d)             # Postgres, Redis, RabbitMQ (shared)
+(cd ../infra && docker compose up -d)             # Postgres, Redis (shared)
 docker compose up -d                              # backend, frontend
 docker compose -f docker-compose.worker.yaml up -d  # celery worker, beat, flower
 ```

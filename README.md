@@ -9,7 +9,7 @@ The AppJs platform: two independent services and the first client app (Android a
 | [`studio/`](studio/) | AppJs Studio | Template-driven image/video generation, app users, credits and plans, admin console, and the per-app API (`/v1/app/*`) for mobile clients such as Restyle | Python (uv, FastAPI, async SQLAlchemy, Alembic) + `web/` React 19 / Mantine / Vite |
 | [`restyle/`](restyle/) | Restyle (Android) | The first app on Studio (slug `restyle-ai`): pick a style, add a photo, get the restyled image; calls Studio's `/v1/app/*` | Kotlin, Jetpack Compose, Gradle |
 | [`restyle-web/`](restyle-web/) | Restyle (web) | The same app in the browser: sign in, pick a style, upload, download; its nginx proxies `/v1/app/*` to Studio | React 19 / Vite / TanStack Query, nginx |
-| [`autorev/`](autorev/) | autorev | Subscription billing over Razorpay and PhonePe (UPI Autopay), with signed webhooks to client apps | `backend/` FastAPI (requirements.txt), `workers/` Celery + RabbitMQ, `frontend/` React 19 / Mantine / Vite |
+| [`autorev/`](autorev/) | autorev | Subscription billing over Razorpay and PhonePe (UPI Autopay), with signed webhooks to client apps | `backend/` FastAPI (requirements.txt), `workers/` Celery (Redis broker), `frontend/` React 19 / Mantine / Vite |
 
 They share nothing at build time: each keeps its own toolchain, Dockerfiles, `docker-compose` files,
 `.env` (Restyle: `local.properties`), tests and README. Read the service's README and CLAUDE.md before changing it.
@@ -17,14 +17,14 @@ They share nothing at build time: each keeps its own toolchain, Dockerfiles, `do
 ## Run
 
 ```bash
-cd infra && cp -n .env.example .env && docker compose up -d   # Postgres :5432, Redis :6379, RabbitMQ (UI :15672)
+cd infra && cp -n .env.example .env && docker compose up -d   # Postgres :5432, Redis :6379
 cd studio && docker compose up -d --build        # api :8010, web :8080
 cd autorev && docker compose up -d               # backend :8000, frontend :3000
 cd autorev && docker compose -f docker-compose.worker.yaml up -d   # workers, beat, flower :5555
 ```
 
 [`infra/`](infra/) holds the shared services: one Postgres with a database `appjs` and a schema + role
-per app (`studio`, `autorev`; each sees only its own), Redis, RabbitMQ, and Caddy for HTTPS on servers.
+per app (`studio`, `autorev`; each sees only its own), Redis (also autorev's Celery broker), and Caddy for HTTPS on servers. RabbitMQ is disabled for now.
 Start it first; the apps join its Docker network `appjs`.
 
 ## Deploy

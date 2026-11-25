@@ -13,7 +13,7 @@ the environment: APPJS_HOST, APPJS_USER, APPJS_PORT, APPJS_REPO_DIR, APPJS_BRANC
 <task>` works too.
 
 What runs where (see each service's README):
-- infra/                         Postgres, Redis, RabbitMQ, Caddy (`--profile edge`)
+- infra/                         Postgres, Redis, Caddy (`--profile edge`)
 - studio/deploy/                 Studio api/worker/console + restyle-web, from images on ghcr.io
                                  (build and push them first with `fab build-studio`)
 - autorev/                       backend + console, built from source on the server
@@ -224,7 +224,7 @@ def build_studio(c, tag="", platform=PLATFORM):
     }
 )
 def infra(c, target="prod", pull=True, edge=None):
-    """Start or update shared Postgres, Redis, RabbitMQ (and Caddy when domains are set)."""
+    """Start or update shared Postgres, Redis (and Caddy when domains are set)."""
     conn, cfg = _conn(c, target)
     if pull:
         _update_code(conn, cfg)

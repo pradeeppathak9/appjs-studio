@@ -1,11 +1,11 @@
 # Shared infrastructure for the appjs services (studio, autorev, restyle-web), locally and on the server.
 #
 #   cp .env.example .env    # set the passwords
-#   docker compose up -d                    # postgres, redis, rabbitmq
+#   docker compose up -d                    # postgres, redis
 #   docker compose --profile edge up -d     # + caddy (HTTPS for the public domains; servers only)
 #
-# Services join the external network `appjs` and reach these by name: postgres:5432, redis:6379,
-# rabbitmq:5672. Start infra before the apps.
+# Services join the external network `appjs` and reach these by name: postgres:5432, redis:6379.
+# (RabbitMQ is disabled for now: autorev's Celery uses Redis.) Start infra before the apps.
 name: appjs-infra
 
 services:
