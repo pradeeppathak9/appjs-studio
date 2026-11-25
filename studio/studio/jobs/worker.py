@@ -73,8 +73,7 @@ class Worker:
 
     # ---- lifecycle -------------------------------------------------------------------------
     async def start(self) -> None:
-        if hasattr(self.store, "sweep_temp"):
-            self.store.sweep_temp()
+        self.store.sweep_temp()
         await self.queue.heartbeat(self.id, self.hostname, 0, [])
         await self.queue.requeue_stale(self.settings.stale_job_after_s)
         self._loops = [
@@ -200,8 +199,9 @@ class Worker:
     async def _build_request(self, job: Job) -> GenerationRequest:
         r = job.request
         inputs = (await self.repo.inputs_for([job.id])).get(job.id, [])
+        local = self.store.fetch_local
         images = [
-            InputImage(self.store.local_path(i.path), i.mime_type, i.width, i.height, i.role)
+            InputImage(await local(i.path, str(job.id)), i.mime_type, i.width, i.height, i.role)
             for i in sorted(inputs, key=lambda i: (i.role != "input", i.created_at))
         ]
         return GenerationRequest(
@@ -289,6 +289,8 @@ class Worker:
             await self.store.delete_paths(written)
             if await self.queue.mark_failed(lease, "internal_error", f"{type(e).__name__}: {e}"):
                 self._webhook(job)
+        finally:
+            await self.store.release_local(str(job.id))
 
     def _webhook(self, job: Job) -> None:
         if not (self.webhooks and job.webhook_url):

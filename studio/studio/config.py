@@ -1,5 +1,6 @@
 from functools import cached_property
 from pathlib import Path
+from typing import Literal
 
 from pydantic import SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -21,7 +22,20 @@ class Settings(BaseSettings):
     default_video_provider: str | None = None
 
     # Storage
-    data_dir: Path = Path("./data")
+    data_dir: Path = Path("./data")  # the local store; with ASSET_STORE=s3 only tmp/ is used
+    # Where generated assets, input photos and creator uploads live: local (DATA_DIR) | s3 (any
+    # S3-compatible bucket, e.g. Cloudflare R2). docs/STORAGE.md has the setup.
+    asset_store: Literal["local", "s3"] = "local"
+    s3_bucket: str | None = None
+    s3_endpoint_url: str | None = None  # R2: https://<account id>.r2.cloudflarestorage.com; unset = AWS
+    s3_region: str = "auto"  # R2 takes "auto"; AWS needs the bucket's region, e.g. ap-south-1
+    s3_access_key_id: SecretStr | None = None
+    s3_secret_access_key: SecretStr | None = None
+    # files are served by redirect to a presigned URL valid this long ...
+    s3_url_expiry_s: int = 3600
+    # ... or, when set, to <base>/<key> for assets/ and uploads/ (a public custom domain or CDN in
+    # front of the bucket). Input photos always get presigned URLs.
+    s3_public_base_url: str | None = None
     database_url: SecretStr = SecretStr("postgresql://studio:studio@localhost:5432/appjs")
     db_pool_size: int = 5
     db_max_overflow: int = 5

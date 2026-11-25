@@ -11,8 +11,10 @@ router = APIRouter(tags=["jobs"])
 
 
 def serve_file(state: AppState, rel_path: str, mime_type: str, filename: str):
-    if url := state.store.public_url(rel_path):
-        return RedirectResponse(url, status_code=307)
+    if url := state.store.public_url(rel_path, mime_type, filename):
+        # a presigned URL (or the CDN's); cache the redirect for less than the URL lives
+        ttl = min(300, max(0, state.settings.s3_url_expiry_s - 60))
+        return RedirectResponse(url, status_code=307, headers={"Cache-Control": f"private, max-age={ttl}"})
     path = state.store.local_path(rel_path)
     if not path.is_file():
         raise NotFoundError("file is gone")

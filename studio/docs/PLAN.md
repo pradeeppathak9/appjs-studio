@@ -49,7 +49,7 @@ The scope grew from "prompt in, image out" to accounts, three roles, versioned t
 | API client | **openapi-typescript + openapi-fetch** — *typed client instead of a hand-written wrapper* | Paths, bodies and responses are typed from the server's OpenAPI schema; a backend change that breaks the frontend fails `npm run typecheck`. |
 | Frontend tests | **Vitest + Testing Library**, and **Playwright** for end-to-end — *Playwright is new* | The roles walk-through (setup -> users -> tester restrictions -> template run) is now worth automating instead of only checking by hand. |
 | Serving | **nginx** container for the built frontend, proxying `/v1` (unchanged) | Same origin for cookies, upload size limit, streaming of assets. |
-| Asset storage | Local volume (unchanged) | Behind `AssetStore`; S3 or MinIO is a later swap. |
+| Asset storage | Local volume (unchanged) | Behind `AssetStore`; `ASSET_STORE=s3` (R2 etc.) since 2026-11-26, see `docs/STORAGE.md`. |
 
 Versions: latest stable of each at scaffold time, pinned by `uv.lock` and `package-lock.json`.
 
