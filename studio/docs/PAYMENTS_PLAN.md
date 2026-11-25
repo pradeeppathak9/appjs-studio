@@ -1,6 +1,8 @@
 # Plan: subscriptions through autorev
 
-Status: proposed (rewritten 2026-11-26). Nothing in this document is built yet. This replaces the
+Status: P1 and P2 built for Razorpay (2026-11-26): autorev's events and `external_ref`, Studio's checkout,
+webhook receiver and console settings, and restyle-web's checkout. PhonePe (P3) and operations (P4) are
+still to do. This replaces the
 2026-11-03 plan, which had Studio call Razorpay and PhonePe directly.
 
 ## Context
@@ -27,7 +29,7 @@ Already in Studio:
 |---|---|---|
 | Mandate setup | `POST /api/v1/{app_id}/phonepay/setup` (UPI Autopay) | `POST /api/v1/{app_id}/razorpay/setup` (customer + token order: UPI, e-mandate or card) |
 | Status | `GET …/phonepay/status/{subscription_id}` | `GET …/razorpay/status/{subscription_id}` |
-| Cancel | `POST …/phonepay/revoke/{subscription_id}` | revoke from autorev's dashboard (an API route is a gap, below) |
+| Cancel | `POST …/phonepay/revoke/{subscription_id}` | `POST …/razorpay/revoke/{subscription_id}` |
 | Each cycle | Celery workers send the pre-debit notice and charge | Celery `razorpay-collect-due` charges the saved token; Razorpay sends the notice |
 | Tells us | signed outbound webhooks with retries | **nothing yet** (gap, below) |
 
@@ -69,8 +71,8 @@ app ── opens Razorpay Checkout / PhonePe SDK, user approves the mandate ─�
 |---|---|
 | **Razorpay sends webhooks.** Call the state and next-payment dispatch from the Razorpay paths (`app/razorpay_billing.py`, `app/router/razorpay_router.py`), as `workers/phone_worker_helper.py` does for PhonePe. Add Razorpay's states to `STATE_EVENTS` and its fields to the payload. | Today only PhonePe emits `subscription.*` events, so Studio would never hear that a Razorpay mandate was activated or charged. |
 | **External reference.** Accept an optional `external_ref` (string, e.g. `studio:<app_user_id>:<plan_id>:<order_id>`) on both setup endpoints, store it, and return it in every webhook payload and status response. | Subscriptions are keyed by phone number. Studio needs to match an event to its own order without relying on the phone. |
-| **Razorpay revoke by API.** `POST /api/v1/{app_id}/razorpay/revoke/{subscription_id}`, matching PhonePe's. | Users cancel from the app; Studio must be able to stop collection. |
-| **Payment failures as events.** A `subscription.payment_failed` event when a cycle's charge fails for good. | Studio marks the subscription `halted` and tells the user, instead of waiting for a revoke. |
+| **Payment failures as events.** `subscription.payment_failed` per failed attempt, and `subscription.halted` when collection gives up. | Studio stops renewal at the paid-up date instead of waiting for a revoke. |
+| **Razorpay-only servers.** `AUTOREV_GATEWAYS=razorpay`: no PhonePe routes or tasks. | Production runs Razorpay only for now. |
 | **Turn it back on in production.** `fab deploy --with-autorev`, live gateway keys in autorev's console, gateway webhooks pointed at `AUTOREV_DOMAIN`. | autorev is switched off in production today. |
 
 Each change gets autorev tests; this is money movement (`../CLAUDE.md`: never call live gateways from
@@ -164,8 +166,8 @@ the webhook handler; there is one engine, so no per-gateway classes.
 | Phase | Scope |
 |---|---|
 | **P0** | Play billing decision; gateway products enabled in autorev's accounts |
-| **P1** | autorev: Razorpay webhooks, `external_ref`, Razorpay revoke, payment-failed event |
-| **P2** | Studio: settings, migration, subscribe/status/cancel endpoints, webhook receiver; **Razorpay end to end in test mode** with restyle-web |
+| **P1** | autorev: Razorpay webhooks, `external_ref`, payment-failed and halted events, Razorpay-only switch (done) |
+| **P2** | Studio: settings, migration, subscribe/status/cancel endpoints, webhook receiver; **Razorpay end to end in test mode** with restyle-web (done) |
 | **P3** | Android checkout; PhonePe Autopay (once approved) |
 | **P4** | Operations: admin payment views, reconciliation (poll autorev for orders stuck in `pending`), refunds, going live |
 
