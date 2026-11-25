@@ -110,16 +110,16 @@ that backup (R2 is durable, but deletes are final: consider bucket versioning or
 ## Lifecycle: deleting old input photos
 
 Input photos are only needed while a job runs (and for "My creations" to show what was sent). A rule
-that deletes `inputs/` after **N days** limits how long users' faces are kept:
+that deletes `inputs/` after **30 days** (decided 2026-11-26) limits how long users' faces are kept:
 
 R2 → bucket → Settings → Object lifecycle rules → Add rule: name `expire-inputs`, prefix `inputs/`,
-action "Delete uploaded objects after **N** days". Or with any S3 API client:
+action "Delete uploaded objects after **30** days". Or with any S3 API client:
 
 ```json
 {
   "Rules": [
     {"ID": "expire-inputs", "Status": "Enabled", "Filter": {"Prefix": "inputs/"},
-     "Expiration": {"Days": N}},
+     "Expiration": {"Days": 30}},
     {"ID": "abort-multipart", "Status": "Enabled", "Filter": {"Prefix": ""},
      "AbortIncompleteMultipartUpload": {"DaysAfterInitiation": 1}}
   ]
@@ -127,9 +127,9 @@ action "Delete uploaded objects after **N** days". Or with any S3 API client:
 ```
 
 Never put `assets/` or `uploads/` in it: uploads are template covers and reference images that live
-until a template stops using them. After N days, `inputs[].url` of older jobs returns `404` from the
-bucket; clients should show a placeholder. The value of N is still to be decided (it should also
-match what the privacy policy says).
+until a template stops using them. After 30 days, `inputs[].url` of older jobs returns `404` from the
+bucket; clients should show a placeholder. The privacy policy should say input photos are kept for
+30 days.
 
 ## Tests
 
