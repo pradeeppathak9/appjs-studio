@@ -1,0 +1,39 @@
+# What each model costs us per output, in US dollars. Used only to show "about $x per run" and a
+# suggested credit cost in the console's template editor; nothing is billed from these numbers.
+#
+# Prices are list prices for one standard image (~1K / 1 megapixel) or one second of video, taken
+# from provider pricing pages and third-party trackers on `checked`. Check the provider's own page
+# before relying on one, and update this file when prices change. Changes take effect on restart.
+#
+# Per-entry keys:
+#   provider   provider name as in /v1/providers (required)
+#   model      model id (required)
+#   usd        price per unit (required)
+#   unit       image | second (default image)
+#   note       free text for humans, shown in the console
+
+checked: "2026-11-26"
+
+# What one credit should cover in model cost. The editor suggests credits = ceil(cost per run / credit_usd).
+credit_usd: 0.04
+
+models:
+  # Gemini (billed by token; these are per-image equivalents at 1K)
+  - {provider: gemini, model: gemini-3.1-flash-lite-image, usd: 0.034}
+  - {provider: gemini, model: gemini-3.1-flash-image, usd: 0.067, note: "2K $0.101, 4K $0.151"}
+  - {provider: gemini, model: gemini-3-pro-image, usd: 0.134, note: "4K $0.24"}
+  # gemini-nano-banana-2.1 and gemini-omni-1.1-flash: no published price found yet
+
+  # OpenAI (billed by token; output at high quality, 1024x1024, input tokens extra)
+  - {provider: openai, model: gpt-image-2.5-flare, usd: 0.053, note: "high quality; low $0.006, max $0.21"}
+  - {provider: openai, model: gpt-image-2.5-sunburst, usd: 0.053, note: "high quality; low $0.006, max $0.21"}
+  # gpt-image-2: not checked
+
+  # fal.ai
+  - {provider: fal, model: fal-ai/flux/dev, usd: 0.025, note: "$0.025 per megapixel"}
+  - {provider: fal, model: fal-ai/flux-pro/kontext, usd: 0.04}
+  - {provider: fal, model: fal-ai/nano-banana/edit, usd: 0.04}
+  # fal-ai/kling-video/v3/pro/text-to-video: not checked
+
+  # Local fake provider
+  - {provider: fake, model: fake-image-1, usd: 0}

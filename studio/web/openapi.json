@@ -5,6 +5,28 @@
   "version": "0.1.0"
  },
  "paths": {
+  "/v1/model-prices": {
+   "get": {
+    "tags": [
+     "meta"
+    ],
+    "summary": "Model Prices",
+    "description": "What each model costs per image (or per second of video), for estimating a template's cost per\nrun. List prices from `studio/providers/prices.yaml`; models without an entry have no known price.",
+    "operationId": "model_prices_v1_model_prices_get",
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/PriceList"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
   "/healthz": {
    "get": {
     "tags": [
@@ -7223,6 +7245,52 @@
     ],
     "title": "Membership"
    },
+   "ModelPrice": {
+    "properties": {
+     "provider": {
+      "type": "string",
+      "minLength": 1,
+      "title": "Provider"
+     },
+     "model": {
+      "type": "string",
+      "minLength": 1,
+      "title": "Model"
+     },
+     "usd": {
+      "type": "number",
+      "minimum": 0.0,
+      "title": "Usd"
+     },
+     "unit": {
+      "type": "string",
+      "enum": [
+       "image",
+       "second"
+      ],
+      "title": "Unit",
+      "default": "image"
+     },
+     "note": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Note"
+     }
+    },
+    "type": "object",
+    "required": [
+     "provider",
+     "model",
+     "usd"
+    ],
+    "title": "ModelPrice"
+   },
    "MyApp": {
     "properties": {
      "id": {
@@ -8086,6 +8154,34 @@
      "name"
     ],
     "title": "PlanRef"
+   },
+   "PriceList": {
+    "properties": {
+     "checked": {
+      "type": "string",
+      "title": "Checked",
+      "description": "when the prices were last checked (YYYY-MM-DD)"
+     },
+     "credit_usd": {
+      "type": "number",
+      "exclusiveMinimum": 0.0,
+      "title": "Credit Usd",
+      "description": "model cost one credit should cover, in US dollars"
+     },
+     "models": {
+      "items": {
+       "$ref": "#/components/schemas/ModelPrice"
+      },
+      "type": "array",
+      "title": "Models"
+     }
+    },
+    "type": "object",
+    "required": [
+     "checked",
+     "credit_usd"
+    ],
+    "title": "PriceList"
    },
    "ProviderInfo": {
     "properties": {

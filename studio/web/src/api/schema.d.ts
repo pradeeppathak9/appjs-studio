@@ -4,6 +4,27 @@
  */
 
 export interface paths {
+    "/v1/model-prices": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Model Prices
+         * @description What each model costs per image (or per second of video), for estimating a template's cost per
+         *     run. List prices from `studio/providers/prices.yaml`; models without an entry have no known price.
+         */
+        get: operations["model_prices_v1_model_prices_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/healthz": {
         parameters: {
             query?: never;
@@ -2566,6 +2587,23 @@ export interface components {
              */
             role: "editor" | "tester";
         };
+        /** ModelPrice */
+        ModelPrice: {
+            /** Provider */
+            provider: string;
+            /** Model */
+            model: string;
+            /** Usd */
+            usd: number;
+            /**
+             * Unit
+             * @default image
+             * @enum {string}
+             */
+            unit: "image" | "second";
+            /** Note */
+            note?: string | null;
+        };
         /**
          * MyApp
          * @description An app as its member sees it, with their role in it.
@@ -3006,6 +3044,21 @@ export interface components {
             slug: string;
             /** Name */
             name: string;
+        };
+        /** PriceList */
+        PriceList: {
+            /**
+             * Checked
+             * @description when the prices were last checked (YYYY-MM-DD)
+             */
+            checked: string;
+            /**
+             * Credit Usd
+             * @description model cost one credit should cover, in US dollars
+             */
+            credit_usd: number;
+            /** Models */
+            models?: components["schemas"]["ModelPrice"][];
         };
         /** ProviderInfo */
         ProviderInfo: {
@@ -3718,6 +3771,26 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
+    model_prices_v1_model_prices_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PriceList"];
+                };
+            };
+        };
+    };
     healthz_healthz_get: {
         parameters: {
             query?: never;

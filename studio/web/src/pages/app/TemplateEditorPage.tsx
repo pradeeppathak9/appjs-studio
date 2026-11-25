@@ -50,7 +50,8 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState, type ReactNode } from "react";
 import { Link, useLocation, useNavigate, useParams } from "react-router";
 import { api, ApiError, errorMessage, postForm, unwrap } from "../../api/client";
-import { keys, useProviders, useTemplate } from "../../api/queries";
+import { keys, useModelPrices, useProviders, useTemplate } from "../../api/queries";
+import { formatUsd, runCost } from "../../lib/cost";
 import type { TemplateFull, TemplatePublic, TemplateStatus, TemplateVersion, UploadOut } from "../../api/types";
 import { TemplateStatusBadge } from "../../components/common";
 import { IMAGE_TYPES, MAX_IMAGE_BYTES } from "../../lib/images";
@@ -309,6 +310,51 @@ function ReferenceImages({ form }: { form: Form }) {
   );
 }
 
+// ---- cost per run --------------------------------------------------------------------------------
+
+/** The model's estimated cost of one run next to "Credits per run", with the credits that cover it. */
+function CreditHint({ values: v }: { values: EditorValues }) {
+  const prices = useModelPrices();
+  if (!prices.data || !v.provider || !v.model.trim()) return null;
+  const cost = runCost(prices.data, v);
+  const credits = Number(v.credit_cost) || 0;
+  const creditUsd = prices.data.credit_usd;
+  if (!cost) {
+    return (
+      <Text size="xs" c="dimmed" data-testid="credit-hint">
+        No price on file for {v.model}
+        {v.media_type === "video" && !v.duration_seconds ? " (or set a duration to estimate per-second pricing)" : ""}.
+        Add it to studio/providers/prices.yaml to see its cost per run.
+      </Text>
+    );
+  }
+  const under = credits < cost.suggested;
+  return (
+    <Stack gap={4} data-testid="credit-hint">
+      <Text size="xs" c="dimmed">
+        Model cost about <b>{formatUsd(cost.usd)}</b> per run
+        {cost.model !== v.model ? ` (${cost.model}, the most expensive allowed model)` : ""}. Suggested:{" "}
+        <b>
+          {cost.suggested} credit{cost.suggested === 1 ? "" : "s"}
+        </b>{" "}
+        at {formatUsd(creditUsd)} per credit. List prices checked {prices.data.checked}.
+      </Text>
+      {under && (
+        <Text size="xs" c="yellow.8" data-testid="credit-under">
+          {credits === 0
+            ? `Runs are free for app users, but each one costs you about ${formatUsd(cost.usd)}.`
+            : `${credits} credit${credits === 1 ? " covers" : "s cover"} about ${formatUsd(credits * creditUsd)}, less than this model costs.`}
+        </Text>
+      )}
+      {cost.missing.length > 0 && (
+        <Text size="xs" c="dimmed">
+          No price on file for {cost.missing.join(", ")}.
+        </Text>
+      )}
+    </Stack>
+  );
+}
+
 // ---- the editor form ---------------------------------------------------------------------------
 
 function EditorForm({
@@ -499,6 +545,7 @@ function EditorForm({
                   w={260}
                   {...form.getInputProps("credit_cost")}
                 />
+                <CreditHint values={v} />
               </Stack>
             </Section>
 

@@ -8,9 +8,17 @@ from studio.api.schemas import HealthResponse, ProviderInfo
 from studio.auth.service import Principal
 from studio.deps import AppState, get_state, public, signed_in
 from studio.errors import NotFoundError
+from studio.providers.pricing import PriceList, load_prices
 from studio.providers.registry import ORDER
 
 router = APIRouter(tags=["meta"])
+
+
+@router.get("/v1/model-prices", response_model=PriceList, dependencies=[Depends(signed_in)])
+async def model_prices():
+    """What each model costs per image (or per second of video), for estimating a template's cost per
+    run. List prices from `studio/providers/prices.yaml`; models without an entry have no known price."""
+    return load_prices()
 
 
 @router.get("/healthz", response_model=HealthResponse, dependencies=[Depends(public())])
