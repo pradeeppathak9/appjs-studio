@@ -4,22 +4,22 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>APPJS Technologies Private Limited</title>
-  <meta name="description" content="APPJS Technologies Private Limited is an Indian software company that builds and operates focused digital products for individuals and businesses.">
+  <meta name="description" content="APPJS Technologies Private Limited is an Indian technology company that designs, builds and operates apps for individuals and businesses.">
   <meta name="robots" content="index, follow">
-  <meta name="theme-color" content="#14213d">
+  <meta name="theme-color" content="#0b1530">
   <meta name="facebook-domain-verification" content="lex9lkgvekw2m9tsnio9knge9wdwt3" />
 
   <link rel="canonical" href="https://appjs.tech/">
 
   <meta property="og:type" content="website">
   <meta property="og:title" content="APPJS Technologies Private Limited">
-  <meta property="og:description" content="An Indian software company building focused digital products.">
+  <meta property="og:description" content="An Indian technology company building focused web and mobile apps.">
 
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%2314213d'/%3E%3Ctext x='32' y='44' text-anchor='middle' font-family='Georgia,serif' font-size='34' fill='%23c9a961'%3EA%3C/text%3E%3C/svg%3E">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230b1530'/%3E%3Cpath d='M20 46 32 16l12 30h-7l-2.3-6h-5.4L27 46zm9.4-11.5h5.2L32 27.3z' fill='%23fff'/%3E%3C/svg%3E">
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
   <script type="application/ld+json">
   {
@@ -27,6 +27,7 @@
     "@type": "Organization",
     "name": "APPJS Technologies Private Limited",
     "legalName": "APPJS Technologies Private Limited",
+    "url": "https://appjs.tech/",
     "foundingDate": "2023",
     "email": "contactappdojs@gmail.com",
     "address": { "@type": "PostalAddress", "addressRegion": "Delhi", "addressCountry": "IN" },
@@ -40,194 +41,225 @@
 
   <style>
     :root {
-      --paper: #faf8f3;
-      --paper-2: #f2eee4;
-      --ink: #14213d;
-      --ink-soft: #3d4760;
-      --muted: #6b7184;
-      --rule: #e2dccd;
-      --gold: #a8873f;
-      --gold-soft: #c9a961;
-      --card: #ffffff;
-      --serif: "Cormorant Garamond", Georgia, "Times New Roman", serif;
+      --navy: #0b1530;
+      --navy-2: #13204a;
+      --ink: #0f172a;
+      --text: #3f4a5e;
+      --muted: #667085;
+      --line: #e4e7ec;
+      --soft: #f6f8fb;
+      --blue: #2f5bea;
+      --blue-dark: #2148c9;
+      --blue-tint: #eef2fe;
+      --green: #12b76a;
+      --white: #fff;
+      --radius: 16px;
+      --wrap: 1160px;
       --sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      --wrap: 1080px;
+      --shadow: 0 1px 2px rgb(16 24 40 / .05), 0 12px 32px -12px rgb(16 24 40 / .18);
     }
     *, *::before, *::after { box-sizing: border-box; }
     html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
-    body {
-      margin: 0;
-      background: var(--paper);
-      color: var(--ink);
-      font-family: var(--sans);
-      font-size: 16px;
-      line-height: 1.65;
-      -webkit-font-smoothing: antialiased;
-    }
-    a { color: inherit; }
+    body { margin: 0; font-family: var(--sans); font-size: 16px; line-height: 1.6; color: var(--text); background: var(--white); -webkit-font-smoothing: antialiased; }
+    img { display: block; max-width: 100%; }
+    a { color: var(--blue); text-decoration: none; }
+    a:hover { color: var(--blue-dark); }
+    h1, h2, h3, h4 { color: var(--ink); margin: 0; letter-spacing: -0.02em; }
+    p { margin: 0; }
+    :focus-visible { outline: 2px solid var(--blue); outline-offset: 3px; border-radius: 6px; }
     .wrap { max-width: var(--wrap); margin: 0 auto; padding: 0 24px; }
+    .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
 
-    /* Header */
-    header.site {
-      position: sticky; top: 0; z-index: 10;
-      background: rgba(250, 248, 243, 0.92);
-      backdrop-filter: saturate(140%) blur(8px);
-      -webkit-backdrop-filter: saturate(140%) blur(8px);
-      border-bottom: 1px solid var(--rule);
-    }
-    header.site .wrap { display: flex; align-items: center; justify-content: space-between; height: 68px; }
-    .brand { display: flex; align-items: center; gap: 12px; text-decoration: none; }
-    .mark {
-      width: 34px; height: 34px; border-radius: 7px; background: var(--ink);
-      display: grid; place-items: center;
-      font-family: var(--serif); font-size: 22px; font-weight: 600; color: var(--gold-soft); line-height: 1;
-    }
-    .brand-name { font-family: var(--serif); font-size: 22px; font-weight: 600; letter-spacing: 0.04em; }
-    .brand-name small { font-family: var(--sans); font-size: 11px; font-weight: 500; letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); margin-left: 6px; }
-    nav.primary { display: flex; gap: 32px; }
-    nav.primary a { text-decoration: none; font-size: 14px; font-weight: 500; color: var(--ink-soft); letter-spacing: 0.01em; }
-    nav.primary a:hover { color: var(--gold); }
+    /* header */
+    header.site { position: sticky; top: 0; z-index: 20; background: rgb(255 255 255 / .9); backdrop-filter: saturate(180%) blur(12px); border-bottom: 1px solid var(--line); }
+    header.site .wrap { height: 68px; display: flex; align-items: center; gap: 32px; }
+    .brand { display: flex; align-items: center; gap: 10px; color: var(--ink); font-weight: 700; font-size: 17px; letter-spacing: -0.01em; }
+    .brand:hover { color: var(--ink); }
+    .brand .mark { width: 32px; height: 32px; border-radius: 9px; background: var(--navy); display: grid; place-items: center; }
+    .brand small { display: block; font-size: 11px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); line-height: 1; margin-top: 2px; }
+    .brand .name { line-height: 1.1; }
+    nav.primary { display: flex; gap: 4px; margin-left: auto; }
+    nav.primary a { color: var(--text); font-size: 15px; font-weight: 500; padding: 8px 14px; border-radius: 8px; }
+    nav.primary a:hover { background: var(--soft); color: var(--ink); }
 
-    /* Hero */
-    .hero { padding: 120px 0 104px; border-bottom: 1px solid var(--rule); position: relative; overflow: hidden; }
-    .hero::after {
-      content: ""; position: absolute; right: -160px; top: -160px; width: 520px; height: 520px; border-radius: 50%;
-      border: 1px solid var(--rule); pointer-events: none;
-    }
-    .hero::before {
-      content: ""; position: absolute; right: -60px; top: -60px; width: 320px; height: 320px; border-radius: 50%;
-      border: 1px solid var(--rule); pointer-events: none;
-    }
-    .eyebrow {
-      font-size: 12px; font-weight: 600; letter-spacing: 0.2em; text-transform: uppercase; color: var(--gold);
-      display: inline-flex; align-items: center; gap: 12px; margin: 0 0 28px;
-    }
-    .eyebrow::before { content: ""; width: 32px; height: 1px; background: var(--gold); }
-    h1 {
-      font-family: var(--serif); font-weight: 500; font-size: clamp(42px, 6.4vw, 76px); line-height: 1.04;
-      letter-spacing: -0.01em; margin: 0 0 28px; max-width: 14ch;
-    }
-    h1 em { font-style: italic; color: var(--gold); }
-    .lede { font-size: 19px; color: var(--ink-soft); max-width: 58ch; margin: 0 0 40px; }
-    .actions { display: flex; flex-wrap: wrap; gap: 14px; }
-    .btn {
-      display: inline-flex; align-items: center; gap: 10px; padding: 14px 26px; border-radius: 2px;
-      font-size: 14px; font-weight: 500; letter-spacing: 0.02em; text-decoration: none; transition: all .2s ease;
-    }
-    .btn-primary { background: var(--ink); color: var(--paper); border: 1px solid var(--ink); }
-    .btn-primary:hover { background: #0c1528; }
-    .btn-ghost { border: 1px solid var(--ink); color: var(--ink); }
-    .btn-ghost:hover { background: var(--ink); color: var(--paper); }
+    .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 46px; padding: 0 20px; border-radius: 10px; font-weight: 600; font-size: 15px; border: 1px solid transparent; transition: background .15s, border-color .15s, color .15s; white-space: nowrap; }
+    .btn-primary { background: var(--blue); color: var(--white); box-shadow: 0 1px 2px rgb(16 24 40 / .1); }
+    .btn-primary:hover { background: var(--blue-dark); color: var(--white); }
+    .btn-outline { background: var(--white); color: var(--ink); border-color: var(--line); }
+    .btn-outline:hover { border-color: #cbd2dc; color: var(--ink); background: var(--soft); }
+    .btn-sm { height: 38px; padding: 0 14px; font-size: 14px; }
+    header .btn { margin-left: 8px; }
 
-    /* Sections */
-    section.block { padding: 96px 0; border-bottom: 1px solid var(--rule); }
-    .grid-2 { display: grid; grid-template-columns: 280px 1fr; gap: 64px; }
-    .label { font-size: 12px; font-weight: 600; letter-spacing: 0.2em; text-transform: uppercase; color: var(--gold); margin: 6px 0 0; }
-    h2 { font-family: var(--serif); font-weight: 500; font-size: clamp(32px, 4vw, 44px); line-height: 1.15; margin: 0 0 22px; }
-    p { margin: 0 0 18px; color: var(--ink-soft); }
-    .principles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0; margin-top: 44px; border-top: 1px solid var(--rule); }
-    .principles div { padding: 26px 26px 0 0; }
-    .principles div + div { padding-left: 26px; border-left: 1px solid var(--rule); }
-    .principles h3 { font-family: var(--serif); font-size: 22px; font-weight: 600; margin: 0 0 8px; }
-    .principles p { font-size: 14.5px; margin: 0; }
+    /* hero */
+    .hero { position: relative; overflow: hidden; background: linear-gradient(180deg, #f3f6fd 0%, #fff 100%); }
+    .hero::before { content: ""; position: absolute; inset: 0; background-image: linear-gradient(var(--line) 1px, transparent 1px), linear-gradient(90deg, var(--line) 1px, transparent 1px); background-size: 48px 48px; mask-image: radial-gradient(ellipse 70% 60% at 70% 30%, #000 20%, transparent 75%); opacity: .55; pointer-events: none; }
+    .hero .wrap { position: relative; display: grid; grid-template-columns: 1.05fr 1fr; gap: 56px; align-items: center; padding-top: 88px; padding-bottom: 96px; }
+    .pill { display: inline-flex; align-items: center; gap: 8px; padding: 6px 12px 6px 8px; border-radius: 999px; background: var(--white); border: 1px solid var(--line); font-size: 13px; font-weight: 500; color: var(--text); box-shadow: 0 1px 2px rgb(16 24 40 / .04); }
+    .pill .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); box-shadow: 0 0 0 4px rgb(18 183 106 / .15); }
+    .hero h1 { font-size: clamp(40px, 5.4vw, 64px); line-height: 1.04; font-weight: 800; letter-spacing: -0.035em; margin: 22px 0 20px; }
+    .hero h1 span { color: var(--blue); }
+    .hero .lede { font-size: 19px; line-height: 1.6; max-width: 540px; }
+    .hero .actions { display: flex; gap: 12px; margin-top: 32px; flex-wrap: wrap; }
+    .stats { display: flex; gap: 40px; margin-top: 48px; padding-top: 28px; border-top: 1px solid var(--line); flex-wrap: wrap; }
+    .stats div { min-width: 96px; }
+    .stats strong { display: block; color: var(--ink); font-size: 24px; font-weight: 700; letter-spacing: -0.02em; }
+    .stats span { font-size: 14px; color: var(--muted); }
 
-    /* Products */
-    .products { display: grid; grid-template-columns: 1.4fr 1fr; gap: 24px; margin-top: 12px; }
-    .product {
-      background: var(--card); border: 1px solid var(--rule); padding: 40px; position: relative;
-      display: flex; flex-direction: column;
-    }
-    .product::before { content: ""; position: absolute; left: 0; top: 0; width: 100%; height: 3px; background: var(--ink); }
-    .product .tag { font-size: 11px; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); margin-bottom: 18px; }
-    .product .tag .live { color: #2f7a4f; }
-    .product .tag .live::before { content: "● "; }
-    .product h3 { font-family: var(--serif); font-size: 34px; font-weight: 600; margin: 0 0 4px; }
-    .product .tagline { font-family: var(--serif); font-style: italic; font-size: 19px; color: var(--gold); margin: 0 0 18px; }
-    .product ul { margin: 0 0 28px; padding: 0; list-style: none; }
-    .product li { font-size: 14.5px; color: var(--ink-soft); padding: 8px 0 8px 22px; border-top: 1px solid var(--paper-2); position: relative; }
-    .product li::before { content: ""; position: absolute; left: 0; top: 18px; width: 10px; height: 1px; background: var(--gold); }
-    .product .foot { margin-top: auto; display: flex; flex-wrap: wrap; gap: 18px; align-items: center; }
-    .product .link { font-size: 14px; font-weight: 600; text-decoration: none; border-bottom: 1px solid var(--gold); padding-bottom: 2px; }
-    .product .link:hover { color: var(--gold); }
-    .product.soon { background: transparent; border-style: dashed; }
-    .product.soon::before { background: var(--rule); }
-    .product.soon h3 { color: var(--ink-soft); }
-    .note { font-size: 12.5px; color: var(--muted); line-height: 1.55; margin: 0; }
+    .showcase { position: relative; min-height: 440px; }
+    .browser { position: absolute; top: 10px; left: 0; right: 40px; background: #1b1b1d; border-radius: 14px; overflow: hidden; box-shadow: 0 30px 60px -20px rgb(11 21 48 / .45), 0 0 0 1px rgb(11 21 48 / .08); }
+    .browser .bar { height: 34px; display: flex; align-items: center; gap: 6px; padding: 0 14px; background: #2a2a2d; }
+    .browser .bar i { width: 10px; height: 10px; border-radius: 50%; background: #4a4a4f; }
+    .browser .bar span { margin-left: 14px; flex: 1; max-width: 240px; height: 20px; border-radius: 6px; background: #1b1b1d; color: #9a9aa2; font-size: 11px; line-height: 20px; padding: 0 10px; }
+    .browser img { width: 100%; height: 340px; object-fit: cover; object-position: top left; }
+    .phone { position: absolute; right: 0; bottom: -10px; width: 210px; background: #0d0f14; border-radius: 34px; padding: 9px; box-shadow: 0 30px 60px -18px rgb(11 21 48 / .55); }
+    .phone .screen { background: #fff; border-radius: 26px; overflow: hidden; padding: 14px 12px 12px; }
+    .phone .top { display: flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 700; color: var(--ink); }
+    .phone .top img { width: 18px; height: 18px; border-radius: 5px; }
+    .phone .top em { margin-left: auto; white-space: nowrap; font-style: normal; font-size: 9px; font-weight: 600; color: #4f46e5; background: #eeedfd; padding: 3px 7px; border-radius: 999px; }
+    .phone .hi { font-size: 8px; color: var(--muted); margin-top: 12px; }
+    .phone .t { font-size: 14px; font-weight: 800; color: var(--ink); letter-spacing: -0.02em; }
+    .phone .feat { margin-top: 8px; height: 66px; border-radius: 12px; background: linear-gradient(160deg, #47704a, #22392a); position: relative; }
+    .phone .feat b { position: absolute; left: 9px; bottom: 8px; color: #fff; font-size: 10px; }
+    .phone .tiles { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 8px; }
+    .phone .tiles i { display: block; aspect-ratio: 4 / 5; border-radius: 10px; }
+    .phone .tabs { display: flex; justify-content: space-around; margin-top: 10px; padding-top: 8px; border-top: 1px solid #ececf0; }
+    .phone .tabs i { width: 22px; height: 6px; border-radius: 3px; background: #e5e7eb; }
+    .phone .tabs i:first-child { background: #c7c5f8; }
 
-    /* Company facts */
-    dl.facts { margin: 0; display: grid; grid-template-columns: 220px 1fr; border-top: 1px solid var(--ink); }
-    dl.facts dt, dl.facts dd { padding: 18px 0; border-bottom: 1px solid var(--rule); margin: 0; }
-    dl.facts dt { font-size: 12px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); padding-top: 21px; }
-    dl.facts dd { font-size: 16px; color: var(--ink); }
-    dl.facts dd code { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 14.5px; letter-spacing: 0.04em; }
-    dl.facts a { text-decoration: none; border-bottom: 1px solid var(--gold); }
+    /* sections */
+    section.block { padding: 104px 0; }
+    section[id] { scroll-margin-top: 68px; }
+    section.alt { background: var(--soft); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+    .head { max-width: 680px; margin-bottom: 56px; }
+    .head.center { margin-left: auto; margin-right: auto; text-align: center; }
+    .eyebrow { display: inline-block; font-size: 13px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--blue); margin-bottom: 14px; }
+    .head h2 { font-size: clamp(30px, 3.6vw, 42px); line-height: 1.12; font-weight: 750; letter-spacing: -0.03em; }
+    .head p { margin-top: 16px; font-size: 18px; }
 
-    /* Contact */
-    .contact { background: var(--ink); color: var(--paper); border-bottom: none; }
-    .contact h2 { color: var(--paper); }
-    .contact p { color: #c4c9d6; }
-    .contact .label { color: var(--gold-soft); }
-    .contact-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0; margin-top: 40px; border-top: 1px solid rgba(255,255,255,0.14); }
-    .contact-grid div { padding: 28px 28px 0 0; }
-    .contact-grid div + div { padding-left: 28px; border-left: 1px solid rgba(255,255,255,0.14); }
-    .contact-grid h3 { font-size: 12px; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; color: var(--gold-soft); margin: 0 0 10px; }
-    .contact-grid a { color: var(--paper); text-decoration: none; border-bottom: 1px solid rgba(201,169,97,0.6); font-size: 17px; }
-    .contact-grid p { font-size: 14.5px; margin: 8px 0 0; }
+    /* apps */
+    .apps { display: grid; gap: 28px; }
+    .app { display: grid; grid-template-columns: 1fr 1.05fr; gap: 0; background: var(--white); border: 1px solid var(--line); border-radius: 22px; overflow: hidden; box-shadow: var(--shadow); }
+    .app .body { padding: 44px; display: flex; flex-direction: column; }
+    .app .id { display: flex; align-items: center; gap: 14px; }
+    .app .id img { width: 52px; height: 52px; border-radius: 14px; }
+    .app .id h3 { font-size: 26px; font-weight: 750; }
+    .app .id .cat { font-size: 14px; color: var(--muted); }
+    .chips { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 22px; }
+    .chip { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 500; color: var(--text); background: var(--soft); border: 1px solid var(--line); padding: 4px 10px; border-radius: 999px; }
+    .chip.live { color: #067647; background: #ecfdf3; border-color: #abefc6; }
+    .chip.live::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--green); }
+    .app .desc { margin-top: 20px; font-size: 17px; }
+    .checks { list-style: none; padding: 0; margin: 22px 0 0; display: grid; gap: 10px; }
+    .checks li { display: flex; gap: 10px; align-items: flex-start; font-size: 15px; }
+    .checks svg { flex: none; margin-top: 3px; color: var(--blue); }
+    .app .cta { display: flex; gap: 10px; margin-top: 30px; flex-wrap: wrap; }
+    .app .fine { margin-top: auto; padding-top: 26px; font-size: 13px; color: var(--muted); }
+    .app .visual { position: relative; min-height: 360px; display: grid; place-items: center; padding: 36px; overflow: hidden; }
+    .app.mm .visual { background: radial-gradient(120% 90% at 80% 0%, #2a2d36 0%, #111214 70%); }
+    .app.mm .visual img { width: 100%; border-radius: 10px; box-shadow: 0 24px 48px -16px rgb(0 0 0 / .7), 0 0 0 1px rgb(255 255 255 / .06); }
+    .app.rs .visual { background: radial-gradient(110% 90% at 20% 0%, #6d63f5 0%, #4338ca 55%, #312e81 100%); }
+    .app.rs .phone { position: relative; right: auto; bottom: auto; width: 220px; box-shadow: 0 30px 60px -18px rgb(10 8 40 / .7); }
+    .app.rs .styles { position: absolute; left: 28px; top: 28px; display: grid; gap: 8px; }
+    .app.rs .styles span { font-size: 12px; font-weight: 600; color: #fff; background: rgb(255 255 255 / .14); border: 1px solid rgb(255 255 255 / .2); padding: 5px 11px; border-radius: 999px; backdrop-filter: blur(4px); }
+    .app.soon { grid-template-columns: 1fr; border-style: dashed; box-shadow: none; background: transparent; }
+    .app.soon .body { flex-direction: row; align-items: center; gap: 22px; padding: 30px 36px; }
+    .app.soon .ic { flex: none; width: 52px; height: 52px; border-radius: 14px; border: 1px dashed #cbd2dc; display: grid; place-items: center; color: var(--muted); }
+    .app.soon h3 { font-size: 18px; }
+    .app.soon p { font-size: 15px; margin-top: 2px; }
 
-    /* Footer */
-    footer.site { background: #0e182d; color: #9aa2b5; font-size: 13.5px; padding: 56px 0 40px; }
-    footer.site h4 { color: var(--paper); font-family: var(--serif); font-size: 20px; font-weight: 600; margin: 0 0 12px; }
-    footer.site p { color: #9aa2b5; font-size: 13.5px; margin: 0 0 12px; }
-    footer.site a { color: #d4d8e2; }
-    .foot-grid { display: grid; grid-template-columns: 1.2fr 1fr 1fr; gap: 48px; padding-bottom: 36px; border-bottom: 1px solid rgba(255,255,255,0.1); }
-    .foot-grid ul { list-style: none; margin: 0; padding: 0; }
-    .foot-grid li { margin: 0 0 8px; }
-    .foot-grid li a { text-decoration: none; }
-    .foot-grid li a:hover { color: var(--gold-soft); }
-    .legal-note { padding-top: 28px; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; }
+    /* approach */
+    .cards3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+    .card { background: var(--white); border: 1px solid var(--line); border-radius: var(--radius); padding: 30px; }
+    .card .ic { width: 44px; height: 44px; border-radius: 11px; background: var(--blue-tint); color: var(--blue); display: grid; place-items: center; margin-bottom: 20px; }
+    .card h3 { font-size: 18px; font-weight: 650; margin-bottom: 8px; }
+    .card p { font-size: 15px; }
+    .about-grid { display: grid; grid-template-columns: 1fr 1.2fr; gap: 64px; align-items: start; margin-bottom: 56px; }
+    .about-grid .head { margin-bottom: 0; }
+    .about-grid .copy p + p { margin-top: 16px; }
+    .about-grid .copy p { font-size: 17px; }
 
-    /* Responsive */
-    @media (max-width: 900px) {
-      .grid-2 { grid-template-columns: 1fr; gap: 20px; }
-      .products { grid-template-columns: 1fr; }
+    /* company */
+    .facts { display: grid; grid-template-columns: repeat(2, 1fr); background: var(--white); border: 1px solid var(--line); border-radius: 20px; overflow: hidden; box-shadow: var(--shadow); margin: 0; }
+    .facts > div { padding: 22px 28px; border-bottom: 1px solid var(--line); }
+    .facts > div:nth-child(odd) { border-right: 1px solid var(--line); }
+    .facts > div:nth-last-child(-n+2) { border-bottom: 0; }
+    .facts dt { font-size: 13px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: var(--muted); margin-bottom: 4px; }
+    .facts dd { margin: 0; color: var(--ink); font-weight: 500; }
+    .facts code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 15px; background: var(--soft); border: 1px solid var(--line); padding: 2px 8px; border-radius: 6px; }
+
+    /* contact */
+    .contact { background: var(--navy); color: #c3cbe0; position: relative; overflow: hidden; }
+    .contact::before { content: ""; position: absolute; width: 640px; height: 640px; right: -200px; top: -260px; border-radius: 50%; background: radial-gradient(circle, rgb(47 91 234 / .35), transparent 65%); }
+    .contact .wrap { position: relative; }
+    .contact .head h2 { color: #fff; }
+    .contact .head p { color: #c3cbe0; }
+    .contact .eyebrow { color: #8fa8ff; }
+    .ccards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+    .ccard { background: rgb(255 255 255 / .05); border: 1px solid rgb(255 255 255 / .1); border-radius: var(--radius); padding: 28px; }
+    .ccard .ic { width: 42px; height: 42px; border-radius: 11px; background: rgb(143 168 255 / .14); color: #a9bcff; display: grid; place-items: center; margin-bottom: 18px; }
+    .ccard h3 { color: #fff; font-size: 17px; font-weight: 650; margin-bottom: 6px; }
+    .ccard a, .ccard strong { color: #fff; font-weight: 600; word-break: break-all; }
+    .ccard a:hover { color: #a9bcff; }
+    .ccard p { font-size: 14px; margin-top: 6px; }
+
+    /* footer */
+    footer.site { background: #070e22; color: #8a94ad; font-size: 14px; padding: 64px 0 32px; }
+    .foot-grid { display: grid; grid-template-columns: 1.4fr 1fr 1fr 1.3fr; gap: 40px; }
+    footer .brand { color: #fff; }
+    footer .brand .mark { background: var(--blue); }
+    footer .brand small { color: #8a94ad; }
+    footer h4 { color: #fff; font-size: 14px; font-weight: 600; margin-bottom: 14px; letter-spacing: 0; }
+    footer ul { list-style: none; padding: 0; margin: 0; display: grid; gap: 10px; }
+    footer a { color: #b6bfd4; }
+    footer a:hover { color: #fff; }
+    footer .about { margin-top: 16px; line-height: 1.7; }
+    .legal-note { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-top: 48px; padding-top: 24px; border-top: 1px solid rgb(255 255 255 / .08); font-size: 13px; }
+
+    @media (max-width: 980px) {
+      .hero .wrap { grid-template-columns: 1fr; padding-top: 64px; padding-bottom: 72px; }
+      .showcase { min-height: 400px; max-width: 560px; }
+      .app { grid-template-columns: 1fr; }
+      .app .visual { min-height: 300px; order: -1; }
+      .about-grid { grid-template-columns: 1fr; gap: 24px; }
+      .cards3, .ccards { grid-template-columns: 1fr; }
       .foot-grid { grid-template-columns: 1fr 1fr; }
-      .foot-grid > div:first-child { grid-column: 1 / -1; }
     }
-    @media (max-width: 680px) {
-      .wrap { padding: 0 16px; }
+    @media (max-width: 720px) {
       nav.primary { display: none; }
-      .brand-name small { display: none; }
-      .hero { padding: 72px 0 64px; }
-      .hero::after, .hero::before { display: none; }
-      .lede { font-size: 17px; }
-      section.block { padding: 64px 0; }
-      .principles, .contact-grid { grid-template-columns: 1fr; }
-      .principles div, .principles div + div,
-      .contact-grid div, .contact-grid div + div { padding: 22px 0; border-left: none; border-bottom: 1px solid var(--rule); }
-      .contact-grid div, .contact-grid div + div { border-bottom-color: rgba(255,255,255,0.14); }
-      .product { padding: 28px 22px; }
-      dl.facts { grid-template-columns: 1fr; }
-      dl.facts dt { padding: 16px 0 2px; border-bottom: none; }
-      dl.facts dd { padding: 0 0 16px; }
-      .foot-grid { grid-template-columns: 1fr; gap: 28px; }
-      .btn { flex: 1 1 auto; justify-content: center; }
+      header .btn { margin-left: auto; }
+      section.block { padding: 72px 0; }
+      .head { margin-bottom: 36px; }
+      .app .body { padding: 28px; }
+      .app.soon .body { flex-direction: column; align-items: flex-start; padding: 24px; }
+      .facts { grid-template-columns: 1fr; }
+      .facts > div:nth-child(odd) { border-right: 0; }
+      .facts > div:nth-last-child(2) { border-bottom: 1px solid var(--line); }
+      .stats { gap: 24px; }
+      .showcase { min-height: 330px; }
+      .browser { right: 24px; }
+      .browser img { height: 250px; }
+      .phone { width: 160px; border-radius: 28px; padding: 7px; }
+      .phone .screen { border-radius: 22px; padding: 10px 9px 9px; }
+      .phone .feat { height: 48px; }
+      .foot-grid { grid-template-columns: 1fr; gap: 32px; }
+      .app.rs .styles { display: none; }
     }
+    @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
   </style>
 </head>
 <body>
-
   <header class="site">
     <div class="wrap">
       <a class="brand" href="#top" aria-label="APPJS Technologies, home">
-        <span class="mark" aria-hidden="true">A</span>
-        <span class="brand-name">APPJS<small>Technologies</small></span>
+        <span class="mark" aria-hidden="true"><svg width="18" height="18" viewBox="16 14 32 34"><path d="M20 46 32 16l12 30h-7l-2.3-6h-5.4L27 46zm9.4-11.5h5.2L32 27.3z" fill="#fff"/></svg></span>
+        <span class="name">APPJS<small>Technologies</small></span>
       </a>
       <nav class="primary" aria-label="Primary">
+        <a href="#apps">Apps</a>
         <a href="#about">About</a>
-        <a href="#products">Products</a>
         <a href="#company">Company</a>
-        <a href="#contact">Contact</a>
       </nav>
+      <a class="btn btn-primary btn-sm" href="#contact">Contact us</a>
     </div>
   </header>
 
@@ -235,159 +267,213 @@
 
     <section class="hero">
       <div class="wrap">
-        <p class="eyebrow">APPJS Technologies Private Limited</p>
-        <h1>Software, built with <em>care</em> and clarity.</h1>
-        <p class="lede">We are an Indian technology company that designs, builds and operates focused digital products for individuals and businesses.</p>
-        <div class="actions">
-          <a class="btn btn-primary" href="#products">Our products</a>
-          <a class="btn btn-ghost" href="#company">Company information</a>
-        </div>
-      </div>
-    </section>
-
-    <section class="block" id="about">
-      <div class="wrap grid-2">
-        <p class="label">About us</p>
         <div>
-          <h2>A small company with a long view.</h2>
-          <p>APPJS Technologies Private Limited was incorporated in 2023 and is registered with the Registrar of Companies, Delhi. We build software products end to end, from design and engineering to hosting, customer support and billing.</p>
-          <p>Each product we make does one job well. We run them ourselves, answer our own support email, and publish clear terms, privacy and refund policies for every product we operate.</p>
-          <div class="principles">
-            <div>
-              <h3>Focused</h3>
-              <p>Products that solve one problem properly, without clutter.</p>
-            </div>
-            <div>
-              <h3>Transparent</h3>
-              <p>Plain-language policies, honest pricing and no hidden charges.</p>
-            </div>
-            <div>
-              <h3>Responsible</h3>
-              <p>Careful handling of user data and payments, under Indian law.</p>
+          <span class="pill"><span class="dot" aria-hidden="true"></span>2 apps live · Web and Android</span>
+          <h1>Apps, built with <span>care</span> and clarity.</h1>
+          <p class="lede">APPJS Technologies is an Indian technology company that designs, builds and operates focused apps for individuals and businesses, from markets to creativity.</p>
+          <div class="actions">
+            <a class="btn btn-primary" href="#apps">Explore our apps
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+            <a class="btn btn-outline" href="#company">Company information</a>
+          </div>
+          <div class="stats">
+            <div><strong>2023</strong><span>Incorporated</span></div>
+            <div><strong>2</strong><span>Apps live</span></div>
+            <div><strong>Web · Android</strong><span>Platforms</span></div>
+          </div>
+        </div>
+
+        <div class="showcase" aria-hidden="true">
+          <div class="browser">
+            <div class="bar"><i></i><i></i><i></i><span>marktmakrs.in</span></div>
+            <img src="/assets/marktmakrs-screen.webp" alt="" width="960" height="600">
+          </div>
+          <div class="phone">
+            <div class="screen">
+              <div class="top"><img src="/assets/restyle-icon.svg" alt="">Restyle<em>✦ 12 credits</em></div>
+              <div class="hi">Good evening</div>
+              <div class="t">Pick a style</div>
+              <div class="feat"><b>Ghibli Style</b></div>
+              <div class="tiles">
+                <i style="background:linear-gradient(160deg,#5b3a8c,#2e1a52)"></i>
+                <i style="background:linear-gradient(160deg,#2f5a74,#1d3347)"></i>
+                <i style="background:linear-gradient(160deg,#a5603a,#6f3a1e)"></i>
+                <i style="background:linear-gradient(160deg,#3e6a55,#22392f)"></i>
+              </div>
+              <div class="tabs"><i></i><i></i><i></i></div>
             </div>
           </div>
         </div>
       </div>
     </section>
 
-    <section class="block" id="products">
-      <div class="wrap grid-2">
-        <p class="label">Products</p>
-        <div>
-          <h2>What we build.</h2>
-          <p>Our products are offered under their own brands and websites. Each one states the terms of use and privacy policy that apply to it.</p>
+    <section class="block" id="apps">
+      <div class="wrap">
+        <div class="head">
+          <span class="eyebrow">Our apps</span>
+          <h2>Focused apps that do one job well.</h2>
+          <p>Each app has its own brand and website, and states the terms of use and privacy policy that apply to it.</p>
+        </div>
 
-          <div class="products">
-            <article class="product">
-              <div class="tag"><span class="live">Live</span> &nbsp;·&nbsp; Fintech &amp; analytics</div>
-              <h3>MarktMakrs</h3>
-              <p class="tagline">Technical analysis made easy.</p>
-              <p>A technical-analysis platform and stock screener for NSE-listed equities. It helps traders and investors read charts, scan the market for technical setups and follow the stocks they care about.</p>
-              <ul>
-                <li>Market dashboard and technical stock screener</li>
-                <li>Chart patterns, support and resistance, trend signals</li>
-                <li>Free tier, with paid subscription plans</li>
-              </ul>
-              <div class="foot">
-                <a class="link" href="https://marktmakrs.in" target="_blank" rel="noopener">Visit marktmakrs.in &rarr;</a>
+        <div class="apps">
+          <article class="app rs">
+            <div class="body">
+              <div class="id">
+                <img src="/assets/restyle-icon.svg" alt="" width="52" height="52">
+                <div><h3>Restyle AI</h3><div class="cat">Consumer · AI photo styles</div></div>
               </div>
-              <p class="note" style="margin-top:22px">MarktMakrs provides technical-analysis tools only. It is not a SEBI-registered investment adviser or research analyst, and nothing on it is investment advice.</p>
-            </article>
-
-            <article class="product">
-              <div class="tag"><span class="live">Live</span> &nbsp;·&nbsp; Consumer &amp; AI</div>
-              <h3>Restyle AI</h3>
-              <p class="tagline">Turn any photo into a styled post.</p>
-              <p>A web and Android app that restyles your photos with AI: pick a look such as anime, watercolour, pixel art or clay figure, upload a photo, and get a styled image to download and share.</p>
-              <ul>
-                <li>A growing library of styles</li>
-                <li>Sign in with your phone number or Google</li>
-                <li>Free credits to start, with paid credit plans</li>
+              <div class="chips"><span class="chip live">Live</span><span class="chip">Web</span><span class="chip">Android</span></div>
+              <p class="desc">Turn any photo into a styled post. Pick a look such as anime, watercolour, pixel art or clay figure, upload a photo, and get a styled image to download and share.</p>
+              <ul class="checks">
+                <li><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 5 5 9-10"/></svg>A growing library of AI styles</li>
+                <li><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 5 5 9-10"/></svg>Sign in with your phone number or Google</li>
+                <li><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 5 5 9-10"/></svg>Free credits to start, with paid credit plans</li>
               </ul>
-              <div class="foot">
-                <a class="link" href="https://restyle.appjs.tech" target="_blank" rel="noopener">Open restyle.appjs.tech &rarr;</a>
+              <div class="cta">
+                <a class="btn btn-primary" href="https://restyle.appjs.tech" target="_blank" rel="noopener">Open Restyle AI</a>
               </div>
-              <p class="note" style="margin-top:22px">Restyle AI is covered by our <a href="/privacy">privacy policy</a> and <a href="/terms">terms of service</a>.</p>
-            </article>
+              <p class="fine">Covered by our <a href="/privacy">privacy policy</a> and <a href="/terms">terms of service</a>.</p>
+            </div>
+            <div class="visual" aria-hidden="true">
+              <div class="styles"><span>Anime</span><span>Watercolour</span><span>Pixel art</span><span>Clay figure</span></div>
+              <div class="phone">
+                <div class="screen">
+                  <div class="top"><img src="/assets/restyle-icon.svg" alt="">Restyle<em>✦ 12 credits</em></div>
+                  <div class="hi">Good evening</div>
+                  <div class="t">Pick a style</div>
+                  <div class="feat"><b>Ghibli Style</b></div>
+                  <div class="tiles">
+                    <i style="background:linear-gradient(160deg,#5b3a8c,#2e1a52)"></i>
+                    <i style="background:linear-gradient(160deg,#2f5a74,#1d3347)"></i>
+                    <i style="background:linear-gradient(160deg,#a5603a,#6f3a1e)"></i>
+                    <i style="background:linear-gradient(160deg,#3e6a55,#22392f)"></i>
+                  </div>
+                  <div class="tabs"><i></i><i></i><i></i></div>
+                </div>
+              </div>
+            </div>
+          </article>
 
-            <article class="product soon">
-              <div class="tag">In development</div>
-              <h3>More to come</h3>
-              <p class="tagline">New products are on the way.</p>
-              <p>We are working on further software products. They will be listed here, with their own websites and policies, as they launch.</p>
-            </article>
+          <article class="app mm">
+            <div class="body">
+              <div class="id">
+                <img src="/assets/marktmakrs-icon.png" alt="" width="52" height="52">
+                <div><h3>MarktMakrs</h3><div class="cat">Fintech · Market analytics</div></div>
+              </div>
+              <div class="chips"><span class="chip live">Live</span><span class="chip">Web</span></div>
+              <p class="desc">Technical analysis made easy. A technical-analysis platform and stock screener for NSE-listed equities that helps traders and investors read charts, scan the market for technical setups and follow the stocks they care about.</p>
+              <ul class="checks">
+                <li><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 5 5 9-10"/></svg>Market dashboard and technical stock screener</li>
+                <li><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 5 5 9-10"/></svg>Chart patterns, support and resistance, trend signals</li>
+                <li><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 5 5 9-10"/></svg>Free tier, with paid subscription plans</li>
+              </ul>
+              <div class="cta">
+                <a class="btn btn-outline" href="https://marktmakrs.in" target="_blank" rel="noopener">Visit marktmakrs.in</a>
+              </div>
+              <p class="fine">MarktMakrs provides technical-analysis tools only. It is not a SEBI-registered investment adviser or research analyst, and nothing on it is investment advice.</p>
+            </div>
+            <div class="visual" aria-hidden="true">
+              <img src="/assets/marktmakrs-screen.webp" alt="" width="960" height="600" loading="lazy">
+            </div>
+          </article>
+
+          <article class="app soon">
+            <div class="body">
+              <div class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></div>
+              <div>
+                <h3>More apps on the way</h3>
+                <p>We are working on further apps. They will be listed here, with their own websites and policies, as they launch.</p>
+              </div>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="block alt" id="about">
+      <div class="wrap">
+        <div class="about-grid">
+          <div class="head">
+            <span class="eyebrow">About us</span>
+            <h2>A small company with a long view.</h2>
+          </div>
+          <div class="copy">
+            <p>APPJS Technologies Private Limited was incorporated in 2023 and is registered with the Registrar of Companies, Delhi. We build apps end to end, from design and engineering to hosting, customer support and billing.</p>
+            <p>Each app we make does one job well. We run them ourselves, answer our own support email, and publish clear terms and privacy policies for every app we operate.</p>
+          </div>
+        </div>
+        <div class="cards3">
+          <div class="card">
+            <div class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/></svg></div>
+            <h3>Focused</h3>
+            <p>Apps that solve one problem properly, without clutter.</p>
+          </div>
+          <div class="card">
+            <div class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h10"/></svg></div>
+            <h3>Transparent</h3>
+            <p>Plain-language policies, honest pricing and no hidden charges.</p>
+          </div>
+          <div class="card">
+            <div class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3 5 6v6c0 4.4 3 7.6 7 9 4-1.4 7-4.6 7-9V6z"/><path d="m9 12 2 2 4-4"/></svg></div>
+            <h3>Responsible</h3>
+            <p>Careful handling of user data and payments, under Indian law.</p>
           </div>
         </div>
       </div>
     </section>
 
     <section class="block" id="company">
-      <div class="wrap grid-2">
-        <p class="label">Company information</p>
-        <div>
+      <div class="wrap">
+        <div class="head">
+          <span class="eyebrow">Company information</span>
           <h2>Corporate details.</h2>
           <p>Statutory information about the company, for customers, partners, payment providers and advertising platforms.</p>
-          <dl class="facts">
-            <dt>Legal name</dt>
-            <dd>APPJS Technologies Private Limited</dd>
-
-            <dt>Entity type</dt>
-            <dd>Private limited company, incorporated under the Companies Act, 2013</dd>
-
-            <dt>CIN</dt>
-            <dd><code>U62011DL2023PTC423950</code></dd>
-
-            <dt>Incorporated</dt>
-            <dd>2023, Registrar of Companies, Delhi</dd>
-
-            <dt>Business</dt>
-            <dd>Software development and publishing of digital products</dd>
-
-            <!-- EDIT: fill in and uncomment. Ads and payment platforms check that this matches the address on the incorporation record.
-            <dt>Registered office</dt>
-            <dd>Flat / Building, Street, Locality,<br>New Delhi – 1100XX, India</dd>
-            -->
-            <dt>Registered in</dt>
-            <dd>Delhi, India</dd>
-
-            <!-- EDIT: uncomment once the GSTIN is issued.
-            <dt>GSTIN</dt>
-            <dd><code>07XXXXXXXXXXXXX</code></dd>
-            -->
-
-            <dt>Products</dt>
-            <dd><a href="https://restyle.appjs.tech" target="_blank" rel="noopener">Restyle AI</a> (restyle.appjs.tech)<br><a href="https://marktmakrs.in" target="_blank" rel="noopener">MarktMakrs</a> (marktmakrs.in)</dd>
-
-            <dt>Email</dt>
-            <dd><a href="mailto:contactappdojs@gmail.com">contactappdojs@gmail.com</a></dd>
-          </dl>
         </div>
+        <dl class="facts">
+          <div><dt>Legal name</dt><dd>APPJS Technologies Private Limited</dd></div>
+          <div><dt>Entity type</dt><dd>Private limited company, incorporated under the Companies Act, 2013</dd></div>
+          <div><dt>CIN</dt><dd><code>U62011DL2023PTC423950</code></dd></div>
+          <div><dt>Incorporated</dt><dd>2023, Registrar of Companies, Delhi</dd></div>
+          <div><dt>Business</dt><dd>Development and publishing of web and mobile apps</dd></div>
+          <!-- EDIT: fill in and uncomment. Ads and payment platforms check that this matches the address on the incorporation record.
+          <div><dt>Registered office</dt><dd>Flat / Building, Street, Locality,<br>New Delhi – 1100XX, India</dd></div>
+          -->
+          <div><dt>Registered in</dt><dd>Delhi, India</dd></div>
+          <!-- EDIT: uncomment once the GSTIN is issued.
+          <div><dt>GSTIN</dt><dd><code>07XXXXXXXXXXXXX</code></dd></div>
+          -->
+          <div><dt>Apps</dt><dd><a href="https://restyle.appjs.tech" target="_blank" rel="noopener">Restyle AI</a> (restyle.appjs.tech)<br><a href="https://marktmakrs.in" target="_blank" rel="noopener">MarktMakrs</a> (marktmakrs.in)</dd></div>
+          <div><dt>Email</dt><dd><a href="mailto:contactappdojs@gmail.com">contactappdojs@gmail.com</a></dd></div>
+        </dl>
       </div>
     </section>
 
     <section class="block contact" id="contact">
-      <div class="wrap grid-2">
-        <p class="label">Contact</p>
-        <div>
+      <div class="wrap">
+        <div class="head">
+          <span class="eyebrow">Contact</span>
           <h2>Get in touch.</h2>
-          <p>For product support, billing, partnerships or legal notices, write to us. We reply within two business days.</p>
-          <div class="contact-grid">
-            <div>
-              <h3>General &amp; support</h3>
-              <a href="mailto:contactappdojs@gmail.com">contactappdojs@gmail.com</a>
-              <p>Product help, accounts and billing.</p>
-            </div>
-            <div>
-              <h3>Legal &amp; grievances</h3>
-              <a href="mailto:contactappdojs@gmail.com?subject=Grievance">contactappdojs@gmail.com</a>
-              <p>Mark the subject “Grievance” for escalation.</p>
-            </div>
-            <div>
-              <h3>Location</h3>
-              <!-- EDIT: add a phone number here if you want one listed, e.g. <a href="tel:+91XXXXXXXXXX">+91 XXXXX XXXXX</a> -->
-              <span style="font-size:17px">Delhi, India</span>
-              <p>Monday to Friday, business hours IST.</p>
-            </div>
+          <p>For app support, billing, partnerships or legal notices, write to us. We reply within two business days.</p>
+        </div>
+        <div class="ccards">
+          <div class="ccard">
+            <div class="ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg></div>
+            <h3>General &amp; support</h3>
+            <a href="mailto:contactappdojs@gmail.com">contactappdojs@gmail.com</a>
+            <p>App help, accounts and billing.</p>
+          </div>
+          <div class="ccard">
+            <div class="ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v18M5 7h14M7 7l-3 7a3 3 0 0 0 6 0zM17 7l-3 7a3 3 0 0 0 6 0z"/></svg></div>
+            <h3>Legal &amp; grievances</h3>
+            <a href="mailto:contactappdojs@gmail.com?subject=Grievance">contactappdojs@gmail.com</a>
+            <p>Mark the subject “Grievance” for escalation.</p>
+          </div>
+          <div class="ccard">
+            <div class="ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s7-6.2 7-12a7 7 0 0 0-14 0c0 5.8 7 12 7 12z"/><circle cx="12" cy="9" r="2.5"/></svg></div>
+            <h3>Location</h3>
+            <!-- EDIT: add a phone number here if you want one listed, e.g. <a href="tel:+91XXXXXXXXXX">+91 XXXXX XXXXX</a> -->
+            <strong>Delhi, India</strong>
+            <p>Monday to Friday, business hours IST.</p>
           </div>
         </div>
       </div>
@@ -399,23 +485,29 @@
     <div class="wrap">
       <div class="foot-grid">
         <div>
-          <h4>APPJS Technologies</h4>
-          <p>APPJS Technologies Private Limited<br>CIN: U62011DL2023PTC423950<br>Delhi, India</p>
+          <a class="brand" href="#top">
+            <span class="mark" aria-hidden="true"><svg width="18" height="18" viewBox="16 14 32 34"><path d="M20 46 32 16l12 30h-7l-2.3-6h-5.4L27 46zm9.4-11.5h5.2L32 27.3z" fill="#fff"/></svg></span>
+            <span class="name">APPJS<small>Technologies</small></span>
+          </a>
+          <p class="about">APPJS Technologies Private Limited<br>CIN: U62011DL2023PTC423950<br>Delhi, India</p>
         </div>
         <div>
-          <h4>Products</h4>
+          <h4>Apps</h4>
           <ul>
             <li><a href="https://restyle.appjs.tech" target="_blank" rel="noopener">Restyle AI</a></li>
             <li><a href="https://marktmakrs.in" target="_blank" rel="noopener">MarktMakrs</a></li>
           </ul>
         </div>
         <div>
-          <h4>This website</h4>
-          <p>This site is informational. It sets no cookies, runs no tracking and collects no personal data. If you email us, we use your message only to reply to you.</p>
+          <h4>Legal</h4>
           <ul>
             <li><a href="/privacy">Privacy policy</a></li>
             <li><a href="/terms">Terms of service</a></li>
           </ul>
+        </div>
+        <div>
+          <h4>This website</h4>
+          <p>This site is informational. It sets no cookies, runs no tracking and collects no personal data. If you email us, we use your message only to reply to you.</p>
         </div>
       </div>
       <div class="legal-note">
