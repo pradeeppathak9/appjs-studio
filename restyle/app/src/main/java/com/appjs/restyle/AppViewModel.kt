@@ -62,6 +62,27 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
     var planName by mutableStateOf<String?>(null)
         private set
     val plans = mutableStateListOf<Plan>()
+    var onTrial by mutableStateOf(false)
+        private set
+    var trialUsed by mutableStateOf(false)
+        private set
+    /** ISO time the current subscription (or trial) ends. */
+    var periodEnd by mutableStateOf<String?>(null)
+        private set
+
+    // --- Post-sign-in "Set up your subscription" prompt -----------------------------------
+    /** The account has been loaded from the server this run (so "no plan" is real, not just unknown). */
+    private var accountLoaded by mutableStateOf(false)
+    /** "Maybe later": hidden until the next launch (a new ViewModel) or the next sign-in. */
+    private var promptDismissed by mutableStateOf(false)
+    /** Set when a trial was just started from the prompt: it shows the confirmation. */
+    var trialJustStarted by mutableStateOf(false)
+        private set
+    val showSubscriptionPrompt: Boolean
+        get() = isLoggedIn && accountLoaded && !promptDismissed && plans.isNotEmpty() &&
+            (planId == null || trialJustStarted)
+    /** A trial can be started: the user never had one and a plan offers it. */
+    val trialOffered: Boolean get() = !trialUsed && plans.any { it.trialEnabled }
 
     /** The user's current plan, when it's one of the plans on offer. */
     val plan: Plan? get() = plans.firstOrNull { it.id == planId }
@@ -136,10 +157,16 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
         credits = a.credits
         planId = a.planId
         planName = a.planName
+        onTrial = a.onTrial
+        trialUsed = a.trialUsed
+        periodEnd = a.periodEnd
+        accountLoaded = true
     }
 
     private suspend fun signedIn(s: SignedIn, onSignedIn: () -> Unit) {
         store.token = s.token
+        promptDismissed = false
+        trialJustStarted = false
         apply(s.account)
         onSignedIn()
         loadTemplates()
@@ -156,6 +183,10 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
         credits = 0
         planId = null
         planName = null
+        onTrial = false
+        trialUsed = false
+        periodEnd = null
+        accountLoaded = false
         photo = null
         Templates.all = emptyList()
     }
@@ -310,6 +341,33 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
         refresh()
     }
 
+    fun dismissSubscriptionPrompt() {
+        promptDismissed = true
+        trialJustStarted = false
+        error = null
+    }
+
+    fun startTrial(p: Plan) {
+        if (busy) return
+        viewModelScope.launch {
+            busy = true
+            error = null
+            runCatching { api.startTrial(p.id) }
+                .onSuccess { trialJustStarted = true; apply(it) }
+                .onFailure {
+                    handleBackground(it)
+                    error = messageFor(it)
+                    runCatching { api.me() }.onSuccess(::apply)
+                }
+            busy = false
+        }
+    }
+
+    /** The prompt's paid choice: payments aren't connected yet (same wording as the web app). */
+    fun paymentsComingSoon(p: Plan) {
+        error = "Payments are coming soon. Ask support to activate the ${p.title} plan."
+    }
+
     // ---- errors ---------------------------------------------------------------------------------
 
     private fun messageFor(e: Throwable): String {
@@ -323,6 +381,7 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
         e.code == "otp_invalid" -> "That code didn't work." +
             (e.detailInt("attempts_left")?.let { " $it ${if (it == 1) "try" else "tries"} left." } ?: "")
         e.code == "otp_expired" -> "This code has expired. Tap Resend code."
+        e.code == "trial_used" -> "You've already used your free trial."
         e.code == "insufficient_credits" -> "You need more credits for this style."
         e.code == "content_policy" -> "This photo can't be styled. Try a different one. Your credits were refunded."
         e.code == "provider_unavailable" && e.status == 503 ->

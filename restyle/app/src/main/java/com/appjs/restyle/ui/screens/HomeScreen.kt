@@ -453,7 +453,7 @@ private fun ProfileTab(vm: AppViewModel, onGetCredits: () -> Unit, onLogout: () 
             Spacer(Modifier.height(8.dp))
             vm.planName?.let { name ->
                 Text(
-                    "$name plan" + (vm.plan?.let { " · ${it.creditsPerMonth} credits/month" } ?: ""),
+                    "$name plan" + if (vm.onTrial) " · free trial" else (vm.plan?.let { " · ${it.creditsPerMonth} credits/month" } ?: ""),
                     fontSize = 13.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = RColors.BrandDark,

@@ -102,6 +102,9 @@ data class Plan(
     val creditsPerMonth: Int,
     val note: String,
     val badge: String? = null,
+    val trialEnabled: Boolean = false,
+    val trialDays: Int = 0,
+    val trialCredits: Int = 0,
 ) {
     companion object {
         fun fromApi(o: JSONObject) = Plan(
@@ -113,6 +116,9 @@ data class Plan(
             creditsPerMonth = o.optInt("credits_per_month"),
             note = o.str("description").orEmpty(),
             badge = o.str("badge"),
+            trialEnabled = o.optBoolean("trial_enabled"),
+            trialDays = o.optInt("trial_days"),
+            trialCredits = o.optInt("trial_credits"),
         )
 
         fun formatPrice(minor: Int, currency: String): String {

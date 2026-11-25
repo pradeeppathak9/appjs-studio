@@ -16,11 +16,13 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
 import com.appjs.restyle.data.Templates
 import com.appjs.restyle.ui.screens.SubscribeScreen
+import com.appjs.restyle.ui.screens.SubscriptionPrompt
 import com.appjs.restyle.ui.screens.HomeScreen
 import com.appjs.restyle.ui.screens.HomeTab
 import com.appjs.restyle.ui.screens.LoginScreen
@@ -72,6 +74,10 @@ fun RestyleApp(vm: AppViewModel = viewModel()) {
             nav.navigate(Routes.Login) { popUpTo(0) { inclusive = true } }
         }
     }
+
+    // After sign-in, while there's no subscription: offer the free trial or the plans (over Home).
+    val route = nav.currentBackStackEntryAsState().value?.destination?.route
+    if (route == Routes.Home && vm.showSubscriptionPrompt) SubscriptionPrompt(vm)
 
     NavHost(nav, startDestination = if (vm.isLoggedIn) Routes.Home else Routes.Login) {
         composable(Routes.Login) {

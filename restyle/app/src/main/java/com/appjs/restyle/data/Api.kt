@@ -86,6 +86,10 @@ class ApiClient(
 
     suspend fun me(): Account = account(JSONObject(get("/v1/app/me")))
 
+    /** Start the free trial of [planId] (a plan with `trial_enabled`); returns the updated account. */
+    suspend fun startTrial(planId: String): Account =
+        account(JSONObject(postJson("/v1/app/me/trial", JSONObject().put("plan_id", planId))))
+
     // ---- catalog ---------------------------------------------------------------------------------
 
     suspend fun templates(): List<StyleTemplate> {
@@ -154,6 +158,9 @@ class ApiClient(
             credits = u.optInt("credits"),
             planId = sub?.getJSONObject("plan")?.str("id"),
             planName = sub?.getJSONObject("plan")?.str("name"),
+            onTrial = sub?.optBoolean("trial") ?: false,
+            periodEnd = sub?.str("current_period_end"),
+            trialUsed = u.optBoolean("trial_used"),
         )
     }
 
@@ -170,7 +177,15 @@ data class AppConfig(
 )
 
 /** The signed-in user as the server knows them: profile, balance and current plan. */
-data class Account(val user: User, val credits: Int, val planId: String?, val planName: String?)
+data class Account(
+    val user: User,
+    val credits: Int,
+    val planId: String?,
+    val planName: String?,
+    val onTrial: Boolean = false,
+    val periodEnd: String? = null,
+    val trialUsed: Boolean = false,
+)
 
 data class SignedIn(val token: String, val account: Account, val isNew: Boolean)
 
