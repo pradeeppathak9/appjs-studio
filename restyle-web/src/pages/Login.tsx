@@ -76,7 +76,15 @@ export function Login() {
           {error && <p className="error">{error}</p>}
         </div>
         <p className="muted small" style={{ textAlign: "center" }}>
-          By continuing you agree to Restyle's terms and privacy policy.
+          By continuing you agree to Restyle's{" "}
+          <a href="https://appjs.tech/terms" target="_blank" rel="noopener">
+            terms
+          </a>{" "}
+          and{" "}
+          <a href="https://appjs.tech/privacy" target="_blank" rel="noopener">
+            privacy policy
+          </a>
+          .
         </p>
       </div>
     </div>
