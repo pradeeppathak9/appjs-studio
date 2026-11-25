@@ -31,7 +31,7 @@ export function Layout() {
         <div className="topbar-inner">
           <Link to="/" className="logo">
             <img src="/favicon.svg" alt="" />
-            Restyle
+            Restyle AI
           </Link>
           <nav className="topnav" aria-label="Main">
             {TABS.map((t) => (

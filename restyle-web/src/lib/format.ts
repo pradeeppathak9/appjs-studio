@@ -46,7 +46,7 @@ export function userMessage(e: unknown, signedIn = false): string {
     case "account_blocked":
       return "This account is blocked. Contact support.";
     case "app_disabled":
-      return "Restyle is under maintenance. Try again later.";
+      return "Restyle AI is under maintenance. Try again later.";
     case "payload_too_large":
       return "That photo is too large. Pick one under 10 MB.";
     case "no_app_key":

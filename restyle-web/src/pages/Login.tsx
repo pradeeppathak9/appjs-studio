@@ -45,7 +45,7 @@ export function Login() {
       <div className="auth-card">
         <div className="stack" style={{ gap: 8, alignItems: "center", textAlign: "center" }}>
           <img src="/favicon.svg" alt="" width={56} height={56} />
-          <h1>Restyle</h1>
+          <h1>Restyle AI</h1>
           <p className="muted">Turn any photo into a styled post</p>
         </div>
         <div className="card stack">
@@ -76,7 +76,7 @@ export function Login() {
           {error && <p className="error">{error}</p>}
         </div>
         <p className="muted small" style={{ textAlign: "center" }}>
-          By continuing you agree to Restyle's{" "}
+          By continuing you agree to Restyle AI's{" "}
           <a href="https://appjs.tech/terms" target="_blank" rel="noopener">
             terms
           </a>{" "}
