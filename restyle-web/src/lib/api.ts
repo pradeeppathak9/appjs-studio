@@ -27,6 +27,8 @@ export type AppConfig = {
   app: { slug: string; name: string };
   sign_in: { google: boolean; phone: boolean; google_client_id: string | null; phone_provider: string | null };
   require_login: boolean;
+  /** none = payments aren't available yet (show plans without a buy action) */
+  payments?: { provider: "none" | "razorpay" | "phonepe" };
 };
 export type Template = {
   id: string;
@@ -51,7 +53,10 @@ export type Account = {
     plan: { id: string; name: string };
     status: string;
     trial: boolean;
+    provider?: string;
     current_period_end: string;
+    /** it won't renew: it ends at current_period_end */
+    cancel_at_period_end?: boolean;
   } | null;
   trial_used: boolean;
 };
@@ -69,6 +74,33 @@ export type Plan = {
   trial_enabled: boolean;
   trial_days: number;
   trial_credits: number;
+};
+export type RazorpayCheckout = {
+  key_id: string;
+  order_id: string;
+  customer_id: string;
+  amount: number;
+  currency: string;
+  name: string;
+  email: string;
+  phone: string;
+  method: "upi" | "card";
+};
+export type PaymentOrder = {
+  id: string;
+  status: "pending" | "active" | "failed" | "cancelled";
+  gateway: string;
+  plan: { id: string; slug: string; name: string };
+  amount_minor: number;
+  currency: string;
+  error: string | null;
+  razorpay: RazorpayCheckout | null;
+};
+export type CheckoutBody = {
+  plan_id: string;
+  method: "upi" | "card";
+  email?: string;
+  phone?: string;
 };
 export type Job = {
   id: string;
@@ -145,6 +177,9 @@ export const api = {
   templates: async () => (await getJson<{ templates: Template[] }>("/v1/app/templates")).templates,
   plans: () => getJson<Plan[]>("/v1/app/plans"),
   startTrial: (plan_id: string) => postJson<Account>("/v1/app/me/trial", { plan_id }),
+  checkout: (body: CheckoutBody) => postJson<PaymentOrder>("/v1/app/subscriptions", body),
+  order: (id: string) => getJson<PaymentOrder>(`/v1/app/subscriptions/orders/${id}`),
+  cancelSubscription: () => postJson<Account>("/v1/app/subscriptions/current/cancel"),
   jobs: () => getJson<Job[]>("/v1/app/generations?limit=50"),
   job: (id: string) => getJson<Job>(`/v1/app/generations/${id}`),
   run: (slug: string, slot: string, photo: Blob) => {

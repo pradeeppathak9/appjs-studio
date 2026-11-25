@@ -2,9 +2,10 @@
  * on offer, else the plans. "Maybe later" closes it until the next launch or sign-in. */
 import { useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router";
 import { api, type Account, type Plan } from "../lib/api";
 import { creditsLabel, formatPrice, userMessage } from "../lib/format";
-import { keys } from "../lib/queries";
+import { keys, useConfig } from "../lib/queries";
 import { session } from "../lib/session";
 import {
   comingSoon,
@@ -32,6 +33,8 @@ export function SubscriptionPrompt({
   onClose: () => void;
 }) {
   const qc = useQueryClient();
+  const navigate = useNavigate();
+  const payable = useConfig().data?.payments?.provider === "razorpay";
   const [started, setStarted] = useState<Account | null>(null);
   const trial = trialOffered(me, plans);
   const options = periods(plans, trial);
@@ -147,7 +150,15 @@ export function SubscriptionPrompt({
               </>
             )}
             {plan && (
-              <button className={trial ? "btn outline block" : "btn block"} onClick={() => setNotice(comingSoon(plan))}>
+              <button
+                className={trial ? "btn outline block" : "btn block"}
+                onClick={() => {
+                  if (payable) {
+                    onClose();
+                    navigate(`/subscribe?plan=${plan.id}`);
+                  } else setNotice(comingSoon(plan));
+                }}
+              >
                 {subscribeLabel(plan)}
               </button>
             )}

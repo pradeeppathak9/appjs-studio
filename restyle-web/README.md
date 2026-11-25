@@ -54,4 +54,7 @@ docker/               nginx config template and the start script that writes /co
   `GET /v1/app`). Add the site's origin (e.g. `http://localhost:5180`, `https://restyle.example.com`) to
   that client's Authorized JavaScript origins.
 - Phone sign-in works when the app uses MSG91 codes; Firebase phone sign-in is Android-only for now.
-- Payments aren't connected (same as Android): the plans screen explains that support activates plans.
+- Payments: when Studio reports `payments.provider: razorpay` (the app is connected to autorev), Subscribe
+  opens Razorpay Checkout (UPI Autopay or a card mandate, loaded from `checkout.razorpay.com`) and polls
+  the order until the plan is on; Profile can cancel it. Otherwise the plans screen says support
+  activates plans. Test it with Razorpay test mode: see `../studio/docs/PAYMENTS_PLAN.md`.

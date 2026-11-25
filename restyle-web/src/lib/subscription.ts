@@ -44,3 +44,18 @@ export function planFor(plans: Plan[], period: Period | undefined, trial: boolea
   const ofPeriod = plans.filter((p) => p.billing_period === period && (!trial || p.trial_enabled));
   return ofPeriod.find((p) => p.badge) ?? ofPeriod[0];
 }
+
+export const shortDate = (iso: string | undefined) =>
+  iso ? new Date(iso).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric", timeZone: "Asia/Kolkata" }) : "";
+
+/** The Plan line on the profile: trial, paid (renews / ends), or none. */
+export function planLine(a: Account): string {
+  const sub = a.subscription;
+  if (!sub) return "No plan yet.";
+  if (sub.trial) return `You're on a free trial of the ${sub.plan.name} plan.`;
+  if (sub.provider === "razorpay")
+    return sub.cancel_at_period_end
+      ? `You're on the ${sub.plan.name} plan. It ends on ${shortDate(sub.current_period_end)} and won't renew.`
+      : `You're on the ${sub.plan.name} plan. It renews automatically.`;
+  return `You're on the ${sub.plan.name} plan.`;
+}

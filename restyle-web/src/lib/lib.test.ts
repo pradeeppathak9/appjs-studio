@@ -2,7 +2,8 @@ import { describe, expect, it } from "vitest";
 import { ApiError, type Account, type Plan, type Template } from "./api";
 import { creditsLabel, displayPhone, formatPrice, greeting, userMessage } from "./format";
 import { cropBox, RATIOS } from "./image";
-import { needsSubscription, periods, planFor, trialOffered } from "./subscription";
+import { needsSubscription, periods, planFor, planLine, trialOffered } from "./subscription";
+import { missingDetails, validEmail, validMobile } from "./checkout";
 import { categories, filterStyles, javaHash, toStyle } from "./styles";
 
 const template = (slug: string, extra: Partial<Template> = {}): Template => ({
@@ -140,5 +141,31 @@ describe("subscription prompt", () => {
     expect(periods([plan("m", "month"), yearly], true)).toEqual(["year"]);
     expect(planFor([monthly, yearly], "year", true)?.slug).toBe("yearly");
     expect(planFor([plan("a", "year"), yearly], "year", false)?.slug).toBe("yearly");
+  });
+});
+
+describe("paying with Razorpay", () => {
+  const base = { id: "u", name: null, photo_url: null, credits: 0, trial_used: false } as const;
+  const phoneUser: Account = { ...base, email: null, phone: "+919876543210", sign_in: "phone", subscription: null };
+  const googleUser: Account = { ...base, email: "a@b.co", phone: null, sign_in: "google", subscription: null };
+
+  it("asks only for what the account lacks", () => {
+    expect(missingDetails(phoneUser)).toEqual({ email: true, phone: false });
+    expect(missingDetails(googleUser)).toEqual({ email: false, phone: true });
+  });
+
+  it("checks the payer's details", () => {
+    expect(validEmail("priya@example.com")).toBe(true);
+    expect(validEmail("priya@")).toBe(false);
+    expect(validMobile("9876543210")).toBe(true);
+    expect(validMobile("919876543210")).toBe(true);
+    expect(validMobile("1234567890")).toBe(false);
+  });
+
+  it("says how a paid plan stands", () => {
+    const sub = { plan: { id: "p", name: "Monthly" }, status: "active", trial: false, provider: "razorpay", current_period_end: "2026-12-31T18:30:00Z" };
+    expect(planLine({ ...phoneUser, subscription: sub })).toBe("You're on the Monthly plan. It renews automatically.");
+    expect(planLine({ ...phoneUser, subscription: { ...sub, cancel_at_period_end: true } })).toMatch(/ends on 1 Jan 2027 and won't renew/);
+    expect(planLine(phoneUser)).toBe("No plan yet.");
   });
 });
