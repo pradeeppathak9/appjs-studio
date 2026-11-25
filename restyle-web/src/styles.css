@@ -19,7 +19,7 @@
   --white: #fff;
   --radius: 18px;
   --radius-sm: 12px;
-  --page: 1120px;
+  --page: 480px; /* the app is a phone-width column on every screen */
   --gutter: 16px;
   color-scheme: light;
 }
@@ -30,7 +30,7 @@
 html,
 body {
   margin: 0;
-  background: var(--white);
+  background: var(--surface);
   color: var(--ink);
   font-family: "Inter Variable", system-ui, -apple-system, "Segoe UI", sans-serif;
   font-size: 15px;
@@ -98,6 +98,11 @@ h3 {
   min-height: 100dvh;
   display: flex;
   flex-direction: column;
+  width: 100%;
+  max-width: var(--page);
+  margin: 0 auto;
+  background: var(--white);
+  box-shadow: 0 0 0 1px var(--divider);
 }
 .topbar {
   position: sticky;
@@ -133,22 +138,6 @@ h3 {
   width: 28px;
   height: 28px;
 }
-.topnav {
-  display: flex;
-  gap: 4px;
-  flex: 1;
-}
-.topnav a {
-  padding: 8px 12px;
-  border-radius: 999px;
-  color: var(--ink-2);
-  font-weight: 500;
-  font-size: 14px;
-}
-.topnav a.active {
-  background: var(--brand-tint);
-  color: var(--brand);
-}
 .topbar-right {
   display: flex;
   align-items: center;
@@ -157,51 +146,42 @@ h3 {
 }
 .page {
   flex: 1;
-  padding-top: 24px;
+  padding-top: 16px;
   padding-bottom: 96px;
 }
 .tabbar {
-  display: none;
+  display: flex;
+  position: fixed;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: var(--page);
+  z-index: 10;
+  background: var(--white);
+  border-top: 1px solid var(--divider);
+  padding: 6px 8px calc(6px + env(safe-area-inset-bottom));
 }
-@media (max-width: 720px) {
-  .topnav {
-    display: none;
-  }
-  .page {
-    padding-top: 16px;
-  }
-  .tabbar {
-    display: flex;
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    z-index: 10;
-    background: var(--white);
-    border-top: 1px solid var(--divider);
-    padding: 6px 8px calc(6px + env(safe-area-inset-bottom));
-  }
-  .tabbar a {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 2px;
-    padding: 6px 0;
-    font-size: 12px;
-    font-weight: 600;
-    color: var(--muted);
-  }
-  .tabbar a .pill {
-    padding: 4px 18px;
-    border-radius: 999px;
-  }
-  .tabbar a.active {
-    color: var(--brand);
-  }
-  .tabbar a.active .pill {
-    background: var(--brand-soft);
-  }
+.tabbar a {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 6px 0;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--muted);
+}
+.tabbar a .pill {
+  padding: 4px 18px;
+  border-radius: 999px;
+}
+.tabbar a.active {
+  color: var(--brand);
+}
+.tabbar a.active .pill {
+  background: var(--brand-soft);
 }
 
 /* ---- controls ----------------------------------------------------------------------------------- */
@@ -519,15 +499,9 @@ h3 {
 
 .two-col {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  gap: 32px;
+  grid-template-columns: 1fr;
+  gap: 20px;
   align-items: start;
-}
-@media (max-width: 860px) {
-  .two-col {
-    grid-template-columns: 1fr;
-    gap: 20px;
-  }
 }
 .drop {
   border: 2px dashed var(--dashed);

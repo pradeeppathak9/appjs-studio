@@ -26,13 +26,6 @@ export function Layout() {
             <img src="/favicon.svg" alt="" />
             Restyle
           </Link>
-          <nav className="topnav" aria-label="Main">
-            {TABS.map((t) => (
-              <NavLink key={t.to} to={t.to} end={t.end}>
-                {t.label}
-              </NavLink>
-            ))}
-          </nav>
           <div className="topbar-right">
             {token ? (
               <>
