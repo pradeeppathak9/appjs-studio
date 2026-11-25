@@ -101,7 +101,7 @@ fun LoginScreen(vm: AppViewModel, onSignedIn: () -> Unit, onOtpSent: () -> Unit)
                     contentAlignment = Alignment.Center,
                 ) { Icon(RIcons.Sparkles, null, tint = Color.White, modifier = Modifier.size(20.dp)) }
                 Spacer(Modifier.width(10.dp))
-                Text("Restyle", fontSize = 18.sp, fontWeight = FontWeight.Bold, letterSpacing = (-0.2).sp)
+                Text("Restyle AI", fontSize = 18.sp, fontWeight = FontWeight.Bold, letterSpacing = (-0.2).sp)
             }
 
             Text(

@@ -330,7 +330,7 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
         e.status == 200 -> "The image couldn't be made (${e.code}). Your credits were refunded."
         e.code == "unauthenticated" && store.token != null -> "Your session ended. Sign in again."
         e.code == "account_blocked" -> "This account is blocked. Contact support."
-        e.code == "app_disabled" -> "Restyle is under maintenance. Try again later."
+        e.code == "app_disabled" -> "Restyle AI is under maintenance. Try again later."
         else -> e.message.replaceFirstChar { it.uppercase() }
     }
 }
