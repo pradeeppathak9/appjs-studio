@@ -5,6 +5,67 @@
   "version": "0.1.0"
  },
  "paths": {
+  "/api/auth/setup": {
+   "get": {
+    "tags": [
+     "auth"
+    ],
+    "summary": "Setup State",
+    "operationId": "setup_state_api_auth_setup_get",
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/SetupState"
+        }
+       }
+      }
+     }
+    }
+   },
+   "post": {
+    "tags": [
+     "auth"
+    ],
+    "summary": "Setup",
+    "description": "First run: create the first admin with the setup token, and sign them in.",
+    "operationId": "setup_api_auth_setup_post",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/SetupRequest"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "201": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/SetupResponse"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
   "/api/auth/login": {
    "post": {
     "tags": [
@@ -3170,6 +3231,7 @@
     ],
     "summary": "Notify Redemption",
     "operationId": "notify_redemption_api_v1__app_id__razorpay_notify_redemption__subscription_id__post",
+    "deprecated": true,
     "parameters": [
      {
       "name": "subscription_id",
@@ -3228,6 +3290,7 @@
     ],
     "summary": "Execute Redemption",
     "operationId": "execute_redemption_api_v1__app_id__razorpay_execute_redemption__merchant_order_id__post",
+    "deprecated": true,
     "parameters": [
      {
       "name": "merchant_order_id",
@@ -3337,12 +3400,72 @@
     }
    }
   },
+  "/api/v1/{app_id}/razorpay/revoke/{subscription_id}": {
+   "post": {
+    "tags": [
+     "razorpay"
+    ],
+    "summary": "Revoke Subscription",
+    "description": "Cancel the subscription's token at Razorpay. Terminal: nothing more can be collected.",
+    "operationId": "revoke_subscription_api_v1__app_id__razorpay_revoke__subscription_id__post",
+    "parameters": [
+     {
+      "name": "subscription_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Subscription Id"
+      }
+     },
+     {
+      "name": "app_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "App Id"
+      }
+     },
+     {
+      "name": "authorization",
+      "in": "header",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Authorization"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
   "/api/v1/{app_id}/razorpay/webhook": {
    "post": {
     "tags": [
      "razorpay"
     ],
     "summary": "Razorpay Webhook",
+    "description": "Razorpay's events for this app. Every branch is idempotent: Razorpay\nredelivers, and an event that changes nothing is acknowledged all the same.",
     "operationId": "razorpay_webhook_api_v1__app_id__razorpay_webhook_post",
     "parameters": [
      {
@@ -4684,15 +4807,8 @@
       "title": "Name"
      },
      "email": {
-      "anyOf": [
-       {
-        "type": "string",
-        "format": "email"
-       },
-       {
-        "type": "null"
-       }
-      ],
+      "type": "string",
+      "format": "email",
       "title": "Email"
      },
      "phone_number": {
@@ -4765,6 +4881,7 @@
     "type": "object",
     "required": [
      "name",
+     "email",
      "phone_number",
      "max_amount"
     ],
@@ -5058,6 +5175,74 @@
      "created_at"
     ],
     "title": "ScheduledTransactionResponse"
+   },
+   "SetupRequest": {
+    "properties": {
+     "setup_token": {
+      "type": "string",
+      "maxLength": 200,
+      "title": "Setup Token"
+     },
+     "email": {
+      "type": "string",
+      "format": "email",
+      "title": "Email"
+     },
+     "full_name": {
+      "type": "string",
+      "maxLength": 200,
+      "minLength": 1,
+      "title": "Full Name"
+     },
+     "password": {
+      "type": "string",
+      "maxLength": 256,
+      "title": "Password"
+     }
+    },
+    "type": "object",
+    "required": [
+     "setup_token",
+     "email",
+     "full_name",
+     "password"
+    ],
+    "title": "SetupRequest"
+   },
+   "SetupResponse": {
+    "properties": {
+     "access_token": {
+      "type": "string",
+      "title": "Access Token"
+     },
+     "token_type": {
+      "type": "string",
+      "title": "Token Type",
+      "default": "bearer"
+     },
+     "user": {
+      "$ref": "#/components/schemas/UserResponse"
+     }
+    },
+    "type": "object",
+    "required": [
+     "access_token",
+     "user"
+    ],
+    "title": "SetupResponse"
+   },
+   "SetupState": {
+    "properties": {
+     "needed": {
+      "type": "boolean",
+      "title": "Needed"
+     }
+    },
+    "type": "object",
+    "required": [
+     "needed"
+    ],
+    "title": "SetupState"
    },
    "SubscriptionResponse": {
     "properties": {

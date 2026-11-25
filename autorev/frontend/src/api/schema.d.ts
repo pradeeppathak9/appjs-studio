@@ -4,6 +4,27 @@
  */
 
 export interface paths {
+    "/api/auth/setup": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Setup State */
+        get: operations["setup_state_api_auth_setup_get"];
+        put?: never;
+        /**
+         * Setup
+         * @description First run: create the first admin with the setup token, and sign them in.
+         */
+        post: operations["setup_api_auth_setup_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/auth/login": {
         parameters: {
             query?: never;
@@ -836,7 +857,10 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Notify Redemption */
+        /**
+         * Notify Redemption
+         * @deprecated
+         */
         post: operations["notify_redemption_api_v1__app_id__razorpay_notify_redemption__subscription_id__post"];
         delete?: never;
         options?: never;
@@ -853,7 +877,10 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Execute Redemption */
+        /**
+         * Execute Redemption
+         * @deprecated
+         */
         post: operations["execute_redemption_api_v1__app_id__razorpay_execute_redemption__merchant_order_id__post"];
         delete?: never;
         options?: never;
@@ -878,6 +905,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/{app_id}/razorpay/revoke/{subscription_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Revoke Subscription
+         * @description Cancel the subscription's token at Razorpay. Terminal: nothing more can be collected.
+         */
+        post: operations["revoke_subscription_api_v1__app_id__razorpay_revoke__subscription_id__post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/{app_id}/razorpay/webhook": {
         parameters: {
             query?: never;
@@ -887,7 +934,11 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Razorpay Webhook */
+        /**
+         * Razorpay Webhook
+         * @description Razorpay's events for this app. Every branch is idempotent: Razorpay
+         *     redelivers, and an event that changes nothing is acknowledged all the same.
+         */
         post: operations["razorpay_webhook_api_v1__app_id__razorpay_webhook_post"];
         delete?: never;
         options?: never;
@@ -1320,8 +1371,11 @@ export interface components {
         RazorpaySetupPayload: {
             /** Name */
             name: string;
-            /** Email */
-            email?: string | null;
+            /**
+             * Email
+             * Format: email
+             */
+            email: string;
             /** Phone Number */
             phone_number: string;
             /** Amount */
@@ -1435,6 +1489,36 @@ export interface components {
             transaction_id?: string | null;
             /** Merchant Order Id */
             merchant_order_id?: string | null;
+        };
+        /** SetupRequest */
+        SetupRequest: {
+            /** Setup Token */
+            setup_token: string;
+            /**
+             * Email
+             * Format: email
+             */
+            email: string;
+            /** Full Name */
+            full_name: string;
+            /** Password */
+            password: string;
+        };
+        /** SetupResponse */
+        SetupResponse: {
+            /** Access Token */
+            access_token: string;
+            /**
+             * Token Type
+             * @default bearer
+             */
+            token_type: string;
+            user: components["schemas"]["UserResponse"];
+        };
+        /** SetupState */
+        SetupState: {
+            /** Needed */
+            needed: boolean;
         };
         /** SubscriptionResponse */
         SubscriptionResponse: {
@@ -1635,6 +1719,59 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
+    setup_state_api_auth_setup_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SetupState"];
+                };
+            };
+        };
+    };
+    setup_api_auth_setup_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SetupRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SetupResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     login_api_auth_login_post: {
         parameters: {
             query?: never;
@@ -3380,6 +3517,40 @@ export interface operations {
             };
             path: {
                 merchant_order_id: string;
+                app_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    revoke_subscription_api_v1__app_id__razorpay_revoke__subscription_id__post: {
+        parameters: {
+            query?: never;
+            header: {
+                authorization: string;
+            };
+            path: {
+                subscription_id: string;
                 app_id: string;
             };
             cookie?: never;

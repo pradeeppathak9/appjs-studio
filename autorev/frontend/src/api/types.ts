@@ -2,6 +2,8 @@ import type { components } from "./schema";
 
 type S = components["schemas"];
 export type Me = S["UserResponse"];
+export type SetupState = S["SetupState"];
+export type SetupResponse = S["SetupResponse"];
 export type App = S["AppResponse"];
 export type AdminUser = S["AdminUserResponse"];
 export type AdminApp = S["AdminAppResponse"];

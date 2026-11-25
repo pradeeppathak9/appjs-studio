@@ -4,7 +4,7 @@ import { IconAlertCircle } from "@tabler/icons-react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Navigate, useNavigate, useSearchParams } from "react-router";
 import { errorMessage, getToken, request, setToken } from "../api/client";
-import { keys } from "../api/queries";
+import { keys, useSetupState } from "../api/queries";
 import type { Me } from "../api/types";
 import { AuthCard } from "../components/AuthCard";
 import { safeNext } from "../lib/safeNext";
@@ -14,6 +14,7 @@ export function LoginPage() {
   const navigate = useNavigate();
   const qc = useQueryClient();
   const next = safeNext(params.get("next"));
+  const setup = useSetupState();
   const form = useForm({
     initialValues: { email: "", password: "" },
     validate: { email: (v) => (/^\S+@\S+$/.test(v) ? null : "Enter your email address") },
@@ -35,6 +36,8 @@ export function LoginPage() {
     onError: () => setToken(null),
   });
 
+  // First run: there is no admin to sign in as yet.
+  if (setup.data?.needed) return <Navigate to="/setup" replace />;
   // Already signed in: RequireSession re-checks the token on the way in.
   if (getToken() && !login.isPending) return <Navigate to={next} replace />;
 

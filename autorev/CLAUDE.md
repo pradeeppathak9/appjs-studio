@@ -15,6 +15,9 @@ webhooks to client apps.
   `python migrations/apply.py migrations/NNN_name.sql`.
 - `workers/`: Celery (Redis broker, `redis://redis:6379/1`) PhonePe/Razorpay sync workers + beat. Compose file:
   `docker-compose.worker.yaml`.
+- First admin: no seeded account. `app/setup.py` + `GET/POST /api/auth/setup` and the console's
+  `/setup` page create it with `AUTOREV_SETUP_TOKEN` (or a generated token, kept in Redis and
+  logged at startup), like Studio. The lowest-id admin is the protected primary account.
 - `frontend/`: React 19 + Mantine console, same stack as appjs-studio's. `src/legacy/` holds pages
   not yet ported from the old CRA console; port them into `src/pages/` one at a time.
 

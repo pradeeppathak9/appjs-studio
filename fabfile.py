@@ -187,7 +187,7 @@ def bootstrap(c, target="prod", sync_local=None):
         "\nNext, on the server:\n"
         f"  {repo}/infra/.env          long random passwords, APP_DB_CREATEDB=false, STUDIO_DOMAIN, RESTYLE_DOMAIN\n"
         f"  {repo}/studio/deploy/.env  STUDIO_DB_PASSWORD (= infra's), SECRETS_KEY, OTP_SECRET, SETUP_TOKEN, keys\n"
-        f"  {repo}/autorev/.env        AUTOREV_DATABASE_URL (password = infra's AUTOREV_DB_PASSWORD), admin seed\n"
+        f"  {repo}/autorev/.env        AUTOREV_DATABASE_URL (password = infra's AUTOREV_DB_PASSWORD), AUTOREV_SETUP_TOKEN\n"
         "  docker login ghcr.io       (to pull Studio's private images)\n"
         "Then: fab deploy"
     )

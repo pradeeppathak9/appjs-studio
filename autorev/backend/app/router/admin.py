@@ -6,7 +6,6 @@ from sqlalchemy import func
 from sqlalchemy.orm import Session
 
 from app.auth import get_current_admin_user, hash_password
-from app.config import settings
 from app.database import get_db
 from app.models import App, AppUser, PhonePeApp, RazorpayApp, User
 from app.schemas import (
@@ -24,21 +23,25 @@ from app.schemas import (
 router = APIRouter(prefix="/api/admin", tags=["admin"])
 
 
-def _is_protected(user: User) -> bool:
-    """The seeded admin account, which must stay an admin.
+def _primary_admin_id(db: Session) -> int | None:
+    """The first admin: the one /setup created (or, on older deployments, the seeded one)."""
+    return db.query(func.min(User.id)).filter(User.is_admin.is_(True)).scalar()
 
-    Matched against AUTOREV_ADMIN_EMAIL rather than a literal, so it follows the
-    configured address. It is the account _seed_admin creates and, on this
-    deployment, the only admin — demoting or deleting it would leave nobody able
-    to reach /api/admin at all, and nothing in the product could undo that.
+
+def _is_protected(user: User, db: Session) -> bool:
+    """The primary admin account, which must stay an admin.
+
+    Demoting or deleting it could leave nobody able to reach /api/admin at all,
+    and setup only reopens when no admin is left, so nothing in the product
+    could undo that cleanly.
     """
-    return user.email.lower() == settings.admin_email.lower()
+    return user.id == _primary_admin_id(db)
 
 
-def _user_response(user: User, apps_count: int = 0) -> AdminUserResponse:
+def _user_response(user: User, apps_count: int = 0, *, protected: bool = False) -> AdminUserResponse:
     r = AdminUserResponse.model_validate(user)
     r.apps_count = apps_count
-    r.is_protected = _is_protected(user)
+    r.is_protected = protected
     return r
 
 
@@ -55,7 +58,8 @@ def list_users(
         .all()
     )
     users = db.query(User).order_by(User.created_at.desc()).all()
-    return [_user_response(u, counts.get(u.id, 0)) for u in users]
+    primary = _primary_admin_id(db)
+    return [_user_response(u, counts.get(u.id, 0), protected=u.id == primary) for u in users]
 
 
 @router.post("/users", response_model=AdminUserResponse, status_code=status.HTTP_201_CREATED)
@@ -76,7 +80,7 @@ def create_user(
     db.add(user)
     db.commit()
     db.refresh(user)
-    return _user_response(user)
+    return _user_response(user, protected=_is_protected(user, db))
 
 
 @router.patch("/users/{user_id}", response_model=AdminUserResponse)
@@ -98,14 +102,14 @@ def update_user(
             raise HTTPException(status_code=400, detail="Email already registered")
         # Renaming the protected account would move it out from under the rule
         # above, which is demotion by another route.
-        if _is_protected(user):
+        if _is_protected(user, db):
             raise HTTPException(
                 status_code=400,
                 detail="The primary admin account's email cannot be changed",
             )
 
     if data.get("is_admin") is False:
-        if _is_protected(user):
+        if _is_protected(user, db):
             raise HTTPException(
                 status_code=400, detail="The primary admin account must stay an admin"
             )
@@ -123,7 +127,7 @@ def update_user(
 
     db.commit()
     db.refresh(user)
-    return _user_response(user)
+    return _user_response(user, protected=_is_protected(user, db))
 
 
 @router.delete("/users/{user_id}", status_code=status.HTTP_204_NO_CONTENT)
@@ -138,7 +142,7 @@ def delete_user(
     user = db.query(User).filter(User.id == user_id).first()
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
-    if _is_protected(user):
+    if _is_protected(user, db):
         raise HTTPException(
             status_code=400, detail="The primary admin account cannot be deleted"
         )

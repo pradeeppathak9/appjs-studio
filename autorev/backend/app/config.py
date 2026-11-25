@@ -1,3 +1,4 @@
+from pydantic import SecretStr
 from pydantic_settings import BaseSettings
 
 
@@ -9,10 +10,9 @@ class Settings(BaseSettings):
     algorithm: str = "HS256"
     access_token_expire_minutes: int = 43200  # 30 days
 
-    admin_email: str = "admin@autorev.app"
-    # Seeds the first admin only (see _seed_admin). Override with
-    # AUTOREV_ADMIN_PASSWORD — never commit a real password here.
-    admin_password: str = "change-me-in-production"
+    # Token for the /setup page that creates the first admin (app/setup.py). If unset, one is
+    # generated and printed in the backend log while no admin exists.
+    setup_token: SecretStr | None = None
 
     model_config = {"env_prefix": "AUTOREV_"}
 

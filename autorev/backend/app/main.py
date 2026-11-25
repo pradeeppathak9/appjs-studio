@@ -1,13 +1,12 @@
+import logging
 import os
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.auth import hash_password
-from app.config import settings
-from app.database import Base, engine, SessionLocal
-from app.models import User
+from app.database import Base, engine
+from app.setup import ensure_setup_token
 from app.router.admin import router as admin_router
 from app.router.auth import router as auth_router
 from app.router.apps import router as apps_router
@@ -19,26 +18,14 @@ from app.router.tasks_router import router as tasks_router
 from app.router.webhooks_router import router as webhooks_router
 
 
-def _seed_admin():
-    db = SessionLocal()
-    try:
-        if not db.query(User).filter(User.is_admin == True).first():
-            admin = User(
-                email=settings.admin_email,
-                hashed_password=hash_password(settings.admin_password),
-                full_name="Admin",
-                is_admin=True,
-            )
-            db.add(admin)
-            db.commit()
-    finally:
-        db.close()
+log = logging.getLogger("autorev")
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     Base.metadata.create_all(bind=engine)
-    _seed_admin()
+    if token := ensure_setup_token():
+        log.warning("First-run setup: open /setup and use setup token %s", token)
     yield
 
 

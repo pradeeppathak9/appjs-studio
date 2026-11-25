@@ -1,11 +1,35 @@
 from datetime import date, datetime
 
-from pydantic import BaseModel, EmailStr, field_validator
+from pydantic import BaseModel, EmailStr, Field, field_validator
 
 
 class LoginRequest(BaseModel):
     email: EmailStr
     password: str
+
+
+class SetupState(BaseModel):
+    needed: bool
+
+
+class SetupRequest(BaseModel):
+    setup_token: str = Field(max_length=200)
+    email: EmailStr
+    full_name: str = Field(min_length=1, max_length=200)
+    password: str = Field(max_length=256)
+
+    @field_validator("password")
+    @classmethod
+    def validate_password(cls, v):
+        if len(v) < 12:
+            raise ValueError("Password must be at least 12 characters")
+        return v
+
+
+class SetupResponse(BaseModel):
+    access_token: str
+    token_type: str = "bearer"
+    user: "UserResponse"
 
 
 class TokenResponse(BaseModel):
@@ -94,10 +118,9 @@ class AdminUserResponse(BaseModel):
     is_admin: bool
     created_at: datetime
     apps_count: int = 0
-    # The seeded admin, which cannot be demoted, renamed or deleted. Reported by
-    # the server so the dashboard disables the control from the same rule the
-    # API enforces, instead of hardcoding an address that would drift from
-    # AUTOREV_ADMIN_EMAIL.
+    # The primary (first) admin, which cannot be demoted, renamed or deleted.
+    # Reported by the server so the dashboard disables the control from the same
+    # rule the API enforces.
     is_protected: bool = False
 
     model_config = {"from_attributes": True}
@@ -278,3 +301,6 @@ class SummaryResponse(SummaryPeriod):
     # Either bound may be null, meaning unbounded on that side (the "All" preset).
     window_start: date | None = None
     window_end: date | None = None
+
+
+SetupResponse.model_rebuild()  # resolves the forward reference to UserResponse

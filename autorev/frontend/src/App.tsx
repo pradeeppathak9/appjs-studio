@@ -16,6 +16,7 @@ import { IntegrationGuidePage } from "./pages/app/guide/IntegrationGuidePage.js"
 import { RazorpayPaymentsPage } from "./pages/app/razorpay/PaymentsPage.js";
 import { RazorpaySubscriptionsPage } from "./pages/app/razorpay/SubscriptionsPage.js";
 import { LoginPage } from "./pages/LoginPage.js";
+import { SetupPage } from "./pages/SetupPage.js";
 
 // Pages not yet ported from the old console. Each moves out of src/legacy as it is rewritten.
 import AdminAppUsers from "./legacy/pages/AdminAppUsers.jsx";
@@ -45,6 +46,7 @@ export function App() {
       {/* Sign-in lives at the base URL, as before. */}
       <Route path="/" element={<LoginPage />} />
       <Route path="/login" element={<Navigate to="/" replace />} />
+      <Route path="/setup" element={<SetupPage />} />
 
       <Route
         element={
