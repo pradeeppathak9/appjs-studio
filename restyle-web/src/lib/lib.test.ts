@@ -1,7 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { ApiError, type Template } from "./api";
+import { ApiError, type Account, type Plan, type Template } from "./api";
 import { creditsLabel, displayPhone, formatPrice, greeting, userMessage } from "./format";
 import { cropBox, RATIOS } from "./image";
+import { needsSubscription, periods, planFor, trialOffered } from "./subscription";
 import { categories, filterStyles, javaHash, toStyle } from "./styles";
 
 const template = (slug: string, extra: Partial<Template> = {}): Template => ({
@@ -89,5 +90,55 @@ describe("cropBox", () => {
     expect(Math.max(b.dw, b.dh)).toBe(2048);
     expect(b.dw / b.dh).toBeCloseTo(4 / 5, 2);
     expect(cropBox(400, 500, portrait)).toMatchObject({ dw: 400, dh: 500 });
+  });
+});
+
+describe("subscription prompt", () => {
+  const plan = (slug: string, period: "month" | "year", extra: Partial<Plan> = {}): Plan => ({
+    id: slug,
+    slug,
+    name: slug,
+    description: "",
+    price_minor: 49900,
+    currency: "INR",
+    billing_period: period,
+    credits_per_month: 50,
+    badge: null,
+    trial_enabled: false,
+    trial_days: 7,
+    trial_credits: 10,
+    ...extra,
+  });
+  const me = (extra: Partial<Account> = {}): Account => ({
+    id: "u",
+    name: null,
+    email: null,
+    phone: null,
+    photo_url: null,
+    sign_in: "phone",
+    credits: 0,
+    subscription: null,
+    trial_used: false,
+    ...extra,
+  });
+  const monthly = plan("monthly", "month", { trial_enabled: true });
+  const yearly = plan("yearly", "year", { trial_enabled: true, badge: "Best value" });
+
+  it("prompts only signed-in users without a subscription when plans exist", () => {
+    expect(needsSubscription(me(), [monthly])).toBe(true);
+    expect(needsSubscription(undefined, [monthly])).toBe(false);
+    expect(needsSubscription(me(), [])).toBe(false);
+    const sub = { plan: { id: "monthly", name: "Monthly" }, status: "active", trial: true, current_period_end: "" };
+    expect(needsSubscription(me({ subscription: sub }), [monthly])).toBe(false);
+  });
+
+  it("offers the trial once, monthly or yearly", () => {
+    expect(trialOffered(me(), [monthly, yearly])).toBe(true);
+    expect(trialOffered(me({ trial_used: true }), [monthly, yearly])).toBe(false);
+    expect(trialOffered(me(), [plan("m", "month")])).toBe(false);
+    expect(periods([monthly, yearly], true)).toEqual(["month", "year"]);
+    expect(periods([plan("m", "month"), yearly], true)).toEqual(["year"]);
+    expect(planFor([monthly, yearly], "year", true)?.slug).toBe("yearly");
+    expect(planFor([plan("a", "year"), yearly], "year", false)?.slug).toBe("yearly");
   });
 });

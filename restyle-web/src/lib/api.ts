@@ -47,7 +47,13 @@ export type Account = {
   photo_url: string | null;
   sign_in: "phone" | "google";
   credits: number;
-  subscription: { plan: { id: string; name: string }; status: string; current_period_end: string } | null;
+  subscription: {
+    plan: { id: string; name: string };
+    status: string;
+    trial: boolean;
+    current_period_end: string;
+  } | null;
+  trial_used: boolean;
 };
 export type SignedIn = { token: string; user: Account; is_new: boolean };
 export type Plan = {
@@ -60,6 +66,9 @@ export type Plan = {
   billing_period: "month" | "year";
   credits_per_month: number;
   badge: string | null;
+  trial_enabled: boolean;
+  trial_days: number;
+  trial_credits: number;
 };
 export type Job = {
   id: string;
@@ -135,6 +144,7 @@ export const api = {
   deleteMe: () => request("/v1/app/me", { method: "DELETE" }),
   templates: async () => (await getJson<{ templates: Template[] }>("/v1/app/templates")).templates,
   plans: () => getJson<Plan[]>("/v1/app/plans"),
+  startTrial: (plan_id: string) => postJson<Account>("/v1/app/me/trial", { plan_id }),
   jobs: () => getJson<Job[]>("/v1/app/generations?limit=50"),
   job: (id: string) => getJson<Job>(`/v1/app/generations/${id}`),
   run: (slug: string, slot: string, photo: Blob) => {

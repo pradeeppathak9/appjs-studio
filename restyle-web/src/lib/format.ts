@@ -39,6 +39,8 @@ export function userMessage(e: unknown, signedIn = false): string {
       const wait = e.detail("retry_after_s");
       return wait ? `Too many tries. Wait ${wait} s and try again.` : "Too many tries. Try again later.";
     }
+    case "trial_used":
+      return "You've already used your free trial.";
     case "insufficient_credits":
       return "You need more credits for this style.";
     case "content_policy":

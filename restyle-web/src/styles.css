@@ -762,3 +762,43 @@ h3 {
   background: var(--disabled);
   color: var(--muted);
 }
+
+/* ---- subscription prompt ------------------------------------------------------------------------- */
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: grid;
+  place-items: end center;
+  background: rgb(20 21 26 / 0.45);
+}
+.sheet {
+  width: 100%;
+  max-width: 480px;
+  max-height: 92dvh;
+  overflow-y: auto;
+  background: var(--white);
+  border-radius: var(--radius) var(--radius) 0 0;
+  padding: 24px var(--gutter) calc(20px + env(safe-area-inset-bottom));
+}
+.sheet h2 {
+  margin: 0 0 4px;
+}
+.sheet .plan {
+  cursor: default;
+}
+.trial-line {
+  color: var(--brand);
+  font-weight: 600;
+  margin-top: 6px;
+}
+@media (min-width: 640px) {
+  .overlay {
+    place-items: center;
+  }
+  .sheet {
+    border-radius: var(--radius);
+    padding: 28px;
+  }
+}

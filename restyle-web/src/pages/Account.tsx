@@ -50,7 +50,11 @@ export function Profile() {
         </div>
         <div>
           <p className="muted small">Plan</p>
-          <p>{a.subscription ? `You're on the ${a.subscription.plan.name} plan.` : "No plan yet."}</p>
+          <p>{a.subscription
+              ? a.subscription.trial
+                ? `You're on a free trial of the ${a.subscription.plan.name} plan.`
+                : `You're on the ${a.subscription.plan.name} plan.`
+              : "No plan yet."}</p>
         </div>
       </div>
       {error && <p className="error">{error}</p>}
