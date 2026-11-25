@@ -120,7 +120,7 @@ list with defaults. The most used:
 | `SMS_PROVIDER` | `log` | `log` writes sign-in codes to the api log (dev); `msg91` sends them (`MSG91_AUTH_KEY`, `MSG91_TEMPLATE_ID`). Fallback for apps without their own MSG91 account or Firebase, set in App settings → Sign-in |
 | `SECRETS_KEY` | unset | encrypts credentials entered in the console (an app's MSG91 auth key, and its own Gemini / OpenAI / fal / OpenRouter keys from App settings → Provider API keys, which its jobs use in place of the server's); any long random string. Needed before such credentials can be saved |
 | `OTP_SECRET` | random | key for stored sign-in codes; set it in production so codes survive restarts |
-| `OTP_TEST_NUMBERS` | – | fixed codes for store reviewers, no SMS sent (`+919999999999:123456,…`) |
+| `OTP_TEST_NUMBERS` | – | fixed codes for store reviewers and testers, no SMS sent: `[app-slug/]phone:code,…` (e.g. `restyle-ai/+919999999999:482913`). Without a slug a number works in every app. Codes that are easy to guess (`000000`, `123456`, `121212`, …) are ignored and logged. Rate limits still apply. Off when unset |
 
 ## Provider notes
 

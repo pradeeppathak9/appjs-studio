@@ -3,11 +3,13 @@ bearer sessions, profile and account deletion. Accounts belong to one app."""
 
 from __future__ import annotations
 
+import asyncio
 import hashlib
 import hmac
 import logging
 import re
 import secrets
+import time
 import uuid
 from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
@@ -80,13 +82,27 @@ def normalize_phone(raw: str, default_cc: str) -> str:
     return digits
 
 
-def parse_test_numbers(spec: str, default_cc: str) -> dict[str, str]:
-    out = {}
-    for part in filter(None, (p.strip() for p in spec.split(","))):
-        phone, _, code = part.partition(":")
+def guessable_code(code: str) -> bool:
+    """True for codes someone would try first: one digit repeated, a run up or down (123456,
+    987654, 890123), or a repeated 2- or 3-digit block (121212, 123123)."""
+    d = [int(c) for c in code]
+    steps = {(b - a) % 10 for a, b in zip(d, d[1:], strict=False)}
+    return len(steps) == 1 and steps <= {0, 1, 9} or code[:2] * 3 == code or code[:3] * 2 == code
+
+
+def parse_test_numbers(spec: str, default_cc: str) -> dict[tuple[str | None, str], str]:
+    """`OTP_TEST_NUMBERS`: comma-separated `[app-slug/]phone:code`. Keys are (slug or None, E.164 phone);
+    an entry without a slug works in every app. Entries with a guessable code are dropped (logged)."""
+    out: dict[tuple[str | None, str], str] = {}
+    for i, part in enumerate(filter(None, (p.strip() for p in spec.split(","))), 1):
+        target, _, code = part.partition(":")
+        slug, _, phone = target.rpartition("/")
         if not re.fullmatch(r"\d{6}", code):
-            raise RuntimeError(f"OTP_TEST_NUMBERS: {part!r} needs a 6-digit code after ':'")
-        out[normalize_phone(phone, default_cc)] = code
+            raise RuntimeError(f"OTP_TEST_NUMBERS: entry {i} needs a 6-digit code after ':'")
+        if guessable_code(code):
+            log.error("OTP_TEST_NUMBERS: entry %d is ignored: its code is too easy to guess", i)
+            continue
+        out[(slug.strip() or None, normalize_phone(phone, default_cc))] = code
     return out
 
 
@@ -111,6 +127,13 @@ class AppUserService:
             log.warning("OTP_SECRET is not set: codes sent before a restart won't verify after it")
         self._otp_key = (secret or secrets.token_hex(32)).encode()
         self.test_numbers = parse_test_numbers(settings.otp_test_numbers, settings.default_phone_country_code)
+        if self.test_numbers:
+            log.info(
+                "OTP_TEST_NUMBERS: %d fixed-code number(s); no SMS is sent to them", len(self.test_numbers)
+            )
+        # how long a real SMS send takes (moving average); fixed-code sends wait about as long, so the
+        # response time doesn't tell which numbers are test numbers
+        self._send_latency_s = 0.4
         self.dev_code: str | None = None
         if settings.otp_dev_code:
             if not re.fullmatch(r"\d{6}", settings.otp_dev_code):
@@ -258,6 +281,9 @@ class AppUserService:
     def sms_for(self, app: App) -> SmsSender:
         return app_sms_sender(app, self.box, self.http, self.sms)
 
+    def test_code(self, app: App, phone: str) -> str | None:
+        return self.test_numbers.get((app.slug, phone)) or self.test_numbers.get((None, phone))
+
     async def send_otp(
         self, app: App, phone_raw: str, device_id: str | None, ip: str | None
     ) -> tuple[OtpChallenge, str]:
@@ -294,7 +320,8 @@ class AppUserService:
             if ip and await count(OtpChallenge.ip == ip) >= st.otp_per_ip_per_hour:
                 raise RateLimitedError("too many codes from this network; try again in an hour")
 
-        fixed = self.test_numbers.get(phone) or self.dev_code
+        test_code = self.test_code(app, phone)
+        fixed = test_code or self.dev_code
         code = fixed or f"{secrets.randbelow(1_000_000):06d}"
         challenge = OtpChallenge(
             id=uuid.uuid4(),
@@ -308,7 +335,11 @@ class AppUserService:
         async with self.db.begin() as s:
             s.add(challenge)
         if not fixed:
+            started = time.monotonic()
             await self.sms_for(app).send_otp(phone, code)
+            self._send_latency_s = 0.8 * self._send_latency_s + 0.2 * (time.monotonic() - started)
+        elif test_code:
+            await asyncio.sleep(self._send_latency_s * (0.8 + 0.4 * secrets.randbelow(1000) / 1000))
         return challenge, phone
 
     async def verify_otp(self, app: App, challenge_id: UUID, code: str, device_id: str | None) -> SignIn:

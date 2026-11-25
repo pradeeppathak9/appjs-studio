@@ -63,7 +63,10 @@ POST /v1/app/auth/otp/verify   {"challenge_id": "…", "code": "123456"}
   `details: [{"attempts_left": n}]`; an expired, used or exhausted one is 400 `otp_expired` (ask for a new one).
 - Asking again within `resend_after_s` is 429 `rate_limited` with `details: [{"retry_after_s": n}]`. There are also
   hourly limits per number, per device and per network.
-- For Play Store review, the server can have fixed test numbers (`OTP_TEST_NUMBERS`): no SMS is sent.
+- For store review and testing, the server can have fixed test numbers (`OTP_TEST_NUMBERS`, per app or for
+  every app): no SMS is sent and the number signs in with its fixed code. Nothing changes for the client: the
+  calls, responses, errors and rate limits are the same as for any number, and nothing in a response says
+  a number is a test number. Firebase apps use Firebase's own test numbers instead.
 
 ### Phone number (`firebase`): `POST /v1/app/auth/firebase`
 

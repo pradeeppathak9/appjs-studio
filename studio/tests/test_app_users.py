@@ -118,17 +118,98 @@ async def test_bad_numbers_and_disabled_phone_sign_in(app, state):
 
 async def test_store_review_numbers_use_a_fixed_code_and_send_nothing(app, state):
     c = await app_client(app, state)
-    state.endusers.test_numbers = {"+919999999999": "424242"}
+    state.endusers.test_numbers = {(None, "+919999999999"): "424242"}
+    state.endusers._send_latency_s = 0.01
     try:
         before = dict(state.endusers.sms.sent)
-        sent = (await c.post("/v1/app/auth/otp/send", json={"phone": "9999999999"})).json()
+        r = await c.post("/v1/app/auth/otp/send", json={"phone": "9999999999"})
+        sent = r.json()
         assert state.endusers.sms.sent == before
+        # same response shape as a real send: nothing says this is a test number
+        assert set(sent) == {"challenge_id", "phone", "expires_in_s", "resend_after_s"}
+        bad = await c.post(
+            "/v1/app/auth/otp/verify", json={"challenge_id": sent["challenge_id"], "code": "111111"}
+        )
+        assert bad.status_code == 400 and bad.json()["error"]["code"] == "otp_invalid"
         r = await c.post(
             "/v1/app/auth/otp/verify", json={"challenge_id": sent["challenge_id"], "code": "424242"}
         )
-        assert r.status_code == 200
+        assert r.status_code == 200 and r.json()["user"]["phone"] == "+919999999999"
+
+        # every other number still gets a random code by SMS, and the test code doesn't work for it
+        sent = (await c.post("/v1/app/auth/otp/send", json={"phone": "9876500001"})).json()
+        assert state.endusers.sms.sent["+919876500001"] != "424242"
+        r = await c.post(
+            "/v1/app/auth/otp/verify", json={"challenge_id": sent["challenge_id"], "code": "424242"}
+        )
+        assert r.status_code == 400
     finally:
         state.endusers.test_numbers = {}
+
+
+async def test_store_review_numbers_keep_the_rate_limits(app, state):
+    c = await app_client(app, state, slug="limits")
+    state.endusers.test_numbers = {(None, "+919999999998"): "424242"}
+    state.endusers._send_latency_s = 0.01
+    try:
+        assert (await c.post("/v1/app/auth/otp/send", json={"phone": "9999999998"})).status_code == 200
+        r = await c.post("/v1/app/auth/otp/send", json={"phone": "9999999998"})
+        assert r.status_code == 429 and r.json()["error"]["code"] == "rate_limited"
+        for _ in range(state.settings.otp_per_phone_per_hour - 1):
+            async with state.engine.begin() as conn:
+                await conn.execute(
+                    text("UPDATE otp_challenges SET created_at = created_at - interval '40 seconds'")
+                )
+            assert (await c.post("/v1/app/auth/otp/send", json={"phone": "9999999998"})).status_code == 200
+        async with state.engine.begin() as conn:
+            await conn.execute(
+                text("UPDATE otp_challenges SET created_at = created_at - interval '40 seconds'")
+            )
+        r = await c.post("/v1/app/auth/otp/send", json={"phone": "9999999998"})
+        assert r.status_code == 429 and "this number" in r.json()["error"]["message"]
+    finally:
+        state.endusers.test_numbers = {}
+
+
+async def test_store_review_numbers_can_be_limited_to_one_app(app, state):
+    restyle = await app_client(app, state, slug="restyle-ai")
+    other = await app_client(app, state, slug="not-restyle", device="device-9")
+    state.endusers.test_numbers = {("restyle-ai", "+919999999997"): "482913"}
+    state.endusers._send_latency_s = 0.01
+    try:
+        before = dict(state.endusers.sms.sent)
+        sent = (await restyle.post("/v1/app/auth/otp/send", json={"phone": "9999999997"})).json()
+        assert state.endusers.sms.sent == before
+        r = await restyle.post(
+            "/v1/app/auth/otp/verify", json={"challenge_id": sent["challenge_id"], "code": "482913"}
+        )
+        assert r.status_code == 200
+        # in another app the number is an ordinary one: a real, random code by SMS
+        sent = (await other.post("/v1/app/auth/otp/send", json={"phone": "9999999997"})).json()
+        assert "+919999999997" in state.endusers.sms.sent
+        r = await other.post(
+            "/v1/app/auth/otp/verify", json={"challenge_id": sent["challenge_id"], "code": "482913"}
+        )
+        assert r.status_code == 400
+    finally:
+        state.endusers.test_numbers = {}
+
+
+def test_test_numbers_config_parsing_drops_guessable_codes():
+    import pytest
+
+    from studio.endusers.service import guessable_code, parse_test_numbers
+
+    for weak in ("000000", "123456", "654321", "890123", "121212", "123123", "999999"):
+        assert guessable_code(weak), weak
+    assert not guessable_code("482913") and not guessable_code("730185")
+    assert parse_test_numbers("", "91") == {}
+    got = parse_test_numbers(
+        "+919999999999:482913, restyle-ai/9999999998:730185, +15555550100:123456, 9000000000:000000", "91"
+    )
+    assert got == {(None, "+919999999999"): "482913", ("restyle-ai", "+919999999998"): "730185"}
+    with pytest.raises(RuntimeError):
+        parse_test_numbers("+919999999999:12345", "91")
 
 
 # ---- Google ---------------------------------------------------------------------------------------------

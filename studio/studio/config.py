@@ -60,7 +60,8 @@ class Settings(BaseSettings):
     otp_per_phone_per_hour: int = 5
     otp_per_device_per_hour: int = 10
     otp_per_ip_per_hour: int = 30
-    # fixed codes for store reviewers, no SMS sent: "+919999999999:123456,+15555550100:000000"
+    # fixed codes for store reviewers / testers, no SMS sent: "[app-slug/]phone:code,...", e.g.
+    # "restyle-ai/+919999999999:482913"; guessable codes (000000, 123456, ...) are ignored. Off when empty.
     otp_test_numbers: str = ""
     # development only: every code is this 6-digit value (honoured only with SMS_PROVIDER=log)
     otp_dev_code: str = ""
