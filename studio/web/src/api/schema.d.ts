@@ -1315,6 +1315,134 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/app/subscriptions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Checkout
+         * @description Start buying a plan. With `razorpay` in the answer, open Razorpay Checkout with `key_id`,
+         *     `order_id`, `customer_id` and `recurring: "1"`; when it closes, poll
+         *     `GET /subscriptions/orders/{id}` until `status` is no longer `pending`. 409 `payments_unavailable` if
+         *     the app takes no payments yet, 409 `conflict` if the user already has a subscription, 422 if the
+         *     gateway needs an email or mobile number the account doesn't have (send `email` / `phone`).
+         */
+        post: operations["checkout_v1_app_subscriptions_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/app/subscriptions/orders/{order_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Checkout Status
+         * @description A checkout's status. `active`: the subscription started and its first credits are granted (see
+         *     `GET /me`); `failed`: nothing was charged, `error` says why.
+         */
+        get: operations["checkout_status_v1_app_subscriptions_orders__order_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/app/subscriptions/orders": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Checkouts
+         * @description The user's checkouts, newest first.
+         */
+        get: operations["checkouts_v1_app_subscriptions_orders_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/app/subscriptions/current/cancel": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Cancel Subscription
+         * @description Stop the paid subscription from renewing. It stays active, with its monthly credits, until
+         *     `current_period_end` (`cancel_at_period_end` turns true). 404 if there is no paid subscription.
+         */
+        post: operations["cancel_subscription_v1_app_subscriptions_current_cancel_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/webhooks/autorev": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Autorev Webhook
+         * @description autorev's events for an app (set this URL and its signing secret in autorev → Settings →
+         *     Webhooks, and the secret in Studio's Payments settings). Signed with `X-Autorev-Signature`.
+         */
+        post: operations["autorev_webhook_v1_webhooks_autorev_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/apps/{app_id}/payments/test": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Test Payments
+         * @description Check the app's autorev connection: the API key works, the gateway is switched on there and
+         *     its keys are saved.
+         */
+        post: operations["test_payments_v1_admin_apps__app_id__payments_test_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -1408,15 +1536,12 @@ export interface components {
              * @default none
              */
             payment_provider: string;
-            /**
-             * Payment Mode
-             * @default test
-             */
-            payment_mode: string;
-            /** Razorpay Key Id */
-            razorpay_key_id?: string | null;
-            /** Phonepe Merchant Id */
-            phonepe_merchant_id?: string | null;
+            /** Autorev App Id */
+            autorev_app_id?: string | null;
+            /** Autorev Api Key */
+            autorev_api_key?: string | null;
+            /** Autorev Webhook Secret */
+            autorev_webhook_secret?: string | null;
             /** Slug */
             slug: string;
         };
@@ -1489,14 +1614,22 @@ export interface components {
              */
             payment_provider: "none" | "razorpay" | "phonepe";
             /**
-             * Payment Mode
-             * @enum {string}
+             * Autorev App Id
+             * @description the autorev app this app's payments go through
              */
-            payment_mode: "test" | "live";
-            /** Razorpay Key Id */
-            razorpay_key_id: string | null;
-            /** Phonepe Merchant Id */
-            phonepe_merchant_id: string | null;
+            autorev_app_id?: string | null;
+            /**
+             * Autorev Api Key Set
+             * @description the autorev API key is saved (write-only)
+             * @default false
+             */
+            autorev_api_key_set: boolean;
+            /**
+             * Autorev Webhook Secret Set
+             * @description autorev's webhook signing secret is saved (write-only)
+             * @default false
+             */
+            autorev_webhook_secret_set: boolean;
             /**
              * Created At
              * Format: date-time
@@ -1603,15 +1736,12 @@ export interface components {
              * @default none
              */
             payment_provider: string;
-            /**
-             * Payment Mode
-             * @default test
-             */
-            payment_mode: string;
-            /** Razorpay Key Id */
-            razorpay_key_id?: string | null;
-            /** Phonepe Merchant Id */
-            phonepe_merchant_id?: string | null;
+            /** Autorev App Id */
+            autorev_app_id?: string | null;
+            /** Autorev Api Key */
+            autorev_api_key?: string | null;
+            /** Autorev Webhook Secret */
+            autorev_webhook_secret?: string | null;
         };
         /**
          * AppInfo
@@ -1745,14 +1875,22 @@ export interface components {
              */
             payment_provider: "none" | "razorpay" | "phonepe";
             /**
-             * Payment Mode
-             * @enum {string}
+             * Autorev App Id
+             * @description the autorev app this app's payments go through
              */
-            payment_mode: "test" | "live";
-            /** Razorpay Key Id */
-            razorpay_key_id: string | null;
-            /** Phonepe Merchant Id */
-            phonepe_merchant_id: string | null;
+            autorev_app_id?: string | null;
+            /**
+             * Autorev Api Key Set
+             * @description the autorev API key is saved (write-only)
+             * @default false
+             */
+            autorev_api_key_set: boolean;
+            /**
+             * Autorev Webhook Secret Set
+             * @description autorev's webhook signing secret is saved (write-only)
+             * @default false
+             */
+            autorev_webhook_secret_set: boolean;
             /**
              * Created At
              * Format: date-time
@@ -1855,15 +1993,12 @@ export interface components {
              * @default none
              */
             payment_provider: string;
-            /**
-             * Payment Mode
-             * @default test
-             */
-            payment_mode: string;
-            /** Razorpay Key Id */
-            razorpay_key_id?: string | null;
-            /** Phonepe Merchant Id */
-            phonepe_merchant_id?: string | null;
+            /** Autorev App Id */
+            autorev_app_id?: string | null;
+            /** Autorev Api Key */
+            autorev_api_key?: string | null;
+            /** Autorev Webhook Secret */
+            autorev_webhook_secret?: string | null;
         };
         /**
          * AppRunResponse
@@ -2085,6 +2220,36 @@ export interface components {
         Body_upload_v1_apps__app_id__uploads_post: {
             /** File */
             file: string;
+        };
+        /** CheckoutIn */
+        CheckoutIn: {
+            /**
+             * Plan Id
+             * Format: uuid
+             */
+            plan_id: string;
+            /**
+             * Method
+             * @description how the payer authorises recurring payments: UPI Autopay or a card mandate
+             * @default upi
+             * @enum {string}
+             */
+            method: "upi" | "card";
+            /**
+             * Name
+             * @description defaults to the user's name
+             */
+            name?: string | null;
+            /**
+             * Email
+             * @description Razorpay needs one; defaults to the user's email
+             */
+            email?: string | null;
+            /**
+             * Phone
+             * @description Razorpay needs one (Indian mobile); defaults to the user's phone
+             */
+            phone?: string | null;
         };
         /** CreditAdjustIn */
         CreditAdjustIn: {
@@ -2473,14 +2638,22 @@ export interface components {
              */
             payment_provider: "none" | "razorpay" | "phonepe";
             /**
-             * Payment Mode
-             * @enum {string}
+             * Autorev App Id
+             * @description the autorev app this app's payments go through
              */
-            payment_mode: "test" | "live";
-            /** Razorpay Key Id */
-            razorpay_key_id: string | null;
-            /** Phonepe Merchant Id */
-            phonepe_merchant_id: string | null;
+            autorev_app_id?: string | null;
+            /**
+             * Autorev Api Key Set
+             * @description the autorev API key is saved (write-only)
+             * @default false
+             */
+            autorev_api_key_set: boolean;
+            /**
+             * Autorev Webhook Secret Set
+             * @description autorev's webhook signing secret is saved (write-only)
+             * @default false
+             */
+            autorev_webhook_secret_set: boolean;
             /**
              * Created At
              * Format: date-time
@@ -2568,20 +2741,53 @@ export interface components {
         PaymentConfig: {
             /**
              * Provider
-             * @description the gateway purchases go through; none = payments not available yet
+             * @description the gateway purchases go through (POST /v1/app/subscriptions); none = payments not available yet. Checkout details (e.g. the Razorpay key id) come with each checkout.
              * @enum {string}
              */
             provider: "none" | "razorpay" | "phonepe";
+        };
+        /** PaymentOrderOut */
+        PaymentOrderOut: {
             /**
-             * Mode
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Status
+             * @description pending until the payer authorises the mandate; active = the subscription started
              * @enum {string}
              */
-            mode: "test" | "live";
+            status: "pending" | "active" | "failed" | "cancelled";
+            /** Gateway */
+            gateway: string;
+            plan: components["schemas"]["PlanRef"];
+            /** Amount Minor */
+            amount_minor: number;
+            /** Currency */
+            currency: string;
+            /** Error */
+            error?: string | null;
+            /** @description with gateway razorpay, while pending */
+            razorpay?: components["schemas"]["RazorpayCheckout"] | null;
             /**
-             * Razorpay Key Id
-             * @description for Razorpay Checkout on the device
+             * Created At
+             * Format: date-time
              */
-            razorpay_key_id?: string | null;
+            created_at: string;
+        };
+        /** PaymentTestOut */
+        PaymentTestOut: {
+            /** Ok */
+            ok: boolean;
+            /** Detail */
+            detail: string;
+            /** Gateways */
+            gateways?: {
+                [key: string]: {
+                    [key: string]: unknown;
+                };
+            };
         };
         /** PlanAdminOut */
         PlanAdminOut: {
@@ -2836,6 +3042,36 @@ export interface components {
             /** Max Input Images */
             max_input_images: number;
         };
+        /**
+         * RazorpayCheckout
+         * @description Open Razorpay Checkout with these (`key`, `order_id`, `customer_id`, `recurring: "1"`).
+         */
+        RazorpayCheckout: {
+            /** Key Id */
+            key_id: string;
+            /** Order Id */
+            order_id: string;
+            /** Customer Id */
+            customer_id: string;
+            /** Amount */
+            amount: number;
+            /** Currency */
+            currency: string;
+            /** Name */
+            name: string;
+            /** Email */
+            email: string;
+            /**
+             * Phone
+             * @description 10 digits, as Razorpay Checkout's prefill.contact
+             */
+            phone: string;
+            /**
+             * Method
+             * @enum {string}
+             */
+            method: "upi" | "card";
+        };
         /** SetupIn */
         SetupIn: {
             /** Setup Token */
@@ -2934,6 +3170,12 @@ export interface components {
             /** Next Credit Grant At */
             next_credit_grant_at: string | null;
             /**
+             * Cancel At Period End
+             * @description it won't renew: it ends at current_period_end (cancelled, or payments stopped)
+             * @default false
+             */
+            cancel_at_period_end: boolean;
+            /**
              * Created At
              * Format: date-time
              */
@@ -2943,11 +3185,6 @@ export interface components {
              * @description the gateway's subscription id (Razorpay `sub_…`, PhonePe subscription id)
              */
             provider_ref?: string | null;
-            /**
-             * Cancel At Period End
-             * @default false
-             */
-            cancel_at_period_end: boolean;
         };
         /** SubscriptionGrantIn */
         SubscriptionGrantIn: {
@@ -3003,6 +3240,12 @@ export interface components {
             current_period_end: string;
             /** Next Credit Grant At */
             next_credit_grant_at: string | null;
+            /**
+             * Cancel At Period End
+             * @description it won't renew: it ends at current_period_end (cancelled, or payments stopped)
+             * @default false
+             */
+            cancel_at_period_end: boolean;
             /**
              * Created At
              * Format: date-time
@@ -6195,6 +6438,172 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    checkout_v1_app_subscriptions_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CheckoutIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaymentOrderOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    checkout_status_v1_app_subscriptions_orders__order_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                order_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaymentOrderOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    checkouts_v1_app_subscriptions_orders_get: {
+        parameters: {
+            query?: {
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaymentOrderOut"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    cancel_subscription_v1_app_subscriptions_current_cancel_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AppUserOut"];
+                };
+            };
+        };
+    };
+    autorev_webhook_v1_webhooks_autorev_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+        };
+    };
+    test_payments_v1_admin_apps__app_id__payments_test_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                app_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaymentTestOut"];
+                };
             };
             /** @description Validation Error */
             422: {

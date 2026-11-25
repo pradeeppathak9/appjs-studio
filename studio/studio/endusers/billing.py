@@ -3,9 +3,9 @@
 A plan grants `credits_per_month` every month while a subscription is active, whatever its billing
 period (a yearly plan grants monthly). A plan can also offer a free trial (`trial_enabled`): the user
 starts it themselves, it lasts `trial_days`, grants `trial_credits` once, and then expires (the credits
-stay). Each user gets one trial per app, whichever plan it was. Payments aren't collected yet:
-subscriptions are granted by an admin (`provider="manual"`). A `PaymentProvider` (Razorpay, ...)
-will create and renew them later.
+stay). Each user gets one trial per app, whichever plan it was. Subscriptions are granted by an admin
+(`provider="manual"`) or bought through autorev (studio/endusers/payments.py), which starts and renews
+them from the gateway's payments.
 """
 
 from __future__ import annotations
@@ -15,7 +15,6 @@ import logging
 import re
 import uuid
 from datetime import UTC, datetime, timedelta
-from typing import Protocol
 from uuid import UUID
 
 from pydantic import BaseModel, Field, field_validator
@@ -56,14 +55,58 @@ class PlanCreate(PlanFields):
         return v
 
 
-class PaymentProvider(Protocol):
-    """To be implemented for Razorpay (or another provider): start a purchase of `plan` for `user`
-    and turn the provider's signed webhooks into `BillingService.activate/renew/cancel` calls."""
+async def start_subscription(
+    s: AsyncSession,
+    user: AppUser,
+    plan: Plan,
+    *,
+    provider: str,
+    provider_ref: str | None = None,
+    created_by: UUID | None = None,
+    now: datetime | None = None,
+    period_end: datetime | None = None,
+) -> Subscription:
+    """Add an active subscription and grant its first month, inside the caller's transaction (which
+    holds the user's row lock and has checked there is no other active subscription). `period_end`
+    defaults to one billing period from now."""
+    now = now or datetime.now(UTC)
+    end = period_end or add_months(now, 12 if plan.billing_period == "year" else 1)
+    second = add_months(now, 1)
+    sub = Subscription(
+        id=uuid.uuid4(),
+        app_user_id=user.id,
+        plan_id=plan.id,
+        status="active",
+        provider=provider,
+        provider_ref=provider_ref,
+        current_period_start=now,
+        current_period_end=end,
+        next_credit_grant_at=second if second < end else None,
+        created_by=created_by,
+    )
+    s.add(sub)
+    await s.flush()
+    if plan.credits_per_month:
+        await apply_entry(
+            s,
+            app_id=user.app_id,
+            app_user_id=user.id,
+            delta=plan.credits_per_month,
+            reason="subscription_grant",
+            key=f"grant:{sub.id}:m0",
+            subscription_id=sub.id,
+            note=f"{plan.name}: month 1",
+        )
+    return sub
 
-    name: str
 
-    async def create_checkout(self, plan: Plan, user: AppUser) -> dict: ...
-    async def handle_webhook(self, headers: dict[str, str], body: bytes) -> None: ...
+def next_grant_after_extension(sub: Subscription, now: datetime) -> datetime | None:
+    """When a paid period is extended: the monthly grant to schedule next. The latest month boundary
+    already passed (the sweep grants it if it hasn't; ledger keys make that idempotent), else the
+    first one."""
+    months = max(_months_between(sub.current_period_start, now), 1)
+    due = add_months(sub.current_period_start, months)
+    return due if due < sub.current_period_end else None
 
 
 def add_months(dt: datetime, n: int) -> datetime:
@@ -167,21 +210,6 @@ class BillingService:
         plan = await self.plan(user.app_id, plan_id)
         if plan.status != "active":
             raise ValidationFailed("this plan is archived", "plan_id")
-        now = now or datetime.now(UTC)
-        end = add_months(now, 12 if plan.billing_period == "year" else 1)
-        second = add_months(now, 1)
-        sub = Subscription(
-            id=uuid.uuid4(),
-            app_user_id=user.id,
-            plan_id=plan.id,
-            status="active",
-            provider=provider,
-            provider_ref=provider_ref,
-            current_period_start=now,
-            current_period_end=end,
-            next_credit_grant_at=second if second < end else None,
-            created_by=actor.id if actor else None,
-        )
         async with self.db.begin() as s:
             locked = await s.scalar(select(AppUser).where(AppUser.id == user.id).with_for_update())
             if locked is None or locked.deleted_at is not None:
@@ -192,20 +220,15 @@ class BillingService:
                 )
             ):
                 raise ConflictError("this user already has an active subscription; cancel it first")
-            s.add(sub)
-            await s.flush()
-            if plan.credits_per_month:
-                await apply_entry(
-                    s,
-                    app_id=user.app_id,
-                    app_user_id=user.id,
-                    delta=plan.credits_per_month,
-                    reason="subscription_grant",
-                    key=f"grant:{sub.id}:m0",
-                    subscription_id=sub.id,
-                    note=f"{plan.name}: month 1",
-                )
-        return sub
+            return await start_subscription(
+                s,
+                locked,
+                plan,
+                provider=provider,
+                provider_ref=provider_ref,
+                created_by=actor.id if actor else None,
+                now=now,
+            )
 
     async def trial_users(self, user_ids: list[UUID]) -> set[UUID]:
         """Which of these users have already had their free trial."""

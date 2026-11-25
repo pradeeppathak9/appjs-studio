@@ -80,6 +80,10 @@ class Settings(BaseSettings):
     input_image_max_pixels: int = 40_000_000
     input_image_max_side: int = 2048
 
+    # Payments: autorev (../autorev) runs the gateways; each app stores its autorev app id and key
+    autorev_url: str = "http://autorev-api:8000"  # on the Docker network `appjs`
+    autorev_timeout_s: float = 20
+
     # Webhooks
     webhook_secret: SecretStr | None = None
     webhook_timeout_s: float = 10

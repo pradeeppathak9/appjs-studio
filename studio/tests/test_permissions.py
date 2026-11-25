@@ -12,6 +12,7 @@ from studio.api import (
     client_auth,
     generations,
     meta,
+    payments,
     templates,
 )
 from studio.auth.service import AppRole, Role
@@ -30,6 +31,9 @@ ROUTERS = [
     admin_endusers.router,
     client_auth.router,
     client.router,
+    payments.app_router,
+    payments.hooks,
+    payments.admin_router,
 ]
 GUARDS = RoleDep | AppRoleDep | AppKeyDep | AppUserDep
 
@@ -84,7 +88,7 @@ def test_the_routers_listed_here_cover_the_whole_app(app):
 
 
 def test_every_admin_route_needs_admin():
-    for r in [*admin.router.routes, *admin_endusers.router.routes]:
+    for r in [*admin.router.routes, *admin_endusers.router.routes, *payments.admin_router.routes]:
         assert access(r) == "admin", r.path
 
 
@@ -137,6 +141,12 @@ EXPECTED = {
     ("GET", "/v1/admin/apps/{app_id}/users/{user_id}/credits"): "admin",
     ("PUT", "/v1/admin/apps/{app_id}/users/{user_id}/subscriptions/{subscription_id}/link"): "admin",
     ("POST", "/v1/admin/apps/{app_id}/users/{user_id}/subscriptions"): "admin",
+    ("POST", "/v1/admin/apps/{app_id}/payments/test"): "admin",
+    ("POST", "/v1/app/subscriptions"): "app-user",
+    ("GET", "/v1/app/subscriptions/orders"): "app-user",
+    ("GET", "/v1/app/subscriptions/orders/{order_id}"): "app-user",
+    ("POST", "/v1/app/subscriptions/current/cancel"): "app-user",
+    ("POST", "/v1/webhooks/autorev"): "public",
 }
 
 

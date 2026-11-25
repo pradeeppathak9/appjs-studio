@@ -272,6 +272,11 @@ type AppPatchBody = import("./schema").components["schemas"]["AppPatch"];
 
 /** PATCH /v1/admin/apps/{id}: only the fields given change. (openapi-typescript marks fields that
  * have a server default as required; the server treats every field of this body as optional.) */
+/** Check an app's autorev connection: its key works, the gateway is on there and has keys. */
+export function testPayments(appId: string) {
+  return unwrap(api.POST("/v1/admin/apps/{app_id}/payments/test", { params: { path: { app_id: appId } } }));
+}
+
 export function patchApp(appId: string, changes: Partial<AppPatchBody>) {
   return unwrap(
     api.PATCH("/v1/admin/apps/{app_id}", { params: { path: { app_id: appId } }, body: changes as AppPatchBody }),

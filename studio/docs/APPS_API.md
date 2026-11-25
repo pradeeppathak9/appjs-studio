@@ -32,12 +32,14 @@ Call on start, before sign-in, to decide which buttons to show:
     "phone_provider": "msg91", "firebase_project_id": null
   },
   "require_login": true,
-  "payments": {"provider": "razorpay", "mode": "test", "razorpay_key_id": "rzp_test_…"}
+  "payments": {"provider": "razorpay"}
 }
 ```
 
-`payments.provider` is `none`, `razorpay` or `phonepe`, as set in the console (Admin → Apps → the app →
-App settings). `none` means purchases aren't possible yet: show plans without a buy action.
+`payments.provider` is `none`, `razorpay` or `phonepe`: the gateway set in the console (Admin → Apps → the
+app → App settings → Payments), once the app is connected to autorev, which runs the gateway. `none`
+means purchases aren't possible yet: show plans without a buy action. Checkout details (the Razorpay key
+id, order id, …) come with each checkout, not here; see "Buying a plan" below.
 
 `sign_in.phone_provider` (set per app in the console; `null` when phone sign-in is off) picks the phone flow:
 
@@ -113,7 +115,7 @@ A token for another client id, expired, or for an unverified email is 401 `inval
   "sign_in": "phone", "credits": 38,
   "subscription": {"id": "…", "plan": {"id": "…", "slug": "monthly", "name": "Monthly"}, "status": "active", "trial": false,
                    "provider": "manual", "current_period_start": "…", "current_period_end": "…",
-                   "next_credit_grant_at": null, "created_at": "…"},
+                   "next_credit_grant_at": null, "cancel_at_period_end": false, "created_at": "…"},
   "trial_used": false,
   "created_at": "…"
 }
@@ -151,8 +153,44 @@ A token for another client id, expired, or for an unverified email is 401 `inval
   with the plans. With a trial on offer, lead with "Start free trial" and a Monthly / Yearly choice
   (the plans with `trial_enabled`). "Maybe later" closes it; it shows again on the next launch or sign-in
   while there is no subscription.
-- **Payments are not connected yet.** Until they are, an admin gives a plan to a user in the console
+- **Without payments** (`payments.provider` is `none`) an admin gives a plan to a user in the console
   (Admin → Apps → the app → Users). Show prices, and a "coming soon"/contact action instead of a purchase.
+
+## Buying a plan (Razorpay)
+
+Payments run through autorev, which holds the gateway's keys, sets up the payer's mandate (UPI Autopay
+or a card) and charges every cycle. The app only opens the gateway's checkout. All calls are signed in.
+
+1. **Start:** `POST /v1/app/subscriptions {"plan_id": "…", "method": "upi" | "card"}` → 201:
+
+   ```json
+   {"id": "…", "status": "pending", "gateway": "razorpay", "plan": {"id": "…", "slug": "monthly", "name": "Monthly"},
+    "amount_minor": 19900, "currency": "INR", "error": null, "created_at": "…",
+    "razorpay": {"key_id": "rzp_test_…", "order_id": "order_…", "customer_id": "cust_…", "amount": 19900,
+                 "currency": "INR", "name": "Priya", "email": "priya@example.com", "phone": "9876543210",
+                 "method": "upi"}}
+   ```
+
+   Razorpay needs the payer's email and 10-digit mobile number. They default to the account's; send
+   `"email"` / `"phone"` (and optionally `"name"`) when the account lacks them. Errors: 422
+   `validation_error` with `field` `email` or `phone` (ask for it and retry), 409 `conflict` (already
+   subscribed), 409 `payments_unavailable` (the app takes no payments yet), 502
+   `payment_gateway_error` (try again later).
+2. **Pay:** open Razorpay Checkout with `key` = `razorpay.key_id`, `order_id`, `customer_id`,
+   `recurring: "1"`, and `prefill` {`name`, `email`, `contact` = `phone`, `method`}. The payer approves the
+   mandate and the first payment.
+3. **Follow:** when Checkout closes (success or not), poll `GET /v1/app/subscriptions/orders/{id}` every
+   2-3 s for up to a minute until `status` is no longer `pending`. `active`: the subscription started
+   and its first month of credits is granted; refresh `GET /v1/app/me`. `failed`: nothing was charged,
+   `error` says why. Still `pending` after a minute: say the payment is being confirmed and check again
+   on the next launch (`GET /v1/app/subscriptions/orders` lists the user's checkouts, newest first).
+
+A paid subscription has `"provider": "razorpay"`. It renews each period on its own (new credits every
+month as usual). **Cancel** with `POST /v1/app/subscriptions/current/cancel` → the updated `me`: the
+subscription stays active to `current_period_end`, with `cancel_at_period_end: true`, and isn't
+charged again. The same happens if the payer revokes the mandate in their UPI app or renewal payments
+keep failing. Show "Ends on <date>" and offer to subscribe again. A paid plan replaces a running free
+trial (the trial's credits stay).
 
 ## Endpoints
 

@@ -21,11 +21,13 @@ export type AppFormValues = {
   firebase_project_id: string;
   signup_credits: number | string;
   require_login: boolean;
-  // payments
+  // payments: the gateway, and the autorev app that runs it (gateway keys and mode live in autorev)
   payment_provider: "none" | "razorpay" | "phonepe";
-  payment_mode: "test" | "live";
-  razorpay_key_id: string;
-  phonepe_merchant_id: string;
+  autorev_app_id: string;
+  /** write-only: blank keeps the saved value, text replaces it */
+  autorev_api_key: string;
+  /** write-only: blank keeps the saved value, text replaces it */
+  autorev_webhook_secret: string;
 };
 
 export const PLATFORMS = ["android", "ios", "web", "other"];
@@ -49,9 +51,9 @@ export const EMPTY_APP: AppFormValues = {
   signup_credits: 0,
   require_login: false,
   payment_provider: "none",
-  payment_mode: "test",
-  razorpay_key_id: "",
-  phonepe_merchant_id: "",
+  autorev_app_id: "",
+  autorev_api_key: "",
+  autorev_webhook_secret: "",
 };
 
 export function appValues(a: AppOut): AppFormValues {
@@ -74,9 +76,9 @@ export function appValues(a: AppOut): AppFormValues {
     signup_credits: a.signup_credits,
     require_login: a.require_login,
     payment_provider: a.payment_provider,
-    payment_mode: a.payment_mode,
-    razorpay_key_id: a.razorpay_key_id ?? "",
-    phonepe_merchant_id: a.phonepe_merchant_id ?? "",
+    autorev_app_id: a.autorev_app_id ?? "",
+    autorev_api_key: "",
+    autorev_webhook_secret: "",
   };
 }
 
@@ -129,12 +131,20 @@ export function signInBody(v: AppFormValues) {
 }
 
 export function paymentBody(v: AppFormValues) {
+  const key = v.autorev_api_key.trim();
+  const secret = v.autorev_webhook_secret.trim();
   return {
     payment_provider: v.payment_provider,
-    payment_mode: v.payment_mode,
-    razorpay_key_id: v.razorpay_key_id.trim() || null,
-    phonepe_merchant_id: v.phonepe_merchant_id.trim() || null,
+    autorev_app_id: v.autorev_app_id.trim() || null,
+    // write-only: sent only when typed, so saving never clears what is saved
+    ...(key ? { autorev_api_key: key } : {}),
+    ...(secret ? { autorev_webhook_secret: secret } : {}),
   };
+}
+
+/** Where autorev should send this Studio's payment events (paste into autorev → Settings → Webhooks). */
+export function autorevWebhookUrl(origin: string): string {
+  return `${origin.replace(/\/$/, "")}/api/v1/webhooks/autorev`;
 }
 
 /** Example calls for the app developers; the key and device id are placeholders they substitute. */

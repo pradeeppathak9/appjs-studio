@@ -360,9 +360,11 @@ class AppOut(BaseModel):
     signup_credits: int
     require_login: bool
     payment_provider: Literal["none", "razorpay", "phonepe"]
-    payment_mode: Literal["test", "live"]
-    razorpay_key_id: str | None
-    phonepe_merchant_id: str | None
+    autorev_app_id: str | None = Field(None, description="the autorev app this app's payments go through")
+    autorev_api_key_set: bool = Field(False, description="the autorev API key is saved (write-only)")
+    autorev_webhook_secret_set: bool = Field(
+        False, description="autorev's webhook signing secret is saved (write-only)"
+    )
     created_at: datetime
     updated_at: datetime
     template_count: int = 0
@@ -453,10 +455,9 @@ class SignInMethods(BaseModel):
 
 class PaymentConfig(BaseModel):
     provider: Literal["none", "razorpay", "phonepe"] = Field(
-        description="the gateway purchases go through; none = payments not available yet"
+        description="the gateway purchases go through (POST /v1/app/subscriptions); none = payments "
+        "not available yet. Checkout details (e.g. the Razorpay key id) come with each checkout."
     )
-    mode: Literal["test", "live"]
-    razorpay_key_id: str | None = Field(None, description="for Razorpay Checkout on the device")
 
 
 class AppClientConfig(BaseModel):
@@ -510,6 +511,9 @@ class SubscriptionOut(BaseModel):
     current_period_start: datetime
     current_period_end: datetime
     next_credit_grant_at: datetime | None
+    cancel_at_period_end: bool = Field(
+        False, description="it won't renew: it ends at current_period_end (cancelled, or payments stopped)"
+    )
     created_at: datetime
 
 
@@ -583,7 +587,6 @@ class SubscriptionAdminOut(SubscriptionOut):
     provider_ref: str | None = Field(
         None, description="the gateway's subscription id (Razorpay `sub_…`, PhonePe subscription id)"
     )
-    cancel_at_period_end: bool = False
 
 
 class AppUserDetail(AppUserAdminOut):
@@ -647,3 +650,54 @@ class SubscriptionGrantIn(BaseModel):
 
 class TrialStartIn(BaseModel):
     plan_id: UUID = Field(description="a plan with `trial_enabled`, e.g. the monthly or yearly one")
+
+
+# ---- payments (app clients) ------------------------------------------------------------------------
+
+
+class CheckoutIn(BaseModel):
+    plan_id: UUID
+    method: Literal["upi", "card"] = Field(
+        "upi", description="how the payer authorises recurring payments: UPI Autopay or a card mandate"
+    )
+    name: str | None = Field(None, max_length=200, description="defaults to the user's name")
+    email: str | None = Field(
+        None, max_length=320, description="Razorpay needs one; defaults to the user's email"
+    )
+    phone: str | None = Field(
+        None, max_length=20, description="Razorpay needs one (Indian mobile); defaults to the user's phone"
+    )
+
+
+class RazorpayCheckout(BaseModel):
+    """Open Razorpay Checkout with these (`key`, `order_id`, `customer_id`, `recurring: "1"`)."""
+
+    key_id: str
+    order_id: str
+    customer_id: str
+    amount: int
+    currency: str
+    name: str
+    email: str
+    phone: str = Field(description="10 digits, as Razorpay Checkout's prefill.contact")
+    method: Literal["upi", "card"]
+
+
+class PaymentOrderOut(BaseModel):
+    id: UUID
+    status: Literal["pending", "active", "failed", "cancelled"] = Field(
+        description="pending until the payer authorises the mandate; active = the subscription started"
+    )
+    gateway: str
+    plan: PlanRef
+    amount_minor: int
+    currency: str
+    error: str | None = None
+    razorpay: RazorpayCheckout | None = Field(None, description="with gateway razorpay, while pending")
+    created_at: datetime
+
+
+class PaymentTestOut(BaseModel):
+    ok: bool
+    detail: str
+    gateways: dict[str, dict] = Field(default_factory=dict)

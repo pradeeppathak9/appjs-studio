@@ -282,7 +282,6 @@ class App(Base):
     __table_args__ = (
         CheckConstraint("status IN ('active','disabled')", name="status"),
         CheckConstraint("payment_provider IN ('none','razorpay','phonepe')", name="payment_provider"),
-        CheckConstraint("payment_mode IN ('test','live')", name="payment_mode"),
         CheckConstraint("phone_provider IN ('msg91','firebase')", name="phone_provider"),
     )
 
@@ -313,12 +312,13 @@ class App(Base):
     openrouter_api_key_enc: Mapped[str | None] = mapped_column(Text)
     signup_credits: Mapped[int] = mapped_column(Integer, server_default="0")
     require_login: Mapped[bool] = mapped_column(Boolean, server_default=text("false"))
-    # payments: which gateway the app's purchases go through, and its public identifiers. Secret
-    # keys are added with the checkout integration, not stored before anything uses them.
+    # payments: which gateway the app's purchases go through. Gateway credentials and test/live mode
+    # live in autorev (../autorev); Studio keeps the autorev app it bills through and that app's API
+    # key and webhook signing secret (Fernet, see studio/secrets.py).
     payment_provider: Mapped[str] = mapped_column(String(16), server_default="none")
-    payment_mode: Mapped[str] = mapped_column(String(8), server_default="test")
-    razorpay_key_id: Mapped[str | None] = mapped_column(String(64))
-    phonepe_merchant_id: Mapped[str | None] = mapped_column(String(64))
+    autorev_app_id: Mapped[str | None] = mapped_column(String(64), index=True)
+    autorev_api_key_enc: Mapped[str | None] = mapped_column(Text)
+    autorev_webhook_secret_enc: Mapped[str | None] = mapped_column(Text)
     created_by: Mapped[UUID] = mapped_column(PgUUID(as_uuid=True), ForeignKey("users.id"))
     created_at: Mapped[datetime] = _ts(default_now=True)
     updated_at: Mapped[datetime] = _ts(default_now=True)
@@ -491,6 +491,50 @@ class Subscription(Base):
     created_by: Mapped[UUID | None] = mapped_column(PgUUID(as_uuid=True), ForeignKey("users.id"))
     created_at: Mapped[datetime] = _ts(default_now=True)
     updated_at: Mapped[datetime] = _ts(default_now=True)
+
+
+class PaymentOrder(Base):
+    """One checkout: an app user buying a plan through autorev. `pending` until autorev reports the
+    mandate authorised (`active`, linked to the subscription it started) or it failed."""
+
+    __tablename__ = "payment_orders"
+    __table_args__ = (
+        CheckConstraint("status IN ('pending','active','failed','cancelled')", name="status"),
+        Index("ix_payment_orders_user", "app_user_id", text("created_at DESC")),
+    )
+
+    id: Mapped[UUID] = mapped_column(PgUUID(as_uuid=True), primary_key=True)
+    app_id: Mapped[UUID] = mapped_column(PgUUID(as_uuid=True), ForeignKey("apps.id", ondelete="CASCADE"))
+    app_user_id: Mapped[UUID] = mapped_column(
+        PgUUID(as_uuid=True), ForeignKey("app_users.id", ondelete="CASCADE")
+    )
+    plan_id: Mapped[UUID] = mapped_column(PgUUID(as_uuid=True), ForeignKey("plans.id"))
+    gateway: Mapped[str] = mapped_column(String(16))
+    amount_minor: Mapped[int] = mapped_column(Integer)
+    currency: Mapped[str] = mapped_column(String(3))
+    autorev_subscription_id: Mapped[str | None] = mapped_column(String(64), unique=True)
+    gateway_order_id: Mapped[str | None] = mapped_column(String(64))
+    status: Mapped[str] = mapped_column(String(16), server_default="pending")
+    subscription_id: Mapped[UUID | None] = mapped_column(
+        PgUUID(as_uuid=True), ForeignKey("subscriptions.id", ondelete="SET NULL")
+    )
+    error: Mapped[str | None] = mapped_column(Text)
+    created_at: Mapped[datetime] = _ts(default_now=True)
+    updated_at: Mapped[datetime] = _ts(default_now=True)
+
+
+class PaymentEvent(Base):
+    """Every webhook autorev delivered, applied at most once (unique delivery id)."""
+
+    __tablename__ = "payment_events"
+
+    id: Mapped[UUID] = mapped_column(PgUUID(as_uuid=True), primary_key=True)
+    app_id: Mapped[UUID] = mapped_column(PgUUID(as_uuid=True), ForeignKey("apps.id", ondelete="CASCADE"))
+    delivery_id: Mapped[str] = mapped_column(String(64), unique=True)
+    event: Mapped[str] = mapped_column(String(64))
+    payload: Mapped[dict] = mapped_column(JSONB)
+    error: Mapped[str | None] = mapped_column(Text)
+    received_at: Mapped[datetime] = _ts(default_now=True)
 
 
 class CreditEntry(Base):

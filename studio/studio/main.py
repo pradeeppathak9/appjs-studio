@@ -17,6 +17,7 @@ from studio.api import (
     client_auth,
     generations,
     meta,
+    payments,
     templates,
 )
 from studio.api.errors import error_response, install_error_handlers
@@ -27,6 +28,7 @@ from studio.config import Settings
 from studio.db.engine import create_engine, require_head, session_factory
 from studio.deps import AppState
 from studio.endusers.billing import BillingService
+from studio.endusers.payments import PaymentService
 from studio.endusers.service import AppUserService
 from studio.jobs.pg_repository import PgJobQueue, PgJobRepository
 from studio.jobs.service import GenerationService
@@ -53,6 +55,7 @@ async def build_state(settings: Settings, registry: ProviderRegistry | None = No
     apps = AppService(db, box)
     providers = AppProviders(registry, apps)  # an app's own provider keys, else the server's
     generations_svc = GenerationService(settings, db, repo, registry, providers)
+    billing = BillingService(db)
     return AppState(
         settings=settings,
         engine=engine,
@@ -69,7 +72,8 @@ async def build_state(settings: Settings, registry: ProviderRegistry | None = No
         apps=apps,
         providers=providers,
         endusers=AppUserService(settings, db, http, box=box),
-        billing=BillingService(db),
+        billing=billing,
+        payments=PaymentService(settings, db, http, apps, billing),
     )
 
 
@@ -156,6 +160,9 @@ def create_app(settings: Settings | None = None, registry: ProviderRegistry | No
         admin_endusers.router,
         client_auth.router,
         client.router,
+        payments.app_router,
+        payments.hooks,
+        payments.admin_router,
     ):
         app.include_router(r)
     return app

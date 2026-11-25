@@ -4087,6 +4087,226 @@
      }
     }
    }
+  },
+  "/v1/app/subscriptions": {
+   "post": {
+    "tags": [
+     "app clients: payments"
+    ],
+    "summary": "Checkout",
+    "description": "Start buying a plan. With `razorpay` in the answer, open Razorpay Checkout with `key_id`,\n`order_id`, `customer_id` and `recurring: \"1\"`; when it closes, poll\n`GET /subscriptions/orders/{id}` until `status` is no longer `pending`. 409 `payments_unavailable` if\nthe app takes no payments yet, 409 `conflict` if the user already has a subscription, 422 if the\ngateway needs an email or mobile number the account doesn't have (send `email` / `phone`).",
+    "operationId": "checkout_v1_app_subscriptions_post",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/CheckoutIn"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "201": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/PaymentOrderOut"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/v1/app/subscriptions/orders/{order_id}": {
+   "get": {
+    "tags": [
+     "app clients: payments"
+    ],
+    "summary": "Checkout Status",
+    "description": "A checkout's status. `active`: the subscription started and its first credits are granted (see\n`GET /me`); `failed`: nothing was charged, `error` says why.",
+    "operationId": "checkout_status_v1_app_subscriptions_orders__order_id__get",
+    "parameters": [
+     {
+      "name": "order_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "uuid",
+       "title": "Order Id"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/PaymentOrderOut"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/v1/app/subscriptions/orders": {
+   "get": {
+    "tags": [
+     "app clients: payments"
+    ],
+    "summary": "Checkouts",
+    "description": "The user's checkouts, newest first.",
+    "operationId": "checkouts_v1_app_subscriptions_orders_get",
+    "parameters": [
+     {
+      "name": "limit",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "integer",
+       "default": 20,
+       "title": "Limit"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "array",
+         "items": {
+          "$ref": "#/components/schemas/PaymentOrderOut"
+         },
+         "title": "Response Checkouts V1 App Subscriptions Orders Get"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/v1/app/subscriptions/current/cancel": {
+   "post": {
+    "tags": [
+     "app clients: payments"
+    ],
+    "summary": "Cancel Subscription",
+    "description": "Stop the paid subscription from renewing. It stays active, with its monthly credits, until\n`current_period_end` (`cancel_at_period_end` turns true). 404 if there is no paid subscription.",
+    "operationId": "cancel_subscription_v1_app_subscriptions_current_cancel_post",
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/AppUserOut"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/v1/webhooks/autorev": {
+   "post": {
+    "tags": [
+     "payments: autorev webhooks"
+    ],
+    "summary": "Autorev Webhook",
+    "description": "autorev's events for an app (set this URL and its signing secret in autorev → Settings →\nWebhooks, and the secret in Studio's Payments settings). Signed with `X-Autorev-Signature`.",
+    "operationId": "autorev_webhook_v1_webhooks_autorev_post",
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     }
+    }
+   }
+  },
+  "/v1/admin/apps/{app_id}/payments/test": {
+   "post": {
+    "tags": [
+     "admin"
+    ],
+    "summary": "Test Payments",
+    "description": "Check the app's autorev connection: the API key works, the gateway is switched on there and\nits keys are saved.",
+    "operationId": "test_payments_v1_admin_apps__app_id__payments_test_post",
+    "parameters": [
+     {
+      "name": "app_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "uuid",
+       "title": "App Id"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/PaymentTestOut"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
   }
  },
  "components": {
@@ -4325,13 +4545,7 @@
       "title": "Payment Provider",
       "default": "none"
      },
-     "payment_mode": {
-      "type": "string",
-      "pattern": "^(test|live)$",
-      "title": "Payment Mode",
-      "default": "test"
-     },
-     "razorpay_key_id": {
+     "autorev_app_id": {
       "anyOf": [
        {
         "type": "string",
@@ -4341,19 +4555,31 @@
         "type": "null"
        }
       ],
-      "title": "Razorpay Key Id"
+      "title": "Autorev App Id"
      },
-     "phonepe_merchant_id": {
+     "autorev_api_key": {
       "anyOf": [
        {
         "type": "string",
-        "maxLength": 64
+        "maxLength": 200
        },
        {
         "type": "null"
        }
       ],
-      "title": "Phonepe Merchant Id"
+      "title": "Autorev Api Key"
+     },
+     "autorev_webhook_secret": {
+      "anyOf": [
+       {
+        "type": "string",
+        "maxLength": 200
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Autorev Webhook Secret"
      },
      "slug": {
       "type": "string",
@@ -4512,15 +4738,7 @@
       ],
       "title": "Payment Provider"
      },
-     "payment_mode": {
-      "type": "string",
-      "enum": [
-       "test",
-       "live"
-      ],
-      "title": "Payment Mode"
-     },
-     "razorpay_key_id": {
+     "autorev_app_id": {
       "anyOf": [
        {
         "type": "string"
@@ -4529,18 +4747,20 @@
         "type": "null"
        }
       ],
-      "title": "Razorpay Key Id"
+      "title": "Autorev App Id",
+      "description": "the autorev app this app's payments go through"
      },
-     "phonepe_merchant_id": {
-      "anyOf": [
-       {
-        "type": "string"
-       },
-       {
-        "type": "null"
-       }
-      ],
-      "title": "Phonepe Merchant Id"
+     "autorev_api_key_set": {
+      "type": "boolean",
+      "title": "Autorev Api Key Set",
+      "description": "the autorev API key is saved (write-only)",
+      "default": false
+     },
+     "autorev_webhook_secret_set": {
+      "type": "boolean",
+      "title": "Autorev Webhook Secret Set",
+      "description": "autorev's webhook signing secret is saved (write-only)",
+      "default": false
      },
      "created_at": {
       "type": "string",
@@ -4601,9 +4821,6 @@
      "signup_credits",
      "require_login",
      "payment_provider",
-     "payment_mode",
-     "razorpay_key_id",
-     "phonepe_merchant_id",
      "created_at",
      "updated_at",
      "usage"
@@ -4798,13 +5015,7 @@
       "title": "Payment Provider",
       "default": "none"
      },
-     "payment_mode": {
-      "type": "string",
-      "pattern": "^(test|live)$",
-      "title": "Payment Mode",
-      "default": "test"
-     },
-     "razorpay_key_id": {
+     "autorev_app_id": {
       "anyOf": [
        {
         "type": "string",
@@ -4814,19 +5025,31 @@
         "type": "null"
        }
       ],
-      "title": "Razorpay Key Id"
+      "title": "Autorev App Id"
      },
-     "phonepe_merchant_id": {
+     "autorev_api_key": {
       "anyOf": [
        {
         "type": "string",
-        "maxLength": 64
+        "maxLength": 200
        },
        {
         "type": "null"
        }
       ],
-      "title": "Phonepe Merchant Id"
+      "title": "Autorev Api Key"
+     },
+     "autorev_webhook_secret": {
+      "anyOf": [
+       {
+        "type": "string",
+        "maxLength": 200
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Autorev Webhook Secret"
      }
     },
     "type": "object",
@@ -5141,15 +5364,7 @@
       ],
       "title": "Payment Provider"
      },
-     "payment_mode": {
-      "type": "string",
-      "enum": [
-       "test",
-       "live"
-      ],
-      "title": "Payment Mode"
-     },
-     "razorpay_key_id": {
+     "autorev_app_id": {
       "anyOf": [
        {
         "type": "string"
@@ -5158,18 +5373,20 @@
         "type": "null"
        }
       ],
-      "title": "Razorpay Key Id"
+      "title": "Autorev App Id",
+      "description": "the autorev app this app's payments go through"
      },
-     "phonepe_merchant_id": {
-      "anyOf": [
-       {
-        "type": "string"
-       },
-       {
-        "type": "null"
-       }
-      ],
-      "title": "Phonepe Merchant Id"
+     "autorev_api_key_set": {
+      "type": "boolean",
+      "title": "Autorev Api Key Set",
+      "description": "the autorev API key is saved (write-only)",
+      "default": false
+     },
+     "autorev_webhook_secret_set": {
+      "type": "boolean",
+      "title": "Autorev Webhook Secret Set",
+      "description": "autorev's webhook signing secret is saved (write-only)",
+      "default": false
      },
      "created_at": {
       "type": "string",
@@ -5223,9 +5440,6 @@
      "signup_credits",
      "require_login",
      "payment_provider",
-     "payment_mode",
-     "razorpay_key_id",
-     "phonepe_merchant_id",
      "created_at",
      "updated_at"
     ],
@@ -5432,13 +5646,7 @@
       "title": "Payment Provider",
       "default": "none"
      },
-     "payment_mode": {
-      "type": "string",
-      "pattern": "^(test|live)$",
-      "title": "Payment Mode",
-      "default": "test"
-     },
-     "razorpay_key_id": {
+     "autorev_app_id": {
       "anyOf": [
        {
         "type": "string",
@@ -5448,19 +5656,31 @@
         "type": "null"
        }
       ],
-      "title": "Razorpay Key Id"
+      "title": "Autorev App Id"
      },
-     "phonepe_merchant_id": {
+     "autorev_api_key": {
       "anyOf": [
        {
         "type": "string",
-        "maxLength": 64
+        "maxLength": 200
        },
        {
         "type": "null"
        }
       ],
-      "title": "Phonepe Merchant Id"
+      "title": "Autorev Api Key"
+     },
+     "autorev_webhook_secret": {
+      "anyOf": [
+       {
+        "type": "string",
+        "maxLength": 200
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Autorev Webhook Secret"
      }
     },
     "type": "object",
@@ -6118,6 +6338,69 @@
      "file"
     ],
     "title": "Body_upload_v1_apps__app_id__uploads_post"
+   },
+   "CheckoutIn": {
+    "properties": {
+     "plan_id": {
+      "type": "string",
+      "format": "uuid",
+      "title": "Plan Id"
+     },
+     "method": {
+      "type": "string",
+      "enum": [
+       "upi",
+       "card"
+      ],
+      "title": "Method",
+      "description": "how the payer authorises recurring payments: UPI Autopay or a card mandate",
+      "default": "upi"
+     },
+     "name": {
+      "anyOf": [
+       {
+        "type": "string",
+        "maxLength": 200
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Name",
+      "description": "defaults to the user's name"
+     },
+     "email": {
+      "anyOf": [
+       {
+        "type": "string",
+        "maxLength": 320
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Email",
+      "description": "Razorpay needs one; defaults to the user's email"
+     },
+     "phone": {
+      "anyOf": [
+       {
+        "type": "string",
+        "maxLength": 20
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Phone",
+      "description": "Razorpay needs one (Indian mobile); defaults to the user's phone"
+     }
+    },
+    "type": "object",
+    "required": [
+     "plan_id"
+    ],
+    "title": "CheckoutIn"
    },
    "CreditAdjustIn": {
     "properties": {
@@ -7085,15 +7368,7 @@
       ],
       "title": "Payment Provider"
      },
-     "payment_mode": {
-      "type": "string",
-      "enum": [
-       "test",
-       "live"
-      ],
-      "title": "Payment Mode"
-     },
-     "razorpay_key_id": {
+     "autorev_app_id": {
       "anyOf": [
        {
         "type": "string"
@@ -7102,18 +7377,20 @@
         "type": "null"
        }
       ],
-      "title": "Razorpay Key Id"
+      "title": "Autorev App Id",
+      "description": "the autorev app this app's payments go through"
      },
-     "phonepe_merchant_id": {
-      "anyOf": [
-       {
-        "type": "string"
-       },
-       {
-        "type": "null"
-       }
-      ],
-      "title": "Phonepe Merchant Id"
+     "autorev_api_key_set": {
+      "type": "boolean",
+      "title": "Autorev Api Key Set",
+      "description": "the autorev API key is saved (write-only)",
+      "default": false
+     },
+     "autorev_webhook_secret_set": {
+      "type": "boolean",
+      "title": "Autorev Webhook Secret Set",
+      "description": "autorev's webhook signing secret is saved (write-only)",
+      "default": false
      },
      "created_at": {
       "type": "string",
@@ -7176,9 +7453,6 @@
      "signup_credits",
      "require_login",
      "payment_provider",
-     "payment_mode",
-     "razorpay_key_id",
-     "phonepe_merchant_id",
      "created_at",
      "updated_at",
      "role"
@@ -7296,17 +7570,49 @@
        "phonepe"
       ],
       "title": "Provider",
-      "description": "the gateway purchases go through; none = payments not available yet"
+      "description": "the gateway purchases go through (POST /v1/app/subscriptions); none = payments not available yet. Checkout details (e.g. the Razorpay key id) come with each checkout."
+     }
+    },
+    "type": "object",
+    "required": [
+     "provider"
+    ],
+    "title": "PaymentConfig"
+   },
+   "PaymentOrderOut": {
+    "properties": {
+     "id": {
+      "type": "string",
+      "format": "uuid",
+      "title": "Id"
      },
-     "mode": {
+     "status": {
       "type": "string",
       "enum": [
-       "test",
-       "live"
+       "pending",
+       "active",
+       "failed",
+       "cancelled"
       ],
-      "title": "Mode"
+      "title": "Status",
+      "description": "pending until the payer authorises the mandate; active = the subscription started"
      },
-     "razorpay_key_id": {
+     "gateway": {
+      "type": "string",
+      "title": "Gateway"
+     },
+     "plan": {
+      "$ref": "#/components/schemas/PlanRef"
+     },
+     "amount_minor": {
+      "type": "integer",
+      "title": "Amount Minor"
+     },
+     "currency": {
+      "type": "string",
+      "title": "Currency"
+     },
+     "error": {
       "anyOf": [
        {
         "type": "string"
@@ -7315,16 +7621,62 @@
         "type": "null"
        }
       ],
-      "title": "Razorpay Key Id",
-      "description": "for Razorpay Checkout on the device"
+      "title": "Error"
+     },
+     "razorpay": {
+      "anyOf": [
+       {
+        "$ref": "#/components/schemas/RazorpayCheckout"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "description": "with gateway razorpay, while pending"
+     },
+     "created_at": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Created At"
      }
     },
     "type": "object",
     "required": [
-     "provider",
-     "mode"
+     "id",
+     "status",
+     "gateway",
+     "plan",
+     "amount_minor",
+     "currency",
+     "created_at"
     ],
-    "title": "PaymentConfig"
+    "title": "PaymentOrderOut"
+   },
+   "PaymentTestOut": {
+    "properties": {
+     "ok": {
+      "type": "boolean",
+      "title": "Ok"
+     },
+     "detail": {
+      "type": "string",
+      "title": "Detail"
+     },
+     "gateways": {
+      "additionalProperties": {
+       "additionalProperties": true,
+       "type": "object"
+      },
+      "type": "object",
+      "title": "Gateways"
+     }
+    },
+    "type": "object",
+    "required": [
+     "ok",
+     "detail"
+    ],
+    "title": "PaymentTestOut"
    },
    "PlanAdminOut": {
     "properties": {
@@ -7855,6 +8207,65 @@
     ],
     "title": "ProviderInfo"
    },
+   "RazorpayCheckout": {
+    "properties": {
+     "key_id": {
+      "type": "string",
+      "title": "Key Id"
+     },
+     "order_id": {
+      "type": "string",
+      "title": "Order Id"
+     },
+     "customer_id": {
+      "type": "string",
+      "title": "Customer Id"
+     },
+     "amount": {
+      "type": "integer",
+      "title": "Amount"
+     },
+     "currency": {
+      "type": "string",
+      "title": "Currency"
+     },
+     "name": {
+      "type": "string",
+      "title": "Name"
+     },
+     "email": {
+      "type": "string",
+      "title": "Email"
+     },
+     "phone": {
+      "type": "string",
+      "title": "Phone",
+      "description": "10 digits, as Razorpay Checkout's prefill.contact"
+     },
+     "method": {
+      "type": "string",
+      "enum": [
+       "upi",
+       "card"
+      ],
+      "title": "Method"
+     }
+    },
+    "type": "object",
+    "required": [
+     "key_id",
+     "order_id",
+     "customer_id",
+     "amount",
+     "currency",
+     "name",
+     "email",
+     "phone",
+     "method"
+    ],
+    "title": "RazorpayCheckout",
+    "description": "Open Razorpay Checkout with these (`key`, `order_id`, `customer_id`, `recurring: \"1\"`)."
+   },
    "SetupIn": {
     "properties": {
      "setup_token": {
@@ -8039,6 +8450,12 @@
       ],
       "title": "Next Credit Grant At"
      },
+     "cancel_at_period_end": {
+      "type": "boolean",
+      "title": "Cancel At Period End",
+      "description": "it won't renew: it ends at current_period_end (cancelled, or payments stopped)",
+      "default": false
+     },
      "created_at": {
       "type": "string",
       "format": "date-time",
@@ -8055,11 +8472,6 @@
       ],
       "title": "Provider Ref",
       "description": "the gateway's subscription id (Razorpay `sub_…`, PhonePe subscription id)"
-     },
-     "cancel_at_period_end": {
-      "type": "boolean",
-      "title": "Cancel At Period End",
-      "default": false
      }
     },
     "type": "object",
@@ -8171,6 +8583,12 @@
        }
       ],
       "title": "Next Credit Grant At"
+     },
+     "cancel_at_period_end": {
+      "type": "boolean",
+      "title": "Cancel At Period End",
+      "description": "it won't renew: it ends at current_period_end (cancelled, or payments stopped)",
+      "default": false
      },
      "created_at": {
       "type": "string",

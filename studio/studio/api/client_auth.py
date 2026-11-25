@@ -45,6 +45,7 @@ def subscription_out(sub, plan) -> SubscriptionOut:
         current_period_start=sub.current_period_start,
         current_period_end=sub.current_period_end,
         next_credit_grant_at=sub.next_credit_grant_at,
+        cancel_at_period_end=sub.cancel_at_period_end,
         created_at=sub.created_at,
     )
 
@@ -119,9 +120,8 @@ async def app_config(a: AppPrincipal = Depends(app_key)):
         ),
         require_login=app.require_login,
         payments=PaymentConfig(
-            provider=app.payment_provider,
-            mode=app.payment_mode,
-            razorpay_key_id=app.razorpay_key_id if app.payment_provider == "razorpay" else None,
+            # "none" until the app is connected to autorev: the client then shows "coming soon"
+            provider=app.payment_provider if app.autorev_app_id and app.autorev_api_key_enc else "none",
         ),
     )
 

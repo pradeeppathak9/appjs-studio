@@ -31,11 +31,12 @@ import {
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Link, useParams } from "react-router";
 import { errorMessage } from "../../api/client";
-import { keys, patchApp, useAdminApp, useProviders } from "../../api/queries";
+import { keys, patchApp, testPayments, useAdminApp, useProviders } from "../../api/queries";
 import type { AppDetail } from "../../api/types";
 import { AppAvatar, Section } from "../../components/ui";
 import {
   appValues,
+  autorevWebhookUrl,
   paymentBody,
   signInBody,
   type AppFormValues,
@@ -334,19 +335,19 @@ function PaymentSettings({ app }: { app: AppDetail }) {
     "Payment settings saved",
   );
   const v = form.values;
+  const connected = !!app.autorev_app_id && app.autorev_api_key_set;
+  const test = useMutation({ mutationFn: () => testPayments(app.id) });
+  const hookUrl = autorevWebhookUrl(window.location.origin);
   return (
     <Section
       title="Payments"
       icon={<IconCreditCard size={18} />}
-      description="The gateway the app's subscriptions are paid through."
+      description="The gateway the app's subscriptions are paid through. autorev runs it: the gateway's keys and test or live mode are set there."
       testId="payment-settings"
       actions={
         app.payment_provider !== "none" && (
-          <Badge
-            color={app.payment_mode === "live" ? "green" : "yellow"}
-            variant="light"
-          >
-            {app.payment_mode}
+          <Badge color={connected ? "green" : "yellow"} variant="light">
+            {connected ? "autorev connected" : "not connected"}
           </Badge>
         )
       }
@@ -362,44 +363,102 @@ function PaymentSettings({ app }: { app: AppDetail }) {
               data={PROVIDERS}
               {...form.getInputProps("payment_provider")}
             />
+            {v.payment_provider === "phonepe" && (
+              <Text size="xs" c="yellow.8" mt={4}>
+                Checkout in the apps is built for Razorpay so far; PhonePe
+                needs that step before users can pay.
+              </Text>
+            )}
           </div>
           {v.payment_provider !== "none" && (
-            <div>
-              <Text size="sm" fw={500} mb={4}>
-                Mode
-              </Text>
-              <SegmentedControl
-                data={[
-                  { value: "test", label: "Test" },
-                  { value: "live", label: "Live" },
-                ]}
-                {...form.getInputProps("payment_mode")}
+            <>
+              <TextInput
+                label="autorev App ID"
+                description="autorev → the app → Settings. Switch the same gateway on there and save its keys."
+                placeholder="3f9c2a7be1d84c55…"
+                {...form.getInputProps("autorev_app_id")}
               />
-              <Text size="xs" c="dimmed" mt={4}>
-                Test mode uses the gateway's sandbox: no real money moves.
-              </Text>
-            </div>
-          )}
-          {v.payment_provider === "razorpay" && (
-            <TextInput
-              label="Razorpay Key ID"
-              description={`Razorpay Dashboard → Account & Settings → API Keys (rzp_${v.payment_mode}_…). Sent to the app for Checkout.`}
-              placeholder={`rzp_${v.payment_mode}_XXXXXXXXXXXXXX`}
-              {...form.getInputProps("razorpay_key_id")}
-            />
-          )}
-          {v.payment_provider === "phonepe" && (
-            <TextInput
-              label="PhonePe Merchant ID"
-              description="PhonePe Business dashboard → Developer settings. Stays on the server."
-              placeholder="M22XXXXXXXXXX"
-              {...form.getInputProps("phonepe_merchant_id")}
-            />
+              <PasswordInput
+                label={
+                  <Group gap={6} component="span">
+                    autorev API key
+                    {app.autorev_api_key_set && (
+                      <Badge size="xs" color="green" variant="light">
+                        saved
+                      </Badge>
+                    )}
+                  </Group>
+                }
+                description="autorev → the app → Settings → API key. Stored encrypted; it can be replaced, never shown again."
+                placeholder={
+                  app.autorev_api_key_set
+                    ? "Saved · type a new key to replace it"
+                    : "Not set"
+                }
+                disabled={!app.secrets_key_set}
+                autoComplete="new-password"
+                {...form.getInputProps("autorev_api_key")}
+              />
+              <PasswordInput
+                label={
+                  <Group gap={6} component="span">
+                    autorev webhook signing secret
+                    {app.autorev_webhook_secret_set && (
+                      <Badge size="xs" color="green" variant="light">
+                        saved
+                      </Badge>
+                    )}
+                  </Group>
+                }
+                description={`autorev → the app → Settings → Webhooks: set the URL to ${hookUrl}, then copy its signing secret here. Without it, payments still activate when the app checks the order, but renewals and stops aren't heard.`}
+                placeholder={
+                  app.autorev_webhook_secret_set
+                    ? "Saved · type a new secret to replace it"
+                    : "Not set"
+                }
+                disabled={!app.secrets_key_set}
+                autoComplete="new-password"
+                {...form.getInputProps("autorev_webhook_secret")}
+              />
+              {!app.secrets_key_set && (
+                <Alert color="yellow">
+                  Set SECRETS_KEY on the server to store the autorev key.
+                </Alert>
+              )}
+              <Group gap="sm" align="center">
+                <Button
+                  variant="light"
+                  size="compact-sm"
+                  disabled={!connected || form.isDirty()}
+                  loading={test.isPending}
+                  onClick={() => test.mutate()}
+                  data-testid="test-payments"
+                >
+                  Test connection
+                </Button>
+                {test.data && (
+                  <Text
+                    size="sm"
+                    c={test.data.ok ? "green" : "red"}
+                    data-testid="test-payments-result"
+                  >
+                    {test.data.detail}
+                  </Text>
+                )}
+                {test.error && (
+                  <Text size="sm" c="red">
+                    {errorMessage(test.error)}
+                  </Text>
+                )}
+              </Group>
+            </>
           )}
           <Alert color="gray" variant="light">
             {v.payment_provider === "none"
               ? "No gateway: the app shows plans but can't take payments. Give plans to users by hand under Users."
-              : "Checkout isn't connected yet. The key secret (Razorpay) or salt key (PhonePe) is added with that step; until then, give plans to users by hand."}
+              : connected
+                ? "Users can subscribe from the app. Each payment starts or renews their plan and grants its monthly credits."
+                : "Save the autorev App ID and API key to let users subscribe from the app."}
           </Alert>
           <SaveRow
             dirty={form.isDirty()}

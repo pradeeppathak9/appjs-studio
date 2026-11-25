@@ -23,8 +23,8 @@ from studio.secrets import SecretBox
 
 KEY_PREFIX = "cak_"
 SLUG_RE = re.compile(r"^[a-z0-9](?:[a-z0-9-]{1,62}[a-z0-9])$")
-RAZORPAY_KEY_RE = re.compile(r"^rzp_(test|live)_[A-Za-z0-9]{6,40}$")
-PHONEPE_ID_RE = re.compile(r"^[A-Z0-9]{3,64}$")
+AUTOREV_APP_ID_RE = re.compile(r"^[A-Za-z0-9_-]{6,64}$")
+AUTOREV_SECRET_RE = re.compile(r"^\S{16,200}$")
 MSG91_TEMPLATE_RE = re.compile(r"^[A-Za-z0-9_-]{4,64}$")
 MSG91_VAR_RE = re.compile(r"^[A-Za-z0-9_]{1,32}$")
 MSG91_KEY_RE = re.compile(r"^\S{10,200}$")
@@ -38,7 +38,12 @@ PROVIDER_KEY_FIELDS = {
 }
 PROVIDER_KEY_RE = re.compile(r"^\S{10,500}$")
 # write-only fields: encrypted into <name>_enc, never returned
-SECRET_FIELDS = ("msg91_auth_key", *PROVIDER_KEY_FIELDS.values())
+SECRET_FIELDS = (
+    "msg91_auth_key",
+    *PROVIDER_KEY_FIELDS.values(),
+    "autorev_api_key",
+    "autorev_webhook_secret",
+)
 
 
 class RateLimited(ServiceError):
@@ -70,15 +75,17 @@ class AppFields(BaseModel):
     openrouter_api_key: str | None = Field(None, max_length=500)
     signup_credits: int = Field(0, ge=0, le=100_000)
     require_login: bool = False
-    # payments (public identifiers only; secrets come with the checkout integration)
+    # payments: the gateway, and the autorev app it bills through (gateway keys and test/live mode are
+    # set in autorev). The API key and webhook secret are write-only like msg91_auth_key.
     payment_provider: str = Field("none", pattern="^(none|razorpay|phonepe)$")
-    payment_mode: str = Field("test", pattern="^(test|live)$")
-    razorpay_key_id: str | None = Field(None, max_length=64)
-    phonepe_merchant_id: str | None = Field(None, max_length=64)
+    autorev_app_id: str | None = Field(None, max_length=64)
+    autorev_api_key: str | None = Field(None, max_length=200)
+    autorev_webhook_secret: str | None = Field(None, max_length=200)
 
     @field_validator(
-        "razorpay_key_id",
-        "phonepe_merchant_id",
+        "autorev_app_id",
+        "autorev_api_key",
+        "autorev_webhook_secret",
         "msg91_template_id",
         "msg91_otp_var",
         "msg91_auth_key",
@@ -128,18 +135,18 @@ class AppFields(BaseModel):
             raise ValueError("a Firebase project id looks like my-app-1a2b3 (Project settings → General)")
         return v
 
-    @field_validator("razorpay_key_id")
+    @field_validator("autorev_app_id")
     @classmethod
-    def _razorpay_key(cls, v: str | None) -> str | None:
-        if v is not None and not RAZORPAY_KEY_RE.match(v):
-            raise ValueError("a Razorpay Key ID looks like rzp_test_… or rzp_live_…")
+    def _autorev_app_id(cls, v: str | None) -> str | None:
+        if v is not None and not AUTOREV_APP_ID_RE.match(v):
+            raise ValueError("paste the App ID from autorev (letters and digits, from the app's Settings)")
         return v
 
-    @field_validator("phonepe_merchant_id")
+    @field_validator("autorev_api_key", "autorev_webhook_secret")
     @classmethod
-    def _phonepe_id(cls, v: str | None) -> str | None:
-        if v is not None and not PHONEPE_ID_RE.match(v):
-            raise ValueError("a PhonePe Merchant ID is upper-case letters and digits")
+    def _autorev_secret(cls, v: str | None) -> str | None:
+        if v is not None and not AUTOREV_SECRET_RE.match(v):
+            raise ValueError("paste the whole value from autorev: no spaces, at least 16 characters")
         return v
 
     @field_validator("google_client_ids")
@@ -168,11 +175,6 @@ class AppPatch(AppFields):
 
     name: str | None = Field(None, min_length=1, max_length=200)
     description: str | None = Field(None, max_length=2000)
-
-
-def check_payment(provider: str, mode: str, razorpay_key_id: str | None) -> None:
-    if provider == "razorpay" and razorpay_key_id and not razorpay_key_id.startswith(f"rzp_{mode}_"):
-        raise ValidationFailed(f"use the rzp_{mode}_… key for {mode} mode", "razorpay_key_id")
 
 
 @dataclass
@@ -227,6 +229,21 @@ class AppService:
             if token:
                 out[provider] = self.box.decrypt(token)
         return out
+
+    def autorev_credentials(self, app: App) -> tuple[str, str] | None:
+        """The app's autorev app id and API key, decrypted; None until both are set."""
+        if not app.autorev_app_id or not app.autorev_api_key_enc:
+            return None
+        return app.autorev_app_id, self.box.decrypt(app.autorev_api_key_enc)
+
+    def autorev_webhook_secret(self, app: App) -> str | None:
+        return self.box.decrypt(app.autorev_webhook_secret_enc) if app.autorev_webhook_secret_enc else None
+
+    async def by_autorev_app(self, autorev_app_id: str) -> App | None:
+        async with self.db() as s:
+            return await s.scalar(
+                select(App).where(App.autorev_app_id == autorev_app_id, App.deleted_at.is_(None))
+            )
 
     async def get(self, app_id: UUID) -> App:
         async with self.db() as s:
@@ -295,7 +312,6 @@ class AppService:
         async with self.db.begin() as s:
             if await s.scalar(select(App.id).where(App.slug == body.slug)):
                 raise ConflictError("an app with this slug exists", "slug")
-            check_payment(body.payment_provider, body.payment_mode, body.razorpay_key_id)
             fields = self._encrypt_secrets(body.model_dump())
             app = App(id=uuid.uuid4(), created_by=actor.id, **fields)
             s.add(app)
@@ -312,12 +328,6 @@ class AppService:
             app = await s.get(App, app_id, with_for_update=True)
             if app is None or app.deleted_at is not None:
                 raise NotFoundError("app not found")
-            check_payment(
-                *(
-                    changes.get(k, getattr(app, k))
-                    for k in ("payment_provider", "payment_mode", "razorpay_key_id")
-                )
-            )
             await s.execute(update(App).where(App.id == app_id).values(**changes, updated_at=func.now()))
         return await self.get(app_id)
 

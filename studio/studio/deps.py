@@ -13,6 +13,7 @@ from studio.apps.service import AppPrincipal, AppService
 from studio.auth.service import AppRole, AuthService, Principal, Role
 from studio.config import Settings
 from studio.endusers.billing import BillingService
+from studio.endusers.payments import PaymentService
 from studio.endusers.service import AccountBlocked, AppUserService
 from studio.errors import ServiceError
 from studio.jobs.pg_repository import PgJobQueue, PgJobRepository
@@ -44,6 +45,7 @@ class AppState:
     endusers: AppUserService
     billing: BillingService
     providers: AppProviders | None = None  # an app's own provider keys (studio/apps/providers.py)
+    payments: PaymentService | None = None  # buying plans through autorev (studio/endusers/payments.py)
     worker: Worker | None = None
 
 

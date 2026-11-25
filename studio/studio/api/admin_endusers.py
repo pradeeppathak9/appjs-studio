@@ -40,7 +40,6 @@ def subscription_admin_out(sub, plan) -> SubscriptionAdminOut:
     return SubscriptionAdminOut(
         **subscription_out(sub, plan).model_dump(),
         provider_ref=sub.provider_ref,
-        cancel_at_period_end=sub.cancel_at_period_end,
     )
 
 
