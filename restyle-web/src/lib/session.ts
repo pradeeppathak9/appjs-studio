@@ -78,3 +78,9 @@ export const session = {
 export function useSession() {
   return useSyncExternalStore(session.subscribe, () => snapshot);
 }
+
+/** Desktop only: show the app as a phone-width column ("phone", the default) or full width ("wide"). */
+export type View = "phone" | "wide";
+const VIEW = "restyle.view";
+export const readView = (): View => (read(VIEW) === "wide" ? "wide" : "phone");
+export const saveView = (v: View) => write(VIEW, v === "wide" ? v : null);

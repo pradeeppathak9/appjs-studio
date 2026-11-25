@@ -82,3 +82,15 @@ export const IconRefresh = (p: P) => (
     <path d="M19.5 4.5v4h-4" />
   </Icon>
 );
+export const IconPhone = (p: P) => (
+  <Icon {...p}>
+    <rect x="7" y="3" width="10" height="18" rx="2.5" />
+    <path d="M11 17.5h2" />
+  </Icon>
+);
+export const IconMonitor = (p: P) => (
+  <Icon {...p}>
+    <rect x="3" y="4.5" width="18" height="12" rx="2.5" />
+    <path d="M9 20.5h6M12 16.5v4" />
+  </Icon>
+);

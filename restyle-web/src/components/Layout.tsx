@@ -1,7 +1,8 @@
+import { useState } from "react";
 import { Link, NavLink, Outlet } from "react-router";
 import { useMe } from "../lib/queries";
-import { useSession } from "../lib/session";
-import { IconGrid, IconImage, IconSparkle, IconUser } from "./Icons";
+import { readView, saveView, useSession, type View } from "../lib/session";
+import { IconGrid, IconImage, IconMonitor, IconPhone, IconSparkle, IconUser } from "./Icons";
 
 const TABS = [
   { to: "/", label: "Templates", icon: IconGrid, end: true },
@@ -18,15 +19,37 @@ export function Layout() {
   const { token, user } = useSession();
   const me = useMe();
   const account = me.data ?? user;
+  const [view, setView] = useState<View>(readView);
+  const toggleView = () => {
+    const next = view === "wide" ? "phone" : "wide";
+    saveView(next);
+    setView(next);
+  };
   return (
-    <div className="shell">
+    <div className={view === "wide" ? "shell wide" : "shell"}>
       <header className="topbar">
         <div className="topbar-inner">
           <Link to="/" className="logo">
             <img src="/favicon.svg" alt="" />
             Restyle
           </Link>
+          <nav className="topnav" aria-label="Main">
+            {TABS.map((t) => (
+              <NavLink key={t.to} to={t.to} end={t.end}>
+                {t.label}
+              </NavLink>
+            ))}
+          </nav>
           <div className="topbar-right">
+            <button
+              type="button"
+              className="view-toggle"
+              onClick={toggleView}
+              aria-label={view === "wide" ? "Switch to phone view" : "Switch to wide view"}
+              title={view === "wide" ? "Phone view" : "Wide view"}
+            >
+              {view === "wide" ? <IconPhone size={20} /> : <IconMonitor size={20} />}
+            </button>
             {token ? (
               <>
                 <Link to="/subscribe" className="chip tabular" data-testid="credits-chip">
