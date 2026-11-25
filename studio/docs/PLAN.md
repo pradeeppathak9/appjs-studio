@@ -604,8 +604,10 @@ with Google **and** a phone code sent by our own SMS gateway; subscriptions that
   in the transaction that marks it failed (`mark_failed`, and `requeue_stale` for lost workers).
 - `templates.credit_cost` (default 1) is pricing, not versioned content; editors set it.
 - Plans (per app) grant `credits_per_month` every month for every billing period. Subscriptions are
-  granted by admins (`provider = manual`) until a `PaymentProvider` exists; workers run
+  granted by admins (`provider = manual`) until payments are wired; workers run
   `grant_due_credits` from the heartbeat loop (once a minute, safe in parallel) and expire ended
   subscriptions. Credits don't expire.
-- Later: Razorpay (`PaymentProvider` + signed webhook). Play Store apps selling digital goods must use
-  Play Billing or Google's user-choice / alternative billing (India) — check before building it.
+- Later: Razorpay and PhonePe through autorev, which holds the gateway keys and collects each cycle;
+  Studio starts checkout and applies autorev's signed webhooks ([PAYMENTS_PLAN.md](PAYMENTS_PLAN.md)).
+  Play Store apps selling digital goods must use Play Billing or Google's user-choice / alternative
+  billing (India) — check before building it.

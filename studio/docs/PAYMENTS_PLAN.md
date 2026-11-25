@@ -1,178 +1,179 @@
-# Plan: Razorpay and PhonePe subscriptions
+# Plan: subscriptions through autorev
 
-Status: proposed (2026-11-03). Nothing in this document is built yet.
+Status: proposed (rewritten 2026-11-26). Nothing in this document is built yet. This replaces the
+2026-11-03 plan, which had Studio call Razorpay and PhonePe directly.
 
 ## Context
 
 Each app in AppJs Studio (e.g. Restyle, slug `restyle-ai`) has end users who sign in, pay credits per
 generation and get credits from **subscription plans** (see [PLAN.md](PLAN.md), "App users, credits and
-subscriptions"). Today an admin gives a plan by hand (`subscriptions.provider = "manual"`); the apps show
+subscriptions"). Today an admin gives a plan by hand (`subscriptions.provider = "manual"`). The apps show
 prices but can't take payment.
 
-Already in place:
-- **App settings → Payments** in the console stores, per app, the gateway (`none | razorpay | phonepe`),
-  the mode (`test | live`) and the gateway's public id (Razorpay Key ID, PhonePe Merchant ID).
+Already in Studio:
+- **App settings → Payments** stores, per app, the gateway (`none | razorpay | phonepe`), the mode
+  (`test | live`) and the gateway's public id (`razorpay_key_id`, `phonepe_merchant_id`; migration 0006).
 - `GET /v1/app` tells the app `payments: {provider, mode, razorpay_key_id}`.
-- Plans (`plans` table: price in paise, billing period, credits per month), subscriptions, and the credit
-  ledger with idempotent grants (`BillingService.grant_subscription`, `grant_due_credits`).
+- Plans (price in paise, billing period, credits per month, optional trial), subscriptions, and the
+  credit ledger with idempotent grants (`BillingService.grant_subscription`, `grant_due_credits`).
 - A placeholder `PaymentProvider` protocol in `studio/endusers/billing.py`.
+- Encrypted per-app secrets (the `box` used for provider keys, migration 0008).
 
-This plan adds real payments through **Razorpay** or **PhonePe**, chosen per app.
+## The decision: autorev is the payment engine
 
-### The design point that shapes everything
+`../autorev` (same repo, separate service) already does the hard part for both gateways:
 
-The two gateways renew subscriptions differently:
+| | PhonePe | Razorpay |
+|---|---|---|
+| Mandate setup | `POST /api/v1/{app_id}/phonepay/setup` (UPI Autopay) | `POST /api/v1/{app_id}/razorpay/setup` (customer + token order: UPI, e-mandate or card) |
+| Status | `GET …/phonepay/status/{subscription_id}` | `GET …/razorpay/status/{subscription_id}` |
+| Cancel | `POST …/phonepay/revoke/{subscription_id}` | revoke from autorev's dashboard (an API route is a gap, below) |
+| Each cycle | Celery workers send the pre-debit notice and charge | Celery `razorpay-collect-due` charges the saved token; Razorpay sends the notice |
+| Tells us | signed outbound webhooks with retries | **nothing yet** (gap, below) |
 
-- **Razorpay is gateway-driven.** Razorpay Subscriptions charge the user every cycle themselves and
-  report each charge by webhook.
-- **PhonePe is merchant-driven.** PhonePe subscriptions are UPI Autopay mandates: each cycle, *our server*
-  sends the pre-debit notice and then triggers the charge.
+Calls authenticate with `Authorization: Bearer <autorev app api_key>`. Webhooks carry
+`X-Autorev-Event`, `X-Autorev-Delivery`, `X-Autorev-Timestamp` and
+`X-Autorev-Signature: sha256=<HMAC-SHA256 of the raw body with the signing secret>`. The body is
+`{event, delivery_id, app_id, app_name, created_at, data: <subscription>}`.
 
-So there is one interface with two quite different implementations, and a renewal job of our own for
-PhonePe.
+So Studio never holds gateway secrets, never talks to Razorpay or PhonePe, and runs no renewal job. It
+starts a checkout through autorev, and turns autorev's webhooks into subscription and credit changes.
+Studio and autorev share no code: HTTP one way, webhooks the other (see `../CLAUDE.md`).
+
+```
+app ──POST /v1/app/subscriptions──▶ Studio ──POST /{app}/razorpay|phonepay/setup──▶ autorev ──▶ gateway
+app ◀── checkout details ────────── Studio ◀── order / intent ─────────────────────── autorev
+app ── opens Razorpay Checkout / PhonePe SDK, user approves the mandate ────────────────────▶ gateway
+                                    Studio ◀── webhook subscription.activated ─────── autorev ◀── gateway
+                                    (grant month 1)
+                every cycle:        Studio ◀── webhook subscription.next_payment_updated ── autorev charges
+```
 
 ## 0. Before writing code
 
-1. **Google Play's billing rules.** If the app ships on the Play Store, subscriptions to digital content
-   must go through Play Billing. In India, Google's *user choice billing* and *alternative billing*
-   programs allow another gateway, but they require enrollment, the matching Play Billing Library APIs,
-   and a (reduced) service fee to Google. This decides whether Razorpay/PhonePe is the only payment method,
-   an extra option next to Play Billing, or only for web/direct installs. **Decide this first.**
-2. **Gateway products.** Razorpay **Subscriptions** must be enabled on the Razorpay account. PhonePe
-   **Autopay** (subscriptions) needs approval from PhonePe's business team.
-3. **PhonePe API version.** The current PhonePe PG API (v2) uses OAuth credentials (client id, client
-   secret, client version); the older v1 used a salt key with an `X-VERIFY` checksum. Build against the
-   credentials your PhonePe dashboard actually issues, and check request/response shapes against PhonePe's
-   current documentation when implementing.
+1. **Google Play billing.** If Restyle ships on the Play Store, subscriptions to digital content must go
+   through Play Billing. In India, *user choice billing* and *alternative billing* allow another
+   gateway, but need enrollment, the matching Play Billing Library APIs and a reduced service fee to
+   Google. This decides whether Razorpay/PhonePe is the only method, an extra option, or for web and
+   direct installs only. **Decide this first.**
+2. **Gateway accounts.** Razorpay recurring payments (tokens / UPI Autopay) enabled; PhonePe Autopay
+   approved by PhonePe's business team. Both are configured in autorev, not Studio.
+3. **Products.** Subscriptions only, or one-time **credit packs** too? A pack is a single payment with
+   no mandate and could ship first.
+4. **Cancellation.** Stop at the end of the paid period (recommended), or immediately with a pro-rata
+   refund?
 
-## 1. Backend (`appjs-studio`)
+## 1. autorev changes
 
-### Provider interface
-
-`PaymentProvider` (`studio/endusers/billing.py`), one implementation per gateway:
-
-| Method | Does |
+| Change | Why |
 |---|---|
-| `ensure_plan(plan, mode)` | Create or find the gateway's plan for one of our plans |
-| `start_subscription(user, plan)` | Create the subscription with the gateway; return what the app needs to open checkout |
-| `confirm(order, payload)` | Check the app's success callback (signature, or a status fetch) |
-| `handle_webhook(headers, raw_body)` | Verify, record and apply a gateway event |
-| `cancel(subscription, at_period_end)` | Cancel with the gateway |
-| `renew_due(now)` | PhonePe only: notify and charge subscriptions that are due |
+| **Razorpay sends webhooks.** Call the state and next-payment dispatch from the Razorpay paths (`app/razorpay_billing.py`, `app/router/razorpay_router.py`), as `workers/phone_worker_helper.py` does for PhonePe. Add Razorpay's states to `STATE_EVENTS` and its fields to the payload. | Today only PhonePe emits `subscription.*` events, so Studio would never hear that a Razorpay mandate was activated or charged. |
+| **External reference.** Accept an optional `external_ref` (string, e.g. `studio:<app_user_id>:<plan_id>:<order_id>`) on both setup endpoints, store it, and return it in every webhook payload and status response. | Subscriptions are keyed by phone number. Studio needs to match an event to its own order without relying on the phone. |
+| **Razorpay revoke by API.** `POST /api/v1/{app_id}/razorpay/revoke/{subscription_id}`, matching PhonePe's. | Users cancel from the app; Studio must be able to stop collection. |
+| **Payment failures as events.** A `subscription.payment_failed` event when a cycle's charge fails for good. | Studio marks the subscription `halted` and tells the user, instead of waiting for a revoke. |
+| **Turn it back on in production.** `fab deploy --with-autorev`, live gateway keys in autorev's console, gateway webhooks pointed at `AUTOREV_DOMAIN`. | autorev is switched off in production today. |
 
-### Data (migration 0007)
+Each change gets autorev tests; this is money movement (`../CLAUDE.md`: never call live gateways from
+tests, and don't change idempotency, signatures or retries without a test).
+
+## 2. Studio backend
+
+### Settings and secrets
+
+Per app, next to the existing Payments settings:
+- `autorev_app_id` (plain) and `autorev_api_key` + `autorev_webhook_secret` (encrypted with `box`,
+  write-only like provider keys). The base URL is one server setting, `AUTOREV_URL`
+  (`http://autorev-backend:8000` on the Docker network `appjs`).
+- `payment_provider` keeps choosing the gateway; it now selects which autorev setup route to call.
+- `razorpay_key_id` stays: Razorpay Checkout needs it on the device.
+
+### Data (one migration)
 
 | Table | Purpose |
 |---|---|
-| `app_payment_secrets` | Per-app secrets: Razorpay key secret and webhook secret; PhonePe client id, secret, version and webhook credentials. **Encrypted with Fernet** using a `PAYMENTS_ENCRYPTION_KEY` env var (the `cryptography` package is already installed). The console can set and replace them, never read them back. |
-| `payment_orders` | One row per checkout attempt: app, user, plan, provider, mode, the gateway's ids, amount, status (`created → authorized → active / failed / expired`). |
-| `payment_events` | Raw webhook log, unique on `(provider, event_id)` so a repeated delivery is applied once: payload, signature valid or not, processed at, error. |
-| `plans.external_ids` (exists) | The gateway's plan id per mode, e.g. `{"razorpay": {"test": "plan_…"}}`. |
-| `subscriptions` (exists) | New statuses `pending` and `halted`; `provider` and `provider_ref` already exist. |
+| `payment_orders` | One row per checkout attempt: app, user, plan, gateway, mode, amount (from the plan), autorev subscription id, the `external_ref` sent, status `created → pending → active / failed / expired`. |
+| `payment_events` | Every autorev webhook received: delivery id (unique, so a repeated delivery is applied once), event, payload, signature valid, processed at, error. |
+| `subscriptions` (exists) | New statuses `pending` and `halted`. `provider = "autorev"`, `provider_ref` = autorev subscription id. |
 
 ### Endpoints
 
 | Endpoint | Who | Does |
 |---|---|---|
-| `POST /v1/app/subscriptions {plan_id}` | signed-in app user | Create the gateway subscription; return checkout details |
-| `POST /v1/app/subscriptions/{order_id}/confirm` | signed-in app user | Check the checkout result; activate and grant credits |
-| `POST /v1/app/subscriptions/current/cancel` | signed-in app user | Cancel at the end of the paid period |
-| `POST /v1/webhooks/razorpay/{app_slug}` | Razorpay | Verify the signature on the raw body, record, apply |
-| `POST /v1/webhooks/phonepe/{app_slug}` | PhonePe | Verify the authorization header, record, apply |
-| `POST /v1/admin/apps/{app_id}/payments/test` | admin | "Test connection": authenticate against the gateway |
+| `POST /v1/app/subscriptions {plan_id}` | signed-in app user | Create a `payment_orders` row, call autorev setup with the plan's amount, return checkout details |
+| `GET /v1/app/subscriptions/{order_id}` | signed-in app user | Status for the app to poll after checkout; asks autorev when still pending |
+| `POST /v1/app/subscriptions/current/cancel` | signed-in app user | Call autorev revoke; access lasts to the end of the paid period |
+| `POST /v1/webhooks/autorev` | autorev | Verify `X-Autorev-Signature` on the raw body with the app's secret, reject stale timestamps, dedupe on delivery id, apply |
+| `POST /v1/admin/apps/{app_id}/payments/test` | admin | "Test connection": an authenticated call to autorev |
 
-### Credits
+The setup call sends what the gateway needs: Razorpay requires the user's **name, email and phone**,
+PhonePe the **phone**. App users sign in with Google (email, maybe no phone) or phone OTP (phone, no
+email), so checkout asks for whichever is missing and stores it on the app user.
 
-A successful first payment calls the existing `grant_subscription` (starts the subscription and grants the
-first month). Each renewal calls a new `renew(subscription, paid_until)` that extends
-`current_period_end`. Monthly grants keep working unchanged, so a yearly plan is charged once and still
-grants credits monthly. All grants stay idempotent through the ledger's unique keys.
+Amounts: `amount = max_amount = plan.price` (fixed amount) and `frequency` from the plan's billing
+period. Amounts and plans come only from the server, never from the app.
 
-## 2. Razorpay flow
+### Applying webhooks
 
-1. **Plan sync.** On the first purchase of a plan in a mode, create the Razorpay plan (period `monthly` or
-   `yearly`, interval 1, amount in paise) and store its id in `plans.external_ids`. Razorpay plans can't be
-   edited: a price change creates a new Razorpay plan, and existing subscribers keep their price.
-2. **Purchase.** The server creates a Razorpay subscription (`plan_id`, a long `total_count`, our ids in
-   `notes`) and returns `{provider: "razorpay", key_id, subscription_id, order_id}`. The app opens Razorpay
-   Checkout with `subscription_id`; the user authorizes a UPI Autopay mandate or a card.
-3. **Confirm.** The app sends `razorpay_payment_id`, `razorpay_subscription_id` and `razorpay_signature`.
-   The server checks `HMAC-SHA256(payment_id + "|" + subscription_id, key_secret)`. If it matches, the
-   subscription is activated and month 1 is granted.
-4. **Webhooks are the source of truth** (the app may die mid-checkout). The signature is in
-   `X-Razorpay-Signature`: HMAC-SHA256 of the raw body with the webhook secret.
+| autorev event | Studio does |
+|---|---|
+| `subscription.activated` | Order `active`; `grant_subscription` (starts the period, grants month 1) |
+| `subscription.next_payment_updated` | New `BillingService.renew(subscription, paid_until)` extends `current_period_end` |
+| `subscription.payment_failed` | Subscription `halted`; access until the paid period ends |
+| `subscription.paused` | Subscription `halted` |
+| `subscription.revoked` | Stop at the end of the paid period |
 
-   | Event | Action |
-   |---|---|
-   | `subscription.activated`, `subscription.charged` | Activate or renew; grant credits |
-   | `subscription.halted` | Mark `halted`; keep access until the paid period ends |
-   | `subscription.cancelled`, `subscription.completed` | Stop at the end of the paid period |
-   | `payment.failed` | Record it |
+Monthly credit grants keep working unchanged, so a yearly plan is charged once and still grants credits
+monthly. All grants stay idempotent through the ledger's unique keys. Events can arrive out of order or
+twice; each handler checks the subscription's current state first.
 
-## 3. PhonePe flow (Autopay)
+The placeholder `PaymentProvider` protocol becomes a small `AutorevClient` (setup, status, revoke) plus
+the webhook handler; there is one engine, so no per-gateway classes.
 
-1. **Setup.** The server calls PhonePe's subscription setup (amount, frequency, maximum amount) and gets a
-   token. The app opens the PhonePe PG SDK (or a UPI intent); the user approves the mandate in their UPI
-   app.
-2. **Activation** comes from the webhook, backed up by polling the order status. Whether the first payment
-   is taken at setup or as a separate charge must be confirmed against PhonePe's current documentation.
-3. **Renewals are ours.** A worker sweep, next to `grant_due_credits`, finds subscriptions coming due,
-   sends the pre-debit notice ahead of time (UPI rules require advance notice, at least a day), then
-   triggers the charge on the due date. Failures retry a limited number of times; after that the
-   subscription is `halted`.
-4. **Webhooks** are checked with PhonePe's authorization header; a reconciliation job polls anything left
-   pending. PhonePe Autopay is UPI only (no cards).
+## 3. Clients
 
-## 4. Android (Restyle)
+`docs/APPS_API.md` changes first, then the clients (`../CLAUDE.md`).
 
-- Add `com.razorpay:checkout` and the PhonePe PG SDK; pick one from `payments.provider` in `GET /v1/app`
-  (already returned).
-- **Subscribe screen:** create subscription → open the SDK → confirm → poll `/v1/app/me` until the plan is
-  active → show the new credits. Cancel or failure shows a clear message; nothing is charged. With
-  `provider = none`, keep today's "Payments are coming soon".
-- **Profile:** plan, renewal date and **Cancel subscription**.
+- **restyle-web** (first, fastest to test): Razorpay Checkout JS with the returned order and
+  `razorpay_key_id`; PhonePe via redirect. Then poll the order until `active` and show the new credits.
+  Its nginx already forwards `/v1/app/*`.
+- **restyle (Android)**: `com.razorpay:checkout` and the PhonePe PG SDK, chosen by `payments.provider`
+  from `GET /v1/app`. Subscribe screen: create → checkout → poll → new credits. Profile: plan, renewal
+  date, **Cancel subscription**. With `provider = none`, keep "Payments are coming soon".
 
-## 5. Console (App settings → Payments)
+## 4. Console (App settings → Payments)
 
-- Write-only secret fields showing "set / not set", with Replace.
-- The webhook URL to paste into each gateway's dashboard, with a copy button.
-- **Test connection.**
-- Each plan's sync status with the gateway (Razorpay plan id per mode).
-- Users drawer: the gateway subscription id and payment history.
-- A **go-live checklist** before switching to Live: live keys, live webhook set up, one real low-value
-  payment end to end.
+- autorev connection: app id, write-only API key and webhook secret ("set / not set", Replace), and
+  **Test connection**.
+- The webhook URL to paste into autorev (`https://<STUDIO_DOMAIN>/api/v1/webhooks/autorev`), with a copy
+  button.
+- Users drawer: the autorev subscription id, orders and received events.
+- A **go-live checklist** before switching to Live: live keys in autorev, live webhook set, one real
+  low-value payment end to end.
 
-## 6. Security and correctness
+## 5. Security and correctness
 
-- Never trust the app's success callback alone: check its signature or fetch the status from the gateway.
-- Amounts and plans come only from the server.
-- Webhooks are deduplicated by event id; every credit grant is idempotent (ledger keys).
-- Secrets are encrypted at rest and never logged or returned by the API.
-- Webhooks need a **public HTTPS URL**. For local development, use a tunnel (cloudflared or ngrok) to the
-  Docker stack; in production the API sits behind HTTPS.
-- Decide refund handling and GST invoices (Razorpay can help with invoices).
+- Never trust the app's checkout callback alone: activation comes from autorev's webhook or status.
+- Webhooks: verify the HMAC on the raw body, reject old timestamps, dedupe on delivery id.
+- autorev API keys and webhook secrets are encrypted at rest and never logged or returned.
+- Studio reaches autorev over the private Docker network; only autorev's gateway webhooks need the public
+  `AUTOREV_DOMAIN`.
+- Refunds and GST invoices: decide before going live (Razorpay can issue invoices).
 
-## 7. Phases
+## 6. Phases
 
 | Phase | Scope |
 |---|---|
-| **P0** | Play billing decision; Razorpay Subscriptions and PhonePe Autopay enabled on the accounts |
-| **P1** | Backend foundation (encrypted secrets, orders, events, webhook endpoints, provider interface) and **Razorpay end to end in test mode**, including Android checkout |
-| **P2** | PhonePe Autopay: setup, renewal sweep, status reconciliation |
-| **P3** | Operations: reconciliation job, admin payment views, cancellations and refunds, going live |
+| **P0** | Play billing decision; gateway products enabled in autorev's accounts |
+| **P1** | autorev: Razorpay webhooks, `external_ref`, Razorpay revoke, payment-failed event |
+| **P2** | Studio: settings, migration, subscribe/status/cancel endpoints, webhook receiver; **Razorpay end to end in test mode** with restyle-web |
+| **P3** | Android checkout; PhonePe Autopay (once approved) |
+| **P4** | Operations: admin payment views, reconciliation (poll autorev for orders stuck in `pending`), refunds, going live |
 
-## 8. Testing
+## 7. Testing
 
-- **Backend:** replay recorded webhook payloads with real signatures; mock gateway APIs with `respx`;
-  test duplicate deliveries, out-of-order events, failed and halted renewals, and cancel at period end.
-- **Razorpay test mode:** test cards, and `success@razorpay` / `failure@razorpay` as test UPI ids.
-- **PhonePe UAT sandbox.**
-- **End to end:** webhooks through a tunnel into the local Docker stack; checkout on the Android emulator.
-
-## 9. Open decisions
-
-1. Play Store route: user choice billing, alternative billing only, or not on Play for now?
-2. Is Razorpay Subscriptions enabled? Has PhonePe approved Autopay, and which credentials (API version)
-   were issued?
-3. Add one-time **credit packs** next to subscriptions? (Simpler: an order and a one-time payment.)
-4. Cancellation: stop at the end of the paid period (recommended), or immediately with a pro-rata refund?
+- **Studio:** replay signed autorev webhooks; mock autorev with `respx`; duplicate and out-of-order
+  deliveries, failed and halted renewals, cancel at period end. No real gateway calls.
+- **autorev:** its own tests for the new events and `external_ref`, against mocked gateways.
+- **End to end in test mode:** Razorpay test cards and `success@razorpay` / `failure@razorpay`; PhonePe
+  UAT sandbox. Studio and autorev both on the local Docker network; gateway webhooks into autorev
+  through a tunnel (cloudflared or ngrok).
