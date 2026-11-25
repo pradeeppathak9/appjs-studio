@@ -16,7 +16,7 @@ handles sign-in, templates, users and results.
   Google, and get a bearer session. Each template has a **credit cost**; **plans** grant credits every
   month. Admins manage an app's sign-in settings, plans and users (credits, subscriptions, blocking) in
   Admin → Apps. Payments are not connected yet: admins give plans by hand.
-- Design and decisions: [docs/PLAN.md](docs/PLAN.md). Payments (Razorpay / PhonePe), planned:
+- Design and decisions: [docs/PLAN.md](docs/PLAN.md). Payments (Razorpay / PhonePe through autorev), planned:
   [docs/PAYMENTS_PLAN.md](docs/PAYMENTS_PLAN.md).
 
 ## Run it (Docker)
