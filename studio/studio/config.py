@@ -66,7 +66,7 @@ class Settings(BaseSettings):
     # End users of apps (studio/endusers): sessions and phone sign-in
     app_session_days: float = 90
     default_phone_country_code: str = "91"  # for 10-digit numbers sent without +<country>
-    sms_provider: str = "log"  # log (codes go to the api log; dev only) | msg91
+    sms_provider: str = "log"  # log (codes go to the api log; dev only) | msg91 | whatsapp
     otp_secret: SecretStr | None = None  # HMAC key for stored codes; random per process when unset
     otp_ttl_s: int = 300
     otp_resend_after_s: int = 30
@@ -82,6 +82,13 @@ class Settings(BaseSettings):
     msg91_auth_key: SecretStr | None = None
     msg91_template_id: str | None = None  # a DLT-approved OTP template with an ##otp## variable
     msg91_otp_var: str = "otp"
+    # SMS_PROVIDER=whatsapp: Meta Cloud API, a system user's permanent token and an approved
+    # Authentication template (one body variable for the code, plus a copy-code / one-tap button)
+    whatsapp_token: SecretStr | None = None
+    whatsapp_phone_number_id: str | None = None
+    whatsapp_template: str | None = None
+    whatsapp_language: str = "en"
+    whatsapp_api_version: str = "v25.0"
     google_certs_url: str = "https://www.googleapis.com/oauth2/v1/certs"
     firebase_certs_url: str = (
         "https://www.googleapis.com/robot/v1/metadata/x509/securetoken@system.gserviceaccount.com"
