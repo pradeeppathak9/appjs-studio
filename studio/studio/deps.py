@@ -21,7 +21,7 @@ from studio.jobs.service import GenerationService
 from studio.jobs.webhooks import WebhookSender
 from studio.jobs.worker import Worker
 from studio.providers.registry import ProviderRegistry
-from studio.storage.local import LocalAssetStore
+from studio.storage.base import AssetStore
 from studio.templates.service import TemplateService
 
 SESSION_COOKIE = "studio_session"
@@ -33,7 +33,7 @@ class AppState:
     engine: AsyncEngine
     db: async_sessionmaker[AsyncSession]
     http: httpx.AsyncClient
-    store: LocalAssetStore
+    store: AssetStore
     registry: ProviderRegistry
     repo: PgJobRepository
     queue: PgJobQueue

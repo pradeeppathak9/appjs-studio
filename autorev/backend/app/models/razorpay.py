@@ -25,6 +25,9 @@ class RazorpaySubscription(Base):
     email = Column(String, nullable=True)
     # The integration's own reference (e.g. Studio's order), echoed in status and webhooks.
     external_ref = Column(String(200), nullable=True)
+    # The integration's own labels (e.g. app, plan, order), added to the notes of every
+    # Razorpay customer, order and payment of this subscription.
+    notes = Column(JSONB, nullable=True)
 
     amount = Column(Integer, nullable=False)          # in paise
     max_amount = Column(Integer, nullable=True)

@@ -36,7 +36,7 @@ from studio.jobs.webhooks import WebhookSender
 from studio.jobs.worker import Worker
 from studio.providers.registry import ProviderRegistry
 from studio.secrets import SecretBox
-from studio.storage.local import LocalAssetStore
+from studio.storage import make_store
 from studio.templates.service import TemplateService
 
 log = logging.getLogger(__name__)
@@ -49,7 +49,7 @@ async def build_state(settings: Settings, registry: ProviderRegistry | None = No
     db = session_factory(engine)
     http = httpx.AsyncClient(timeout=30)
     box = SecretBox(settings.secrets_key)
-    store = LocalAssetStore(settings.data_dir)
+    store = make_store(settings)
     registry = registry or ProviderRegistry.from_settings(settings, http, store.temp_dir())
     repo, queue = PgJobRepository(db), PgJobQueue(db)
     apps = AppService(db, box)

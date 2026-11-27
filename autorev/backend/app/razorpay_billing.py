@@ -84,6 +84,16 @@ FREQUENCY_OFFSETS = {
 
 # ── Dates ─────────────────────────────────────────────────────────────────────
 
+# Razorpay keeps at most 15 notes per entity; autorev's own ids take up to 3 of them.
+MAX_EXTRA_NOTES = 12
+RESERVED_NOTES = ("app_id", "subscription_id", "txn_id")
+
+
+def razorpay_notes(extra: Optional[dict], **ours: str) -> dict:
+    """The integration's notes plus autorev's ids. Ours win, so a caller can't relabel them."""
+    return {**(extra or {}), **ours}
+
+
 def get_next_payment_date(ref_date: date, frequency: str, trail_days: int = 0) -> Optional[date]:
     if trail_days > 0:
         return ref_date + timedelta(days=trail_days)
@@ -269,7 +279,7 @@ def start_collection(db: Session, handler: RazorpayAPIHandler, sub: RazorpaySubs
         # Retry spacing and the in-flight window are measured from here.
         created_at=now or datetime.now(timezone.utc),
     )
-    notes = {"app_id": sub.app_id, "subscription_id": sub.id, "txn_id": txn.id}
+    notes = razorpay_notes(sub.notes, app_id=sub.app_id, subscription_id=sub.id, txn_id=txn.id)
     try:
         order = handler.create_recurring_charge_order(
             customer_id=sub.razorpay_customer_id, amount=sub.amount, notes=notes

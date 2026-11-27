@@ -113,7 +113,8 @@ list with defaults. The most used:
 | `ENABLE_FAKE_PROVIDER` | `false` | deterministic local provider (prompt keywords `FAIL_TRANSIENT`, `FAIL_TRANSIENT:<k>`, `FAIL_POLICY`, `SLEEP:<s>`) |
 | `SETUP_TOKEN` | generated | token for the first-run setup page |
 | `DATABASE_URL` | `postgresql://studio:studio@localhost:5432/appjs` | Postgres. With `../infra` (the default compose setup): `postgresql://studio:studio@localhost:5432/appjs`, role `studio` whose search_path is schema `studio` |
-| `DATA_DIR` | `./data` | outputs, uploaded inputs, reference images |
+| `DATA_DIR` | `./data` | outputs, uploaded inputs, reference images (with `ASSET_STORE=s3`: only `tmp/`) |
+| `ASSET_STORE` | `local` | `s3` keeps files in an S3-compatible bucket such as Cloudflare R2 (`S3_BUCKET`, `S3_ENDPOINT_URL`, `S3_ACCESS_KEY_ID`, `S3_SECRET_ACCESS_KEY`, optional `S3_PUBLIC_BASE_URL`) and serves them by redirect to presigned URLs; see [docs/STORAGE.md](docs/STORAGE.md) |
 | `WORKER_CONCURRENCY` | `2` | jobs per worker process |
 | `COOKIE_SECURE` | `false` | set `true` behind HTTPS |
 | `WEBHOOK_SECRET` | – | HMAC-SHA256 signature on webhooks (`X-Studio-Signature`) |

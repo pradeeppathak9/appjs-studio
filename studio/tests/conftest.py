@@ -57,12 +57,55 @@ def data_dir(tmp_path_factory) -> Path:
     return tmp_path_factory.mktemp("data")
 
 
+# STUDIO_TEST_ASSET_STORE=s3 runs the whole suite against an S3 bucket (moto's server on localhost)
+ASSET_STORE = os.environ.get("STUDIO_TEST_ASSET_STORE", "local")
+S3_ENDPOINT: str | None = None  # set by the s3_server fixture; the test client follows redirects there
+
+
 @pytest.fixture(scope="session")
-def settings(database_url, data_dir) -> Settings:
+def s3_server():
+    """A local S3 stand-in (moto) with an empty bucket `studio-test`; yields its endpoint URL."""
+    global S3_ENDPOINT
+    import boto3
+    from moto.server import ThreadedMotoServer
+
+    server = ThreadedMotoServer(ip_address="127.0.0.1", port=0, verbose=False)
+    server.start()
+    host, port = server.get_host_and_port()
+    S3_ENDPOINT = f"http://{host}:{port}"
+    boto3.client(
+        "s3",
+        endpoint_url=S3_ENDPOINT,
+        region_name="us-east-1",
+        aws_access_key_id="test",
+        aws_secret_access_key="test",
+    ).create_bucket(Bucket="studio-test")
+    yield S3_ENDPOINT
+    server.stop()
+
+
+@pytest.fixture(scope="session")
+def store_settings(request) -> dict:
+    if ASSET_STORE != "s3":
+        return {}
+    endpoint = request.getfixturevalue("s3_server")
+    return dict(
+        asset_store="s3",
+        s3_bucket="studio-test",
+        s3_endpoint_url=endpoint,
+        s3_region="us-east-1",
+        s3_access_key_id="test",
+        s3_secret_access_key="test",
+    )
+
+
+@pytest.fixture(scope="session")
+def settings(database_url, data_dir, store_settings) -> Settings:
     return Settings(
         _env_file=None,
         database_url=database_url,
         data_dir=data_dir,
+        **store_settings,
         enable_fake_provider=True,
         worker_enabled=False,
         setup_token=SETUP_TOKEN,
@@ -103,7 +146,22 @@ async def clean(state):
 
 
 def client(app) -> httpx.AsyncClient:
+    if ASSET_STORE == "s3" and S3_ENDPOINT:
+        # files come back as 307s to presigned bucket URLs: follow them to the moto server
+        return httpx.AsyncClient(
+            transport=httpx.ASGITransport(app=app),
+            mounts={S3_ENDPOINT: httpx.AsyncHTTPTransport()},
+            base_url=BASE,
+            follow_redirects=True,
+        )
     return httpx.AsyncClient(transport=httpx.ASGITransport(app=app), base_url=BASE)
+
+
+async def stored(state, rel_path: str) -> bool:
+    """Whether the asset store holds rel_path, whichever store the suite runs on."""
+    if ASSET_STORE == "s3":
+        return await asyncio.to_thread(state.store.exists, rel_path)
+    return state.store.local_path(rel_path).is_file()
 
 
 @pytest.fixture

@@ -262,6 +262,10 @@ usually take 5–30 s; video can take minutes.
 ```
 
 - `assets[].url`: download with the same headers. Use `mime_type` to choose image vs. video view.
+  File URLs (`assets[].url`, `inputs[].url`, `cover_url`) may answer `307` to a short-lived URL on
+  the storage bucket or CDN: follow redirects (OkHttp and `fetch()` do by default) and don't store the
+  redirect target, only the `/v1/app/...` URL. An input photo can be gone (`404`) after the server's
+  retention period; show a placeholder.
 - `failed` jobs carry `error.code`: `content_policy` (the provider refused this photo/prompt; tell the
   user to try another photo), `timeout`, `provider_unavailable`, `worker_lost`, `invalid_request`,
   `internal_error`. A job may show `queued` again with `attempt` > 1 while it is retried; keep polling.

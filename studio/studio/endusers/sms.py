@@ -1,5 +1,6 @@
 """Sending one-time codes by SMS. `SMS_PROVIDER=log` (the default) only logs them: for development
-and tests. `msg91` sends through MSG91's Flow API with a DLT-approved template (required in India)."""
+and tests. `msg91` sends through MSG91's Flow API with a DLT-approved template (required in India).
+`whatsapp` sends the code as a WhatsApp message through Meta's Cloud API (no DLT needed)."""
 
 from __future__ import annotations
 
@@ -64,6 +65,55 @@ class Msg91Sender:
             raise SmsUnavailable("couldn't send the code; try again in a minute")
 
 
+class WhatsAppSender:
+    """Meta WhatsApp Cloud API with an approved Authentication template. The template's body has one
+    variable (the code) and a copy-code or one-tap button, which takes the code again as its parameter."""
+
+    def __init__(
+        self,
+        http: httpx.AsyncClient,
+        token: str,
+        phone_number_id: str,
+        template: str,
+        language: str = "en",
+        api_version: str = "v25.0",
+    ):
+        self.http = http
+        self.token = token
+        self.url = f"https://graph.facebook.com/{api_version}/{phone_number_id}/messages"
+        self.template = template
+        self.language = language
+
+    async def send_otp(self, phone: str, code: str) -> None:
+        body = {
+            "messaging_product": "whatsapp",
+            "recipient_type": "individual",
+            "to": phone.lstrip("+"),
+            "type": "template",
+            "template": {
+                "name": self.template,
+                "language": {"code": self.language},
+                "components": [
+                    {"type": "body", "parameters": [{"type": "text", "text": code}]},
+                    {
+                        "type": "button",
+                        "sub_type": "url",
+                        "index": "0",
+                        "parameters": [{"type": "text", "text": code}],
+                    },
+                ],
+            },
+        }
+        try:
+            r = await self.http.post(self.url, json=body, headers={"Authorization": f"Bearer {self.token}"})
+        except httpx.HTTPError as e:
+            log.warning("whatsapp: %s", e)
+            raise SmsUnavailable("couldn't send the code; try again in a minute") from e
+        if r.status_code >= 300:
+            log.warning("whatsapp refused the message: %s %s", r.status_code, r.text[:300])
+            raise SmsUnavailable("couldn't send the code on WhatsApp; try again in a minute")
+
+
 def app_sms_sender(app, box: SecretBox, http: httpx.AsyncClient, default: SmsSender) -> SmsSender:
     """The app's own MSG91 account when its console settings have a template and an auth key;
     otherwise the server's sender (SMS_PROVIDER)."""
@@ -84,6 +134,19 @@ def sms_sender(settings: Settings, http: httpx.AsyncClient) -> SmsSender:
             settings.msg91_template_id,
             settings.msg91_otp_var,
         )
+    if settings.sms_provider == "whatsapp":
+        if not (settings.whatsapp_token and settings.whatsapp_phone_number_id and settings.whatsapp_template):
+            raise RuntimeError(
+                "SMS_PROVIDER=whatsapp needs WHATSAPP_TOKEN, WHATSAPP_PHONE_NUMBER_ID and WHATSAPP_TEMPLATE"
+            )
+        return WhatsAppSender(
+            http,
+            settings.whatsapp_token.get_secret_value(),
+            settings.whatsapp_phone_number_id,
+            settings.whatsapp_template,
+            settings.whatsapp_language,
+            settings.whatsapp_api_version,
+        )
     if settings.sms_provider != "log":
-        raise RuntimeError(f"unknown SMS_PROVIDER {settings.sms_provider!r} (use log or msg91)")
+        raise RuntimeError(f"unknown SMS_PROVIDER {settings.sms_provider!r} (use log, msg91 or whatsapp)")
     return LogSmsSender()

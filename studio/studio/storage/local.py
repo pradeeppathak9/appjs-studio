@@ -54,7 +54,15 @@ class LocalAssetStore:
             raise ValueError("path escapes the store root")
         return path
 
-    def public_url(self, rel_path: str) -> str | None:
+    async def fetch_local(self, rel_path: str, job_id: str) -> Path:
+        return self.local_path(rel_path)
+
+    async def release_local(self, job_id: str) -> None:
+        return None
+
+    def public_url(
+        self, rel_path: str, mime_type: str | None = None, filename: str | None = None
+    ) -> str | None:
         return None
 
     async def delete_job(self, job_id: str) -> None:

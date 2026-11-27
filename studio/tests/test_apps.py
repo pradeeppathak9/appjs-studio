@@ -5,6 +5,7 @@ from sqlalchemy import update
 
 from studio.db.tables import AppMember
 from tests.conftest import (
+    ASSET_STORE,
     GHIBLI,
     TESTER,
     client,
@@ -209,6 +210,10 @@ async def test_client_runs_a_template_and_fetches_the_result(app, state, admin, 
     got = await android.get(url)
     assert got.status_code == 200 and got.headers["content-type"] == "image/png"
     assert (await android.get(job["inputs"][0]["url"])).status_code == 200
+    if ASSET_STORE == "s3":  # bytes come from the bucket, not through the API
+        hop = got.history[0]
+        assert hop.status_code == 307 and "X-Amz-Signature=" in hop.headers["location"]
+        assert hop.headers["cache-control"] == "private, max-age=300"
     assert [j["id"] for j in (await android.get("/v1/app/generations")).json()] == [job["id"]]
     seen = (await creator.get(f"/v1/generations/{job['id']}")).json()
     assert seen["app"]["device_id"] == "device-1" and seen["request"]["prompt"].startswith("Redraw")

@@ -218,3 +218,51 @@ async def test_a_message_from_a_changed_secrets_key_is_reported(state):
     with pytest.raises(UnavailableError):
         SecretBox("new-key-0123456789").decrypt(token)
     assert SecretBox("old-key-0123456789").decrypt(token) == "412345AbCdEfGh0"
+
+
+async def test_whatsapp_sender_sends_the_code_in_an_authentication_template():
+    import json
+
+    import httpx
+
+    from studio.endusers.sms import SmsUnavailable, WhatsAppSender
+
+    seen = []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        seen.append(request)
+        return httpx.Response(200 if len(seen) == 1 else 400, json={})
+
+    async with httpx.AsyncClient(transport=httpx.MockTransport(handler)) as http:
+        sender = WhatsAppSender(http, "tok", "1234567890", "restyle_login", "en")
+        await sender.send_otp("+919876543210", "482913")
+        with pytest.raises(SmsUnavailable):
+            await sender.send_otp("+919876543210", "482913")
+
+    req = seen[0]
+    assert str(req.url) == "https://graph.facebook.com/v25.0/1234567890/messages"
+    assert req.headers["authorization"] == "Bearer tok"
+    body = json.loads(req.content)
+    assert body["to"] == "919876543210" and body["template"]["name"] == "restyle_login"
+    body_param, button = body["template"]["components"]
+    assert body_param["parameters"][0]["text"] == "482913"
+    assert (button["sub_type"], button["parameters"][0]["text"]) == ("url", "482913")
+
+
+def test_whatsapp_provider_needs_its_settings():
+    import httpx
+
+    from studio.config import Settings
+    from studio.endusers.sms import WhatsAppSender, sms_sender
+
+    http = httpx.AsyncClient()
+    with pytest.raises(RuntimeError, match="WHATSAPP_TOKEN"):
+        sms_sender(Settings(_env_file=None, sms_provider="whatsapp"), http)
+    s = Settings(
+        _env_file=None,
+        sms_provider="whatsapp",
+        whatsapp_token="t",
+        whatsapp_phone_number_id="1",
+        whatsapp_template="x",
+    )
+    assert isinstance(sms_sender(s, http), WhatsAppSender)

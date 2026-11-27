@@ -6,7 +6,7 @@ from sqlalchemy import text
 from studio.db.tables import Asset, Job
 from studio.jobs.repository import Lease
 from studio.main import make_worker
-from tests.conftest import run_worker_once
+from tests.conftest import run_worker_once, stored
 
 
 async def add_job(state, prompt="a red bicycle", **request) -> Job:
@@ -77,7 +77,7 @@ async def test_worker_runs_a_job_to_success(state):
     assert j.status == "succeeded" and j.attempt == 1
     assets = (await state.repo.assets_for([job.id]))[job.id]
     assert [a.idx for a in assets] == [0, 1]
-    assert all(state.store.local_path(a.path).is_file() for a in assets)
+    assert all([await stored(state, a.path) for a in assets])
 
 
 async def test_transient_failures_are_retried(state):
