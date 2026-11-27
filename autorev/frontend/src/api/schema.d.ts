@@ -1432,6 +1432,10 @@ export interface components {
             trail_days?: number | null;
             /** External Ref */
             external_ref?: string | null;
+            /** Notes */
+            notes?: {
+                [key: string]: string;
+            } | null;
         };
         /** RazorpaySubscriptionResponse */
         RazorpaySubscriptionResponse: {

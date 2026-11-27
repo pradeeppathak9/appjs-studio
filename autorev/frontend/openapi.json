@@ -1244,7 +1244,7 @@
      "dashboard"
     ],
     "summary": "Subscription State Counts",
-    "description": "Per-state row counts for the pill row.\n\nMirrors list_subscriptions' filters except `state` itself \u2014 otherwise picking one\npill would zero out every other count. Live table only, no archive, so a pill's\nnumber always matches what clicking it actually lists.",
+    "description": "Per-state row counts for the pill row.\n\nMirrors list_subscriptions' filters except `state` itself — otherwise picking one\npill would zero out every other count. Live table only, no archive, so a pill's\nnumber always matches what clicking it actually lists.",
     "operationId": "subscription_state_counts_api_apps__app_id__subscriptions_state_counts_get",
     "security": [
      {
@@ -4969,6 +4969,20 @@
        }
       ],
       "title": "External Ref"
+     },
+     "notes": {
+      "anyOf": [
+       {
+        "additionalProperties": {
+         "type": "string"
+        },
+        "type": "object"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Notes"
      }
     },
     "type": "object",

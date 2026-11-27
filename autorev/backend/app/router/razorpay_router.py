@@ -60,6 +60,25 @@ class RazorpaySetupPayload(BaseModel):
     trail_days: Optional[int] = None
     # The integration's own reference, echoed in status responses and webhooks.
     external_ref: Optional[str] = Field(None, max_length=200)
+    # Labels shown on the Razorpay dashboard with every customer, order and payment of
+    # this subscription (e.g. {"app": "restyle-ai", "plan": "monthly"}).
+    notes: Optional[dict[str, str]] = None
+
+    @field_validator("notes")
+    @classmethod
+    def validate_notes(cls, v):
+        if not v:
+            return None
+        if len(v) > billing.MAX_EXTRA_NOTES:
+            raise ValueError(f"at most {billing.MAX_EXTRA_NOTES} notes")
+        for key, value in v.items():
+            if not key or len(key) > 40:
+                raise ValueError("note keys must be 1-40 characters")
+            if key in billing.RESERVED_NOTES:
+                raise ValueError(f"note key {key!r} is reserved")
+            if len(value) > 256:
+                raise ValueError("note values must be at most 256 characters")
+        return v
 
     @field_validator("name")
     @classmethod
@@ -145,7 +164,7 @@ def setup_subscription(
             name=body.name,
             contact=f"+91{body.phone_number}",
             email=body.email,
-            notes={"app_id": app.id, "subscription_id": subscription_id},
+            notes=billing.razorpay_notes(body.notes, app_id=app.id, subscription_id=subscription_id),
         )
     except RazorpayException as e:
         logger.error(f"razorpay create_customer failed for app {app.id}: {e}")
@@ -173,6 +192,7 @@ def setup_subscription(
         method=body.method,
         trail_days=trail_days,
         external_ref=body.external_ref,
+        notes=body.notes,
         expire_at=(now_s + ten_years_s) * 1000,
         razorpay_customer_id=customer_id,
         state="INITIATED",
@@ -184,7 +204,7 @@ def setup_subscription(
             amount=amount,
             method=body.method,
             token_params=token_params,
-            notes={"app_id": app.id, "subscription_id": subscription_id},
+            notes=billing.razorpay_notes(body.notes, app_id=app.id, subscription_id=subscription_id),
         )
         sub.razorpay_order_id = order.get("id")
         sub.state = "AUTHORIZATION_PENDING"

@@ -49,6 +49,14 @@ then never collected. `amount` must not exceed `max_amount`. For `method: upi`
 the authorisation order carries `token.frequency` (mapped from `frequency`;
 `ON_DEMAND` becomes `as_presented`), which Razorpay requires for UPI Autopay.
 
+Optional `notes` (up to 12 string pairs, keys 1–40 characters, values up to 256)
+label the subscription on the Razorpay dashboard, e.g.
+`{"app": "restyle-ai", "app_name": "Restyle AI", "plan": "monthly"}`. They are
+stored on the subscription and added to the notes of the customer, the
+authorisation order and every recurring charge, next to autorev's own
+`app_id`, `subscription_id` and `txn_id`, which can't be overridden
+(migration `008_razorpay_notes.sql` adds the column).
+
 ### 2. Customer authorizes (client-side, outside our API)
 
 The frontend/app completes the Razorpay Checkout flow for `razorpay_order_id`.

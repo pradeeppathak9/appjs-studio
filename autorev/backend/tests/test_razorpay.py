@@ -53,6 +53,34 @@ def test_setup_requires_email_and_amount_within_max(client, rzp):
     assert rzp.calls == []  # rejected before touching Razorpay
 
 
+LABELS = {"app": "restyle-ai", "app_name": "Restyle AI", "plan": "monthly"}
+
+
+def test_setup_notes_label_the_customer_and_order_and_keep_our_ids(client, rzp):
+    sub_id = set_up(client, rzp, notes=LABELS)
+    customer = rzp.sent("POST", "/customers")[0]
+    order = rzp.sent("POST", "/orders")[0]
+    for body in (customer, order):
+        assert body["notes"] == {**LABELS, "app_id": APP_ID, "subscription_id": sub_id}
+
+
+def test_setup_without_notes_sends_only_our_ids(client, rzp):
+    sub_id = set_up(client, rzp)
+    assert rzp.sent("POST", "/orders")[0]["notes"] == {"app_id": APP_ID, "subscription_id": sub_id}
+
+
+def test_setup_refuses_bad_notes_before_razorpay(client, rzp):
+    for notes in (
+        {"app_id": "other"},  # reserved: autorev's own ids can't be relabelled
+        {f"k{i}": "v" for i in range(13)},
+        {"app": "x" * 257},
+        {"": "v"},
+    ):
+        r = client.post(f"{BASE}/setup", json={**SETUP, "notes": notes}, headers=AUTH)
+        assert r.status_code == 422, notes
+    assert rzp.calls == []
+
+
 # ── activation picks this order's token ───────────────────────────────────────
 
 def test_status_activates_with_the_authorisation_payments_token(db, client, rzp):
@@ -156,6 +184,7 @@ def test_collects_a_day_ahead_and_only_once(db, client, rzp):
     assert rzp.sent("POST", "/orders")[-1]["payment_capture"] is True
     charge = rzp.sent("POST", "/payments/create/recurring")[0]
     assert (charge["email"], charge["contact"], charge["token"]) == ("jane@example.com", "+919876543210", "token_new")
+    assert charge["notes"]["subscription_id"] == due_tomorrow and "txn_id" in charge["notes"]
     assert db.query(RazorpayTransaction).filter_by(subscription_id=later).count() == 0
     # the next hourly run waits for the one in flight
     assert collect(db)["wait"] == 1
@@ -296,3 +325,16 @@ def test_workers_skip_without_redis_or_queries_when_gateway_disabled(db, monkeyp
         rh._reconcile_razorpay,
     ):
         fn()
+
+
+def test_charges_carry_the_setup_notes(db, client, rzp):
+    sub_id = set_up(client, rzp, notes=LABELS)
+    sub = db.get(RazorpaySubscription, sub_id)
+    sub.state, sub.razorpay_token_id, sub.next_payment_date = "ACTIVE", "token_new", ms(TODAY + timedelta(days=1))
+    db.commit()
+    charge_routes(rzp)
+    collect(db)
+    txn = db.query(RazorpayTransaction).filter_by(subscription_id=sub_id).one()
+    ours = {"app_id": APP_ID, "subscription_id": sub_id, "txn_id": txn.id}
+    assert rzp.sent("POST", "/orders")[-1]["notes"] == {**LABELS, **ours}
+    assert rzp.sent("POST", "/payments/create/recurring")[0]["notes"] == {**LABELS, **ours}
