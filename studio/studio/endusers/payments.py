@@ -228,6 +228,14 @@ class PaymentService:
                     "frequency": "YEARLY" if plan.billing_period == "year" else "MONTHLY",
                     "method": method,
                     "external_ref": f"{REF_PREFIX}{order.id}",
+                    # shown on the Razorpay dashboard with the customer, order and every charge
+                    "notes": {
+                        "app": app.slug,
+                        "app_name": app.name[:256],
+                        "plan": plan.slug,
+                        "studio_order": str(order.id),
+                        "studio_user": str(user.id),
+                    },
                 }
             )
         except ServiceError as e:

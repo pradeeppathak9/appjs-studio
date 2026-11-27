@@ -132,6 +132,13 @@ async def test_checkout_asks_autorev_and_hands_back_razorpay_details(app, state,
     }
     sent = json.loads(autorev.calls.last.request.content)
     assert sent["external_ref"] == f"studio:{order['id']}"
+    assert sent["notes"] == {
+        "app": c.app_row.slug,
+        "app_name": c.app_row.name,
+        "plan": "monthly",
+        "studio_order": order["id"],
+        "studio_user": c.user_id,
+    }
     assert (sent["amount"], sent["max_amount"], sent["frequency"], sent["amount_type"]) == (
         19900,
         19900,
