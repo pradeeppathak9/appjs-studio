@@ -108,6 +108,15 @@ saved on the app's Razorpay settings (`RazorpayApp`). Signature is verified via
 HMAC-SHA256 over the raw body (`X-Razorpay-Signature` header). Every branch is
 idempotent, since Razorpay redelivers.
 
+**One Razorpay account, several apps.** Razorpay webhooks are per account, so
+every registered URL receives every event of the account. The handler matches
+orders and tokens across all apps with the same `razorpay_key_id`, applies the
+event to the owning subscription and announces it to that subscription's app.
+One webhook (any one app's URL and secret) is enough. Customers are shared
+across those apps (`fail_existing=0`), so a `token.*` event that matches only by
+customer is applied only when exactly one signup of that customer is pending;
+otherwise the payment event, which names the order, activates the right one.
+
 - `payment.captured` / `order.paid` on a charge order → transaction `SUCCESS`,
   `subscription.total_payments += 1`, `next_payment_date` moved one cycle on
   from the due date the charge was for (not from today, so collecting early

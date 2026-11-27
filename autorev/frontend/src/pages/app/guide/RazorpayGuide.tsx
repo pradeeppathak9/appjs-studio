@@ -88,6 +88,12 @@ export function RazorpayGuide({ app, apiBase }: { app: App; apiBase: string }) {
             <C>token.confirmed</C>, <C>token.rejected</C> and <C>token.cancelled</C>.
           </List.Item>
           <List.Item>
+            <strong>Several apps on one Razorpay account?</strong> Razorpay sends a webhook every event of the account, so one
+            webhook is enough: register a single app's URL, and AutoRev applies each event to whichever app (with the same Key
+            ID) owns the order or mandate. Apps whose webhook Razorpay doesn't call don't need a webhook secret to be set.
+            Extra webhooks for the other apps are harmless; an event received twice changes nothing.
+          </List.Item>
+          <List.Item>
             Give your own backend the same account's <strong>Key ID</strong> (Checkout opens with it; the order only exists in
             that account). The Key Secret stays in AutoRev.
           </List.Item>
@@ -281,8 +287,9 @@ export function RazorpayGuide({ app, apiBase }: { app: App; apiBase: string }) {
           ]}
         />
         <P muted>
-          Every event is safe to receive twice. Without a webhook secret in Settings the endpoint answers <C>400</C>; with a
-          wrong signature, <C>401</C>.
+          Events for any app on the same Razorpay account (same Key ID) are applied to that app and announced to its own
+          outbound webhook. Every event is safe to receive twice. Without a webhook secret in Settings the endpoint answers{" "}
+          <C>400</C>; with a wrong signature, <C>401</C>.
         </P>
       </GuideSection>
 

@@ -430,8 +430,14 @@ async def razorpay_webhook(
     request: Request = None,
     db: Session = Depends(get_db),
 ):
-    """Razorpay's events for this app. Every branch is idempotent: Razorpay
-    redelivers, and an event that changes nothing is acknowledged all the same."""
+    """Razorpay's events for this app's Razorpay account. Every branch is idempotent:
+    Razorpay redelivers, and an event that changes nothing is acknowledged all the same.
+
+    Razorpay webhooks belong to the account, not to an app, so one registered webhook (any
+    one app's URL) serves every app using the same key id: events are matched against all
+    of those apps' subscriptions, by the order or token they name, and each change is
+    announced to the app that owns the subscription. Registering several apps' URLs on one
+    account still works; the second delivery of an event changes nothing."""
     app = db.query(App).filter(App.id == app_id).first()
     if not app:
         raise HTTPException(status_code=404, detail="App not found")
@@ -443,6 +449,7 @@ async def razorpay_webhook(
     raw_body = await request.body()
     if not RazorpayAPIHandler.verify_webhook_signature(raw_body, x_razorpay_signature, secret):
         raise HTTPException(status_code=401, detail="Invalid webhook signature")
+    account_apps = _account_app_ids(db, app.id, detail)
 
     event = await request.json()
     event_type = event.get("event")
@@ -454,7 +461,7 @@ async def razorpay_webhook(
         txn = (
             db.query(RazorpayTransaction)
             .join(RazorpaySubscription)
-            .filter(RazorpaySubscription.app_id == app_id, RazorpayTransaction.razorpay_order_id == order_id)
+            .filter(RazorpaySubscription.app_id.in_(account_apps), RazorpayTransaction.razorpay_order_id == order_id)
             .first()
         )
         announcement = {}
@@ -470,14 +477,14 @@ async def razorpay_webhook(
         elif event_type != "payment.failed":
             # Not a collection: the customer's authorisation payment for a new mandate.
             sub = db.query(RazorpaySubscription).filter(
-                RazorpaySubscription.app_id == app_id,
+                RazorpaySubscription.app_id.in_(account_apps),
                 RazorpaySubscription.razorpay_order_id == order_id,
             ).first()
             if sub and sub.state in ("INITIATED", "AUTHORIZATION_PENDING"):
                 token_id = payment.get("token_id")
                 if not token_id:
                     try:
-                        token_id = billing.token_for_order(get_handler(detail), sub)
+                        token_id = billing.token_for_order(get_handler(_get_razorpay_detail(sub.app_id, db)), sub)
                     except RazorpayException as e:
                         logger.error(f"webhook token lookup failed for {sub.id}: {e}")
                 if token_id:
@@ -489,7 +496,7 @@ async def razorpay_webhook(
 
     elif event_type in ("token.confirmed", "token.rejected", "token.cancelled"):
         token = payload.get("token", {}).get("entity", {})
-        sub = _sub_for_token(db, app_id, token)
+        sub = _sub_for_token(db, account_apps, token)
         if sub:
             if event_type == "token.confirmed" and sub.state in ("INITIATED", "AUTHORIZATION_PENDING"):
                 billing.activate(sub, token["id"])
@@ -504,25 +511,42 @@ async def razorpay_webhook(
     return JSONResponse(content={"status": "ok"})
 
 
-def _sub_for_token(db: Session, app_id: str, token: dict) -> Optional[RazorpaySubscription]:
-    """The subscription a token.* event is about: the one holding the token, else the
-    newest subscription of that customer still waiting for authorisation."""
+def _account_app_ids(db: Session, app_id: str, detail) -> list[str]:
+    """This app and every other app on the same Razorpay account (same key id)."""
+    if not detail or not detail.razorpay_key_id:
+        return [app_id]
+    ids = [
+        r.app_id for r in db.query(RazorpayApp.app_id)
+        .filter(RazorpayApp.razorpay_key_id == detail.razorpay_key_id).all()
+    ]
+    return ids or [app_id]
+
+
+def _sub_for_token(db: Session, app_ids: list[str], token: dict) -> Optional[RazorpaySubscription]:
+    """The subscription a token.* event is about: the one holding the token, else the only
+    subscription of that customer still waiting for authorisation.
+
+    Razorpay customers are per account (created with fail_existing=0), so the same person
+    signing up in two apps on one account is one customer. When more than one signup of
+    that customer is pending there is no telling which the token is for: answer None
+    rather than guess. The payment event, which names the order, activates the right one."""
     token_id, customer_id = token.get("id"), token.get("customer_id")
     if not token_id:
         return None
     sub = db.query(RazorpaySubscription).filter(
-        RazorpaySubscription.app_id == app_id,
+        RazorpaySubscription.app_id.in_(app_ids),
         RazorpaySubscription.razorpay_token_id == token_id,
     ).first()
     if sub or not customer_id:
         return sub
-    return (
+    pending = (
         db.query(RazorpaySubscription)
         .filter(
-            RazorpaySubscription.app_id == app_id,
+            RazorpaySubscription.app_id.in_(app_ids),
             RazorpaySubscription.razorpay_customer_id == customer_id,
             RazorpaySubscription.state.in_(["INITIATED", "AUTHORIZATION_PENDING"]),
         )
-        .order_by(RazorpaySubscription.created_at.desc())
-        .first()
+        .limit(2)
+        .all()
     )
+    return pending[0] if len(pending) == 1 else None
