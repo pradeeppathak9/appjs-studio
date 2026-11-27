@@ -8,7 +8,12 @@ from app.database import Base
 class App(Base):
     __tablename__ = "apps"
 
+    # 16 hex chars (new_app_id); apps made before migration 009 keep their 32-char uuid hex, since
+    # the id is in webhook payloads and Razorpay notes that receivers may have stored.
     id = Column(String, primary_key=True)
+    # Like AppJs Studio: `slug` is the stable machine name (lower-case, digits, dashes; unique; set
+    # at creation and never changed), `name` the display name an owner may edit.
+    slug = Column(String(64), nullable=False)
     name = Column(String, nullable=False)
 
     phonepe_enabled = Column(Boolean, default=False, nullable=False)
@@ -36,6 +41,8 @@ class App(Base):
     webhook_auth_enabled = Column(Boolean, default=False, nullable=False)
 
     created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+    __table_args__ = (Index("uq_apps_slug", "slug", unique=True),)
     # No relationships, no user_id — ownership/access lives only in AppUser;
     # PhonePeApp/RazorpayApp/PhonePeSubscription/RazorpaySubscription are always
     # looked up by an explicit query against app_id rather than ORM navigation.

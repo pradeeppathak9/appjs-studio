@@ -2,11 +2,18 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { adminListApps, adminListUsers, adminCreateApp, adminUpdateApp, adminDeleteApp, getToken, adminListAppUsers, useServerGateways } from "../api";
 
+const SLUG_RE = /^[a-z0-9](?:[a-z0-9-]{1,62}[a-z0-9])$/;
+
+function slugify(name) {
+  return name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 64).replace(/-+$/, "");
+}
+
 function CreateAppModal({ users, onClose, onCreate }) {
   const gateways = useServerGateways();
   const [form, setForm] = useState({
     user_id: users[0]?.id || "",
     name: "",
+    slug: "",
     phonepe_enabled: true,
     razorpay_enabled: false,
   });
@@ -20,15 +27,23 @@ function CreateAppModal({ users, onClose, onCreate }) {
   }, [gateways]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  // The slug follows the name until it is edited by hand (like AppJs Studio).
+  const [slugTouched, setSlugTouched] = useState(false);
 
   function handleChange(e) {
     const { name, value, type, checked } = e.target;
-    setForm((f) => ({ ...f, [name]: type === "checkbox" ? checked : value }));
+    if (name === "slug") setSlugTouched(true);
+    setForm((f) => {
+      const next = { ...f, [name]: type === "checkbox" ? checked : value };
+      if (name === "name" && !slugTouched) next.slug = slugify(value);
+      return next;
+    });
   }
 
   async function handleSubmit(e) {
     e.preventDefault();
     if (!form.name.trim()) return setError("App name is required");
+    if (!SLUG_RE.test(form.slug)) return setError("Slug: 3-64 lower-case letters, digits and dashes; no dash at the ends");
     if (!form.user_id) return setError("Select an owner");
     if (!form.phonepe_enabled && !form.razorpay_enabled) return setError("Enable at least one payment gateway");
     setLoading(true);
@@ -58,7 +73,11 @@ function CreateAppModal({ users, onClose, onCreate }) {
           </select>
 
           <label style={modal.label}>App Name *</label>
-          <input name="name" value={form.name} onChange={handleChange} placeholder="e.g. my-app" style={modal.input} required />
+          <input name="name" value={form.name} onChange={handleChange} placeholder="e.g. MarktMakrs" style={modal.input} required />
+
+          <label style={modal.label}>Slug *</label>
+          <input name="slug" value={form.slug} onChange={handleChange} placeholder="e.g. marktmakrs" style={modal.input} required />
+          <p style={modal.hint}>Lower-case letters, digits and dashes. Fixed once the app is created.</p>
 
           <label style={modal.label}>Payment Gateways</label>
           {gateways.includes("phonepe") && (
@@ -119,7 +138,7 @@ function EditAppModal({ app, onClose, onUpdate }) {
     <div style={modal.overlay}>
       <div style={modal.box}>
         <h2 style={modal.title}>Edit App</h2>
-        <p style={modal.ownerLine}>{app.name} — Owner: {app.owner_email}</p>
+        <p style={modal.ownerLine}>{app.name} ({app.slug}) — Owner: {app.owner_email}</p>
         {error && <div style={modal.error}>{error}</div>}
         <form onSubmit={handleSubmit} style={modal.form}>
           <label style={modal.checkboxRow}>
@@ -209,6 +228,7 @@ export default function AdminApps() {
           <thead>
             <tr>
               <th style={s.th}>Name</th>
+              <th style={s.th}>Slug</th>
               <th style={s.th}>Owner</th>
               <th style={s.th}>Env</th>
               <th style={s.th}>Status</th>
@@ -221,6 +241,7 @@ export default function AdminApps() {
             {apps.map((a) => (
               <tr key={a.id} style={s.tr}>
                 <td style={s.td}>{a.name}</td>
+                <td style={s.td}><code>{a.slug}</code></td>
                 <td style={s.td}>{a.owner_email}</td>
                 <td style={s.td}>
                   <div style={s.envStack}>

@@ -4094,8 +4094,14 @@
       "type": "integer",
       "title": "User Id"
      },
+     "slug": {
+      "type": "string",
+      "title": "Slug"
+     },
      "name": {
       "type": "string",
+      "maxLength": 200,
+      "minLength": 1,
       "title": "Name"
      },
      "phonepe_enabled": {
@@ -4124,6 +4130,7 @@
     "type": "object",
     "required": [
      "user_id",
+     "slug",
      "name"
     ],
     "title": "AdminAppCreate"
@@ -4146,6 +4153,10 @@
      "id": {
       "type": "string",
       "title": "Id"
+     },
+     "slug": {
+      "type": "string",
+      "title": "Slug"
      },
      "name": {
       "type": "string",
@@ -4217,6 +4228,7 @@
     "type": "object",
     "required": [
      "id",
+     "slug",
      "name",
      "owner_email",
      "phonepe_enabled",
@@ -4236,7 +4248,9 @@
      "name": {
       "anyOf": [
        {
-        "type": "string"
+        "type": "string",
+        "maxLength": 200,
+        "minLength": 1
        },
        {
         "type": "null"
@@ -4320,6 +4334,10 @@
       "type": "string",
       "title": "App Id"
      },
+     "slug": {
+      "type": "string",
+      "title": "Slug"
+     },
      "name": {
       "type": "string",
       "title": "Name"
@@ -4356,6 +4374,7 @@
     "type": "object",
     "required": [
      "app_id",
+     "slug",
      "name",
      "phonepe_enabled",
      "razorpay_enabled",
@@ -4509,6 +4528,10 @@
       "type": "string",
       "title": "Id"
      },
+     "slug": {
+      "type": "string",
+      "title": "Slug"
+     },
      "name": {
       "type": "string",
       "title": "Name"
@@ -4633,6 +4656,7 @@
     "type": "object",
     "required": [
      "id",
+     "slug",
      "name",
      "phonepe_enabled",
      "razorpay_enabled",
@@ -4657,7 +4681,9 @@
      "name": {
       "anyOf": [
        {
-        "type": "string"
+        "type": "string",
+        "maxLength": 200,
+        "minLength": 1
        },
        {
         "type": "null"
