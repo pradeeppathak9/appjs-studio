@@ -45,7 +45,8 @@ export async function openRazorpay(r: RazorpayCheckout, description: string): Pr
       recurring: "1",
       amount: r.amount,
       currency: r.currency,
-      name: "Restyle AI",
+      // The business the payment goes to (as on the Razorpay account); the app is in the description.
+      name: "APPJS Technologies",
       description,
       prefill: { name: r.name, email: r.email, contact: r.phone, method: r.method },
       theme: { color: "#4F46E5" },
@@ -105,7 +106,7 @@ export type CheckoutResult =
 export async function buy(body: CheckoutBody, planName: string): Promise<CheckoutResult> {
   const order = await api.checkout(body);
   if (!order.razorpay) throw new ApiError(0, "no_checkout", "The payment couldn't be started. Try again.");
-  const outcome = await openRazorpay(order.razorpay, `${planName} plan`);
+  const outcome = await openRazorpay(order.razorpay, `Restyle AI · ${planName} plan`);
   // Even a dismissed or failed checkout is checked once: the mandate may have gone through anyway.
   const latest = await waitForOrder(order.id, outcome === "authorised" ? 60_000 : 0);
   if (latest.status === "active") return { kind: "active", order: latest };
