@@ -1,3 +1,4 @@
+import re
 from datetime import date, datetime
 
 from pydantic import BaseModel, EmailStr, Field, field_validator
@@ -59,7 +60,7 @@ class UserResponse(BaseModel):
 
 
 class AppUpdate(BaseModel):
-    name: str | None = None
+    name: str | None = Field(None, min_length=1, max_length=200)
     phonepe_client_id: str | None = None
     phonepe_client_secret: str | None = None
     phonepe_merchant_id: str | None = None
@@ -75,6 +76,7 @@ class AppUpdate(BaseModel):
 
 class AppResponse(BaseModel):
     id: str
+    slug: str
     name: str
     phonepe_enabled: bool
     razorpay_enabled: bool
@@ -126,16 +128,28 @@ class AdminUserResponse(BaseModel):
     model_config = {"from_attributes": True}
 
 
+APP_SLUG_RE = re.compile(r"^[a-z0-9](?:[a-z0-9-]{1,62}[a-z0-9])$")
+
+
 class AdminAppCreate(BaseModel):
     user_id: int
-    name: str
+    # Same rules as AppJs Studio's app slug: 3-64 chars, unique, fixed once created.
+    slug: str
+    name: str = Field(min_length=1, max_length=200)
     # None: PhonePe when this server offers it, else Razorpay (see AUTOREV_GATEWAYS)
     phonepe_enabled: bool | None = None
     razorpay_enabled: bool | None = None
 
+    @field_validator("slug")
+    @classmethod
+    def validate_slug(cls, v: str) -> str:
+        if not APP_SLUG_RE.match(v):
+            raise ValueError("slug: 3-64 lower-case letters, digits and dashes; no dash at the ends")
+        return v
+
 
 class AdminAppUpdate(BaseModel):
-    name: str | None = None
+    name: str | None = Field(None, min_length=1, max_length=200)
     enabled: bool | None = None
     phonepe_enabled: bool | None = None
     razorpay_enabled: bool | None = None
@@ -146,6 +160,7 @@ class AdminAppUpdate(BaseModel):
 
 class AdminAppResponse(BaseModel):
     id: str
+    slug: str
     name: str
     owner_email: str | None
     phonepe_enabled: bool
@@ -168,6 +183,7 @@ class AdminAppGrantUser(BaseModel):
 class AdminUserAppResponse(BaseModel):
     """One app, as seen from a single user's access list."""
     app_id: str
+    slug: str
     name: str
     phonepe_enabled: bool
     razorpay_enabled: bool

@@ -52,7 +52,7 @@ def db():
     Base.metadata.drop_all(engine)
     Base.metadata.create_all(engine)
     s = SessionLocal()
-    s.add(App(id=APP_ID, name="marktmakrs", api_key=API_KEY, razorpay_enabled=True, enabled=True))
+    s.add(App(id=APP_ID, slug="marktmakrs", name="MarktMakrs", api_key=API_KEY, razorpay_enabled=True, enabled=True))
     s.add(RazorpayApp(app_id=APP_ID, razorpay_key_id="rzp_test_x", razorpay_key_secret="secret",
                       razorpay_webhook_secret=WEBHOOK_SECRET, razorpay_environment="TEST"))
     s.commit()

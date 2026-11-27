@@ -65,6 +65,7 @@ def _to_app_response(app: App, db: Session, phonepe_map=None, razorpay_map=None)
         razorpay_detail = razorpay_map.get(app.id)
     return AppResponse(
         id=app.id,
+        slug=app.slug,
         name=app.name,
         phonepe_enabled=app.phonepe_enabled,
         razorpay_enabled=app.razorpay_enabled,

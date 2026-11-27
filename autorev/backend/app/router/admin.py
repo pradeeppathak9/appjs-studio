@@ -1,5 +1,4 @@
 import secrets
-import uuid
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import func
@@ -154,6 +153,11 @@ def delete_user(
 
 # ── Apps ───────────────────────────────────────────────────────────────────────
 
+def new_app_id() -> str:
+    """16 hex chars (64 random bits): short enough to read and paste, ample for a few apps."""
+    return secrets.token_hex(8)
+
+
 def _admin_app_maps(app_ids: list[str], db: Session):
     """Side tables and owner emails for many apps, in three queries instead of 3N."""
     if not app_ids:
@@ -205,6 +209,7 @@ def _to_admin_app_response(
         owner_email = owner_map.get(app.id)
     return AdminAppResponse(
         id=app.id,
+        slug=app.slug,
         name=app.name,
         owner_email=owner_email,
         phonepe_enabled=app.phonepe_enabled,
@@ -245,6 +250,7 @@ def list_user_apps(
     return [
         AdminUserAppResponse(
             app_id=a.id,
+            slug=a.slug,
             name=a.name,
             phonepe_enabled=a.phonepe_enabled,
             razorpay_enabled=a.razorpay_enabled,
@@ -290,9 +296,12 @@ def create_app(
     phonepe = body.phonepe_enabled if body.phonepe_enabled is not None else phonepe_on
     razorpay = body.razorpay_enabled if body.razorpay_enabled is not None else not phonepe_on
     _check_gateways_offered(phonepe=phonepe, razorpay=razorpay)
+    if db.query(App.id).filter(App.slug == body.slug).first():
+        raise HTTPException(status_code=409, detail="An app with this slug exists")
 
     app = App(
-        id=uuid.uuid4().hex,
+        id=new_app_id(),
+        slug=body.slug,
         name=body.name,
         phonepe_enabled=phonepe,
         razorpay_enabled=razorpay,

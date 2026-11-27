@@ -31,8 +31,8 @@ function AppCard({ app }: { app: App }) {
             <Text fw={650} truncate>
               {app.name}
             </Text>
-            <Text size="xs" c="dimmed" ff="monospace" truncate>
-              {app.id}
+            <Text size="xs" c="dimmed" ff="monospace" truncate title={app.id}>
+              {app.slug} · {app.id}
             </Text>
           </div>
         </Group>

@@ -1163,6 +1163,8 @@ export interface components {
         AdminAppCreate: {
             /** User Id */
             user_id: number;
+            /** Slug */
+            slug: string;
             /** Name */
             name: string;
             /** Phonepe Enabled */
@@ -1179,6 +1181,8 @@ export interface components {
         AdminAppResponse: {
             /** Id */
             id: string;
+            /** Slug */
+            slug: string;
             /** Name */
             name: string;
             /** Owner Email */
@@ -1229,6 +1233,8 @@ export interface components {
         AdminUserAppResponse: {
             /** App Id */
             app_id: string;
+            /** Slug */
+            slug: string;
             /** Name */
             name: string;
             /** Phonepe Enabled */
@@ -1300,6 +1306,8 @@ export interface components {
         AppResponse: {
             /** Id */
             id: string;
+            /** Slug */
+            slug: string;
             /** Name */
             name: string;
             /** Phonepe Enabled */
