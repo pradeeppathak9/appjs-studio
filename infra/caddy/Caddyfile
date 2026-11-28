@@ -36,3 +36,32 @@
 		reverse_proxy autorev-web:80
 	}
 }
+
+# MarktMakrs: its own repo (github marktmakrs), checked out at ~/marktmakrs on the server. Upstreams are
+# aliases on the marktmakrs-edge network (marktmakrs/deploy/docker-compose.edge.yml). Same routes as its
+# old host nginx (marktmakrs/deploy/nginx/marktmakrs.conf). www is served too, not redirected:
+# FRONTEND_ORIGIN there is https://www.marktmakrs.in. The /mcp rate limit is in the agent itself.
+{$MARKTMAKRS_DOMAIN}, www.{$MARKTMAKRS_DOMAIN} {
+	handle /api/* {
+		reverse_proxy marktmakrs-api:8000 {
+			transport http {
+				read_timeout 600s
+			}
+		}
+	}
+	handle /mcp {
+		reverse_proxy marktmakrs-agent:8100 {
+			flush_interval -1
+			transport http {
+				read_timeout 120s
+			}
+		}
+	}
+	@docs path /docs /redoc /openapi.json
+	handle @docs {
+		reverse_proxy marktmakrs-api:8000
+	}
+	handle {
+		reverse_proxy marktmakrs-web:80
+	}
+}

@@ -61,6 +61,7 @@ services:
       STUDIO_DOMAIN: ${STUDIO_DOMAIN:-studio.localhost}
       RESTYLE_DOMAIN: ${RESTYLE_DOMAIN:-restyle.localhost}
       AUTOREV_DOMAIN: ${AUTOREV_DOMAIN:-autorev.localhost}
+      MARKTMAKRS_DOMAIN: ${MARKTMAKRS_DOMAIN:-marktmakrs.localhost}
     ports:
       - "80:80"
       - "443:443"
@@ -69,12 +70,17 @@ services:
       - ../website:/srv/website:ro
       - caddy_data:/data # certificates: keep this volume
       - caddy_config:/config
-    networks: [appjs]
+    # marktmakrs-edge: MarktMakrs's public services (web, api, agent) and nothing else. It isn't
+    # on `appjs` because Docker DNS would mix its `redis`/`backend` with ours (see
+    # marktmakrs/deploy/docker-compose.edge.yml). Created here, so infra must start first.
+    networks: [appjs, marktmakrs-edge]
     restart: unless-stopped
 
 networks:
   appjs:
     name: appjs
+  marktmakrs-edge:
+    name: marktmakrs-edge
 
 volumes:
   pgdata: {}
